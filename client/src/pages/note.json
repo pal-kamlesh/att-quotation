@@ -1,0 +1,77 @@
+{
+  "_id": { "$oid": "651d0db77625a1975c9967cf" },
+  "number": "EPPL/QTN/444/R-2",
+  "date": { "$date": { "$numberLong": "1696416739753" } },
+  "salesName": { "label": "Mayur Kanade", "value": "MK" },
+  "referenceName": "asd",
+  "otherReference": "",
+  "business": { "label": "Bungalow", "value": "Bungalow" },
+  "billToDetails": {
+    "prefix": { "label": "Mr", "value": "Mr" },
+    "name": "dd",
+    "address": "asd",
+    "road": "asd",
+    "location": "asd",
+    "landmark": "asd",
+    "city": "asd",
+    "pincode": "asd",
+    "contact": [
+      { "name": "asd", "number": "asd", "email": "abc@xyz.com" },
+      { "name": "", "number": "", "email": "" },
+      { "name": "", "number": "", "email": "" }
+    ]
+  },
+  "shipToDetails": [
+    {
+      "prefix": { "label": "Mr", "value": "Mr" },
+      "name": "dd",
+      "address": "asd",
+      "road": "asd",
+      "location": "asd",
+      "landmark": "asd",
+      "city": "asd",
+      "pincode": "asd",
+      "contact": [
+        { "name": "asd", "number": "asd", "email": "abc@xyz.com" },
+        { "name": "", "number": "", "email": "" },
+        { "name": "", "number": "", "email": "" }
+      ],
+      "serviceDetails": [
+        {
+          "treatmentLocation": "asd",
+          "service": [
+            {
+              "name": {
+                "label": "Green Shield",
+                "value": "Gel Applied",
+                "chemical": "AB"
+              },
+              "frequency": { "label": "Weekly", "value": "Weekly" }
+            }
+          ],
+          "cost": "1000",
+          "costFrequency": { "label": "Per Annum", "value": "Per Annum" },
+          "_id": { "$oid": "651d0db77625a1975c9967d1" }
+        }
+      ],
+      "_id": { "$oid": "651d0db77625a1975c9967d0" }
+    }
+  ],
+  "payment": "asd",
+  "approved": false,
+  "revisedCount": { "$numberInt": "2" },
+  "sentEmailData": [],
+  "reject": false,
+  "createdAt": { "$date": { "$numberLong": "1696402871044" } },
+  "updatedAt": { "$date": { "$numberLong": "1702460033102" } },
+  "__v": { "$numberInt": "1" },
+  "docx": "",
+  "lastDoc": "https://res.cloudinary.com/djc8opvcg/raw/upload/v1696416743/Eppl/Quotation/dd_EPPL-QTN-444-R-1_u9w5hp.docx",
+  "revisedHistory": [
+    {
+      "link": "https://res.cloudinary.com/djc8opvcg/raw/upload/v1696408416/Eppl/Quotation/dd_EPPL-QTN-444-R-1_h3c1mf.docx",
+      "name": "EPPL/QTN/444/R-1",
+      "user": "Mayur"
+    }
+  ]
+}
