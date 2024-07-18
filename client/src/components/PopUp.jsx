@@ -12,7 +12,7 @@ function PopUp({ click, approved, id }) {
       <button
         onClick={() => setOpenModal(true)}
         className={
-          approved
+          approved === true
             ? "bg-green-400 rounded-lg flex items-center justify-center text-white hover:cursor-default"
             : "bg-orange-500 rounded-lg flex items-center justify-center text-white"
         }

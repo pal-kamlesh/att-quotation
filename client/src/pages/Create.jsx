@@ -104,7 +104,7 @@ export default function Create() {
                           <PopUp
                             click={handleClick}
                             id={ticket._id}
-                            approved={ticket.approve}
+                            approved={ticket.approved}
                           />
                           {ticket.quotationNo ? ticket.quotationNo : ticket._id}
                         </div>
