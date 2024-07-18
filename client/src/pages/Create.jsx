@@ -10,8 +10,6 @@ import {
   QuotationDownloadButton,
   ViewQuote,
 } from "../components";
-import { MdVerified } from "react-icons/md";
-import { CgDanger } from "react-icons/cg";
 import { useDispatch, useSelector } from "react-redux";
 import { getInitials } from "../redux/user/userSlice";
 import { getQuotes, approve, showMoreQuotes } from "../redux/quote/quoteSlice";
@@ -19,6 +17,7 @@ import SearchQuote from "../components/SearchQuote";
 import Update from "./Update";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
+import PopUp from "../components/PopUp";
 
 export default function Create() {
   const {
@@ -102,22 +101,11 @@ export default function Create() {
                     <Table.Row key={ticket._id}>
                       <Table.Cell>
                         <div className="flex items-center justify-start w-full gap-1 ">
-                          <button
-                            onClick={() =>
-                              !ticket.approved ? handleClick(ticket._id) : null
-                            }
-                            className={
-                              ticket.approved
-                                ? "bg-green-400 rounded-lg flex items-center justify-center text-white hover:cursor-default"
-                                : "bg-orange-500 rounded-lg flex items-center justify-center text-white"
-                            }
-                          >
-                            {ticket.approved ? (
-                              <MdVerified size="15px" />
-                            ) : (
-                              <CgDanger size="15px" />
-                            )}
-                          </button>
+                          <PopUp
+                            click={handleClick}
+                            id={ticket._id}
+                            approved={ticket.approve}
+                          />
                           {ticket.quotationNo ? ticket.quotationNo : ticket._id}
                         </div>
                       </Table.Cell>

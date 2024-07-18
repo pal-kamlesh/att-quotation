@@ -37,7 +37,21 @@ const QuotationGenerator = ({ id }) => {
       const actionResult = await dispatch(docxData(id));
       const result = unwrapResult(actionResult);
       const data = result.result;
-      const [standard, applySupply] = saprateQuoteInfo(data.quoteInfo);
+      let standard = [];
+      let applySupply = [];
+      let supply = [];
+      if (data.docType) {
+        result.result.docType === "standard"
+          ? (standard = data.quoteInfo)
+          : data.docType === "supply/apply"
+          ? (applySupply = data.quoteInfo)
+          : data.docType === "supply"
+          ? (supply = data.quoteInfo)
+          : null;
+      } else {
+        [standard, applySupply] = saprateQuoteInfo(data.quoteInfo);
+      }
+
       const children = [
         new Paragraph({
           alignment: AlignmentType.CENTER,
@@ -121,6 +135,11 @@ const QuotationGenerator = ({ id }) => {
 
       if (applySupply.length > 0) {
         children.push(createQuoteInfoTableApplySupply(applySupply));
+      }
+
+      children.push(new Paragraph({ text: "" }));
+      if (supply.length > 0) {
+        children.push(createQuoteInfoTableSupply(supply));
       }
 
       children.push(
@@ -232,6 +251,7 @@ const QuotationGenerator = ({ id }) => {
         `Quotation_${data.quotationNo ? data.quotationNo : data._id}.docx`
       );
     } catch (err) {
+      console.log(err);
       setError(err.message);
     } finally {
       setIsLoading(false);
@@ -456,6 +476,58 @@ const QuotationGenerator = ({ id }) => {
       { key: "workAreaType", label: "Work Area Type" },
       { key: "workArea", label: "Work Area" },
       { key: "applyRate", label: "Apply Rate" },
+      { key: "chemicalQuantity", label: "Chemical Quantity" },
+      { key: "chemicalRate", label: "Chemical Cost" },
+      { key: "chemical", label: "Chemical" },
+    ];
+
+    // Determine which columns should be included based on the presence of data
+    const includedHeaders = headers.filter((header) =>
+      quoteInfo.some((info) => info[header.key])
+    );
+
+    // Create the table
+    return new Table({
+      width: { size: 100, type: WidthType.PERCENTAGE },
+      rows: [
+        new TableRow({
+          children: includedHeaders.map(
+            (header) =>
+              new TableCell({
+                children: [new Paragraph({ text: header.label, bold: true })],
+                shading: { fill: "D3D3D3" },
+              })
+          ),
+        }),
+        ...quoteInfo.map(
+          (info) =>
+            new TableRow({
+              children: includedHeaders.map((header) => {
+                let text = info[header.key];
+
+                // Handle special cases for formatting
+                if (header.key === "workArea") {
+                  text = `${info.workArea} ${info.workAreaUnit}`;
+                } else if (header.key === "applyRate" && info.applyRate) {
+                  text = `₹ ${info.applyRate} ${info.applyRateUnit}`;
+                } else if (header.key === "chemicalQuantity") {
+                  text = `${info.chemicalQuantity} Ltr.`;
+                } else if (header.key === "chemicalRate" && info.chemicalRate) {
+                  text = `₹ ${info.chemicalRate} ${info.chemicalRateUnit}`;
+                }
+
+                return new TableCell({
+                  children: [new Paragraph({ text: text || "" })],
+                });
+              }),
+            })
+        ),
+      ],
+    });
+  };
+  const createQuoteInfoTableSupply = (quoteInfo) => {
+    const headers = [
+      { key: "workAreaType", label: "Work Area Type" },
       { key: "chemicalQuantity", label: "Chemical Quantity" },
       { key: "chemicalRate", label: "Chemical Cost" },
       { key: "chemical", label: "Chemical" },

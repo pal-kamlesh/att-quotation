@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getSingleQuote, updateQuote } from "../redux/quote/quoteSlice";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { KCI, Loading } from "../components";
-import { Button, Label, Select, TextInput } from "flowbite-react";
+import { Button, Label, Select, Textarea, TextInput } from "flowbite-react";
 import { IoCheckmarkDoneCircleOutline } from "react-icons/io5";
 
 // eslint-disable-next-line react/prop-types
@@ -608,7 +608,10 @@ function Update({ quoteId, onClose }) {
             </div>
           ))
         : null}
-
+      <div className="col-span-1 mb-4">
+        <Label>Notes: </Label>
+        <Textarea name="note" value={quote.note} onChange={handleChange} />
+      </div>
       <div>
         <Button onClick={handleSubmit} gradientDuoTone="redToYellow">
           Update

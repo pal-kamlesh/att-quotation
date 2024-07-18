@@ -8,7 +8,6 @@ import {
   Textarea,
 } from "flowbite-react";
 import { useEffect, useState } from "react";
-import { MdDelete } from "react-icons/md";
 import CustomModal from "./CustomModal";
 import { useDispatch, useSelector } from "react-redux";
 import { createQuote } from "../redux/quote/quoteSlice";
@@ -19,6 +18,7 @@ import InputSupplyApply from "./InputSupplyApply";
 import InputSupply from "./InputSupply";
 import InputStandard from "./InputStandard";
 import KCI from "./KCI";
+import InfoDisplay from "./InfoDisplay";
 
 // eslint-disable-next-line react/prop-types
 function NewQuote({ onClose }) {
@@ -61,6 +61,7 @@ function NewQuote({ onClose }) {
       emailTo: "",
       note: "",
       quotationNo: "EPPL/ATT/QTN/",
+      docType: "standard",
     };
   };
 
@@ -90,7 +91,8 @@ function NewQuote({ onClose }) {
   const [subRef, setSubRef] = useState("");
   const [infoArray, setInfoArray] = useState(getInitialInfoArrayState());
   const [types, setTypes] = useState([]);
-  const [docType, setDocType] = useState("standard");
+  const [doc, setDoc] = useState("standard");
+  const [disableRadio, setDisableRadio] = useState(false);
   const [areaTypeModel, setAreaTypeModel] = useState(false);
   const dispatch = useDispatch();
   const { initials } = useSelector((state) => state.user);
@@ -118,7 +120,7 @@ function NewQuote({ onClose }) {
 
   function handleInfoChange(e) {
     const { name, value } = e.target;
-    if (name === "chemicalRateUnit" && docType === "supply/apply") {
+    if (name === "chemicalRateUnit" && doc === "supply/apply") {
       let applyRateU = value === "Lumpsum" ? "Lumpsum" : null;
       setInfoObj((prev) => ({
         ...prev,
@@ -127,7 +129,7 @@ function NewQuote({ onClose }) {
       }));
       return;
     }
-    if (name === "workAreaUnit" && docType === "standard") {
+    if (name === "workAreaUnit" && doc === "standard") {
       let serviceRateU =
         value === "Sq.fts"
           ? "Per Sq.ft"
@@ -145,7 +147,7 @@ function NewQuote({ onClose }) {
       }));
       return;
     }
-    if (name === "workAreaUnit" && docType === "standard") {
+    if (name === "workAreaUnit" && doc === "standard") {
       let applyRateU =
         value === "Sq.fts"
           ? "Per Sq.ft"
@@ -175,7 +177,7 @@ function NewQuote({ onClose }) {
     return floatingPointNumber;
   }
   function handleMoreInfo() {
-    if (docType === "standard") {
+    if (doc === "standard") {
       if (
         infoObj.workArea === "" ||
         infoObj.workAreaUnit === "" ||
@@ -183,12 +185,37 @@ function NewQuote({ onClose }) {
         infoObj.serviceRateUnit === "" ||
         infoObj.chemical === ""
       ) {
-        toast.error("Work Area Type Information is incomplete.");
+        toast.error("Information is incomplete.");
+        return;
+      }
+    }
+    if (doc === "supply/apply") {
+      if (
+        infoObj.workArea === "" ||
+        infoObj.workAreaUnit === "" ||
+        infoObj.chemicalRate === "" ||
+        infoObj.chemicalRateUnit === "" ||
+        infoObj.chemicalQuantity === "" ||
+        infoObj.chemical === "" ||
+        infoObj.applyRate === "" ||
+        infoObj.applyRateUnit === ""
+      ) {
+        toast.error("Information is incomplete.");
+        return;
+      }
+    }
+    if (doc === "supply") {
+      if (
+        infoObj.chemicalRate === "" ||
+        infoObj.chemicalRateUnit === "" ||
+        infoObj.chemicalQuantity === "" ||
+        infoObj.chemical === ""
+      ) {
+        toast.error("Information is incomplete.");
         return;
       }
     }
 
-    const workAreaFormted = Number(infoObj.workArea).toLocaleString("en-IN");
     let chemicalQuantityFormated = null;
     if (
       infoObj.chemicalQuantity === "" ||
@@ -226,7 +253,17 @@ function NewQuote({ onClose }) {
     } else {
       applyRateFormated = infoObj.applyRate;
     }
-
+    let workAreaFormted = null;
+    if (
+      infoObj.workArea === "" ||
+      infoObj.workArea === null ||
+      infoObj.workArea === undefined
+    ) {
+      workAreaFormted = null;
+      infoObj.workAreaUnit = null;
+    } else {
+      workAreaFormted = Number(infoObj.workArea).toLocaleString("en-IN");
+    }
     const infoDup = new Object(infoObj);
     infoDup.workArea = workAreaFormted;
     infoDup.chemicalRate = chemicalRateFormated;
@@ -248,6 +285,20 @@ function NewQuote({ onClose }) {
     setTypes([]);
   }
 
+  function handleDocType(e) {
+    if (infoArray.length <= 0) {
+      const { value } = e.target;
+      setDoc(value);
+    }
+  }
+  useEffect(() => {
+    if (infoArray.length <= 0) {
+      setDisableRadio(false);
+    } else {
+      setDisableRadio(true);
+      setQuote((prev) => ({ ...prev, docType: doc }));
+    }
+  }, [doc, infoArray.length]);
   function handleDeleteInfo(workAreaType) {
     setInfoArray((prev) =>
       prev.filter((info) => info.workAreaType !== workAreaType)
@@ -309,70 +360,70 @@ function NewQuote({ onClose }) {
       shipToAddress: { ...shipToAddress, ...updatedShipToAddress },
     });
   }
-  // function dummyQuote() {
-  //   const data = {
-  //     quote: {
-  //       billToAddress: {
-  //         prefix: "M/s.",
-  //         name: "KEC International Ltd.",
-  //         a1: "Raghuram Heights",
-  //         a2: "463",
-  //         a3: "Dr Annie Besant Raod",
-  //         a4: "Worli",
-  //         a5: "Opposite Hell",
-  //         city: "Mumbai",
-  //         pincode: "400030",
-  //         kci: [],
-  //       },
-  //       shipToAddress: {
-  //         projectName: "Prestige City Rehab Project",
-  //         a1: "Raghuram Heights",
-  //         a2: "463",
-  //         a3: "Dr Annie Besant Raod",
-  //         a4: "Worli",
-  //         a5: "Opposite Hell",
-  //         city: "Mumbai",
-  //         pincode: "400030",
-  //         kci: [],
-  //       },
-  //       kindAttentionPrefix: "Mr.",
-  //       kindAttention: "Malahari Naik",
-  //       reference: "Our earlier quotation No EPPL/ATT/QTN/401",
-  //       specification: "As per IS 6313 (Part 2):2013",
-  //       note: "",
-  //     },
-  //     quoteInfo: [
-  //       {
-  //         workAreaType: "Basement Area",
-  //         workArea: "6,696",
-  //         workAreaUnit: "Sq.mts",
-  //         chemicalRate: null,
-  //         chemicalRateUnit: null,
-  //         serviceRate: "27.00",
-  //         serviceRateUnit: "Per Sq.mt",
-  //         applyRate: null,
-  //         applyRateUnit: null,
-  //         chemical: "Imidachloprid 30.5% SC",
-  //         chemicalQuantity: null,
-  //       },
-  //       {
-  //         workAreaType: "Basement Area",
-  //         workArea: "66,967",
-  //         workAreaUnit: "Sq.mts",
-  //         chemicalRate: "12.00",
-  //         chemicalRateUnit: "Per Ltr.",
-  //         serviceRate: null,
-  //         serviceRateUnit: null,
-  //         applyRate: "13",
-  //         applyRateUnit: "Per Sq.mt",
-  //         chemical: "Imidachloprid 30.5% SC",
-  //         chemicalQuantity: "201",
-  //       },
-  //     ],
-  //   };
-  //   setQuote(data.quote);
-  //   setInfoArray(data.quoteInfo);
-  // }
+  function dummyQuote() {
+    const data = {
+      quote: {
+        billToAddress: {
+          prefix: "M/s.",
+          name: "KEC International Ltd.",
+          a1: "Raghuram Heights",
+          a2: "463",
+          a3: "Dr Annie Besant Raod",
+          a4: "Worli",
+          a5: "Opposite Hell",
+          city: "Mumbai",
+          pincode: "400030",
+          kci: [],
+        },
+        shipToAddress: {
+          projectName: "Prestige City Rehab Project",
+          a1: "Raghuram Heights",
+          a2: "463",
+          a3: "Dr Annie Besant Raod",
+          a4: "Worli",
+          a5: "Opposite Hell",
+          city: "Mumbai",
+          pincode: "400030",
+          kci: [],
+        },
+        kindAttentionPrefix: "Mr.",
+        kindAttention: "Malahari Naik",
+        reference: "Our earlier quotation No EPPL/ATT/QTN/401",
+        specification: "As per IS 6313 (Part 2):2013",
+        note: "",
+      },
+      quoteInfo: [
+        {
+          workAreaType: "Basement Area",
+          workArea: "6,696",
+          workAreaUnit: "Sq.mts",
+          chemicalRate: null,
+          chemicalRateUnit: null,
+          serviceRate: "27.00",
+          serviceRateUnit: "Per Sq.mt",
+          applyRate: null,
+          applyRateUnit: null,
+          chemical: "Imidachloprid 30.5% SC",
+          chemicalQuantity: null,
+        },
+        {
+          workAreaType: "Basement Area",
+          workArea: "66,967",
+          workAreaUnit: "Sq.mts",
+          chemicalRate: "12.00",
+          chemicalRateUnit: "Per Ltr.",
+          serviceRate: null,
+          serviceRateUnit: null,
+          applyRate: "13",
+          applyRateUnit: "Per Sq.mt",
+          chemical: "Imidachloprid 30.5% SC",
+          chemicalQuantity: "201",
+        },
+      ],
+    };
+    setQuote(data.quote);
+    setInfoArray(data.quoteInfo);
+  }
   function handleSubRef(e) {
     const { value } = e.target;
     setSubRef(value);
@@ -524,9 +575,9 @@ function NewQuote({ onClose }) {
           >
             Copy BillTo/ShipTo
           </Button>
-          {/* <Button outline gradientMonochrome="cyan" onClick={dummyQuote}>
+          <Button outline gradientMonochrome="cyan" onClick={dummyQuote}>
             Dummy Quote
-          </Button> */}
+          </Button>
         </div>
         <div className="grid grid-cols-8 gap-4 border mb-4 rounded-md">
           <div className=" p-4 col-span-4">
@@ -863,28 +914,31 @@ function NewQuote({ onClose }) {
                 <div className="flex gap-2">
                   <Radio
                     id="united-state"
-                    name="countries"
+                    name="docType"
                     value="standard"
                     defaultChecked
-                    onChange={() => setDocType("standard")}
+                    disabled={disableRadio}
+                    onChange={(e) => handleDocType(e)}
                   />
                   <Label htmlFor="united-state">Standard</Label>
                 </div>
                 <div className="flex items-center gap-2">
                   <Radio
                     id="supply/apply"
-                    name="countries"
+                    name="docType"
                     value="supply/apply"
-                    onChange={() => setDocType("supply/apply")}
+                    disabled={disableRadio}
+                    onChange={(e) => handleDocType(e)}
                   />
                   <Label htmlFor="supply/apply">Supply/Apply</Label>
                 </div>
                 <div className="flex items-center gap-2">
                   <Radio
                     id="supply"
-                    name="countries"
+                    name="docType"
                     value="supply"
-                    onChange={() => setDocType("supply")}
+                    disabled={disableRadio}
+                    onChange={(e) => handleDocType(e)}
                   />
                   <Label htmlFor="supply">Supply</Label>
                 </div>
@@ -898,7 +952,7 @@ function NewQuote({ onClose }) {
                 key={type.workAreaType}
                 className="grid grid-cols-12 gap-4 mb-4  border border-blue-600 "
               >
-                {docType === "standard" && (
+                {doc === "standard" && (
                   <InputStandard
                     type={type}
                     infoObj={infoObj}
@@ -906,7 +960,7 @@ function NewQuote({ onClose }) {
                     handleMoreInfo={handleMoreInfo}
                   />
                 )}
-                {docType === "supply/apply" && (
+                {doc === "supply/apply" && (
                   <InputSupplyApply
                     type={type}
                     infoObj={infoObj}
@@ -914,7 +968,7 @@ function NewQuote({ onClose }) {
                     handleMoreInfo={handleMoreInfo}
                   />
                 )}
-                {docType === "supply" && (
+                {doc === "supply" && (
                   <InputSupply
                     type={type}
                     infoObj={infoObj}
@@ -925,63 +979,13 @@ function NewQuote({ onClose }) {
               </div>
             ))
           : null}
-        {infoArray.length > 0
-          ? infoArray.map((info, idx) => (
-              <div
-                key={idx}
-                className="flex flex-wrap gap-4 mb-4 p-1 border-b-4"
-              >
-                <span className="w-8 h-8 flex items-center justify-center rounded-full">
-                  {idx + 1}
-                </span>
-                <div className="flex flex-col p-1">
-                  <div className="font-bold">Work Area Type:</div>
-                  <div>{info.workAreaType}</div>
-                </div>
-                <div className="flex flex-col p-1">
-                  <div className="font-bold">Work Area Measurement:</div>
-                  <div>{info.workArea + " " + info.workAreaUnit}</div>
-                </div>
-                {info.chemicalRate && (
-                  <div className="flex flex-col p-1">
-                    <div className="font-bold">Chemical Rate:</div>
-                    <div>{info.chemicalRate + " " + info.chemicalRateUnit}</div>
-                  </div>
-                )}
-                <div className="flex flex-col p-1">
-                  <div className="font-bold">Chemical:</div>
-                  <div>{info.chemical}</div>
-                </div>
-                {info.applyRate && (
-                  <div className="flex flex-col p-1">
-                    <div className="font-bold">Apply Rate:</div>
-                    <div>{info.applyRate + " " + info.applyRateUnit}</div>
-                  </div>
-                )}
-                {info.serviceRate && (
-                  <div className="flex flex-col p-1">
-                    <div className="font-bold">Service Rate:</div>
-                    <div>{info.serviceRate + " " + info.serviceRateUnit}</div>
-                  </div>
-                )}
-                {info.chemicalQuantity && (
-                  <div className="flex flex-col p-1">
-                    <div className="font-bold">Chemical Qnt:</div>
-                    <div>{info.chemicalQuantity + " Ltr"}</div>
-                  </div>
-                )}
-                <div className="flex items-center justify-center p-1">
-                  <Button
-                    gradientMonochrome="failure"
-                    className="rounded-full"
-                    onClick={() => handleDeleteInfo(info.workAreaType)}
-                  >
-                    <MdDelete size="15px" />
-                  </Button>
-                </div>
-              </div>
-            ))
-          : null}
+        {infoArray.length > 0 && (
+          <InfoDisplay
+            infoArray={infoArray}
+            onDelete={handleDeleteInfo}
+            docType={doc}
+          />
+        )}
 
         <div className="col-span-1 mb-4">
           <Label>Notes: </Label>

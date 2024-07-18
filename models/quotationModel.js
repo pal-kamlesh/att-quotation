@@ -46,7 +46,6 @@ const quoteInfoSchema = mongoose.Schema({
   },
   workArea: {
     type: String,
-    required: true,
   },
   workAreaUnit: {
     type: String,
@@ -129,7 +128,6 @@ const quotationSchema = mongoose.Schema(
     quotationNo: {
       type: String,
       default: null,
-      unique: true,
     },
     quotationDate: {
       type: Date,
@@ -256,6 +254,11 @@ const quotationSchema = mongoose.Schema(
     approved: {
       type: Boolean,
       default: false,
+    },
+    docType: {
+      type: String,
+      enum: ["standard", "supply/apply", "supply"],
+      default: "standard",
     },
     quoteInfo: [{ type: mongoose.Schema.Types.ObjectId, ref: "QuoteInfo" }],
   },

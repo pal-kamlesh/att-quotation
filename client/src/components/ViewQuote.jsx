@@ -30,6 +30,7 @@ const ViewQuote = forwardRef((props) => {
     const [quote, setQuote] = useState({});
     const [standard, setStandard] = useState([]);
     const [applySupply, setApplySupply] = useState([]);
+    const [supply, setSupply] = useState([]);
     const { loading } = useSelector((state) => state.quote);
     const componentRef = useRef();
 
@@ -38,9 +39,19 @@ const ViewQuote = forwardRef((props) => {
         const actionResult = await dispatch(getSingleQuote(quoteId));
         const result = unwrapResult(actionResult);
         setQuote(result.result);
-        const [a1, a2] = saprateQuoteInfo(result.result.quoteInfo);
-        setStandard(a1);
-        setApplySupply(a2);
+        if (result.result.docType) {
+          result.result.docType === "standard"
+            ? setStandard(result.result.quoteInfo)
+            : result.result.docType === "supply/apply"
+            ? setApplySupply(result.result.quoteInfo)
+            : result.result.docType === "supply"
+            ? setSupply(result.result.quoteInfo)
+            : null;
+        } else {
+          const [a1, a2] = saprateQuoteInfo(result.result.quoteInfo);
+          setStandard(a1);
+          setApplySupply(a2);
+        }
       }
       fn();
     }, [dispatch, quoteId]);
@@ -53,7 +64,7 @@ const ViewQuote = forwardRef((props) => {
         // close();
       },
     });
-
+    console.log(supply);
     return (
       <>
         <div
@@ -229,6 +240,7 @@ const ViewQuote = forwardRef((props) => {
 
           <div>
             <h2 className="text-lg font-semibold mb-4">Quote Information:</h2>
+            <h5 className="text-lg font-semibold mb-4">Supply</h5>
             {standard.length > 0 && (
               <div className="mb-6">
                 <div className="border border-gray-300 rounded-lg overflow-hidden">
@@ -296,6 +308,40 @@ const ViewQuote = forwardRef((props) => {
                             {info.chemicalRate} {info.chemicalRateUnit}
                           </td>
                           <td className="px-4  py-2 border-b border-gray-200">
+                            {info.chemical}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+            {supply.length > 0 && (
+              <div className="mb-6">
+                <div className="border border-gray-300 rounded-lg overflow-hidden">
+                  <table className="w-full table-auto">
+                    <thead>
+                      <tr className="bg-gray-100">
+                        <th className="px-4 py-2">Work Area Type</th>
+                        <th className="px-4 py-2">Chemical Quantity</th>
+                        <th className="px-4 py-2">Chemical Rate</th>
+                        <th className="px-4 py-2">Chemical</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {supply.map((info) => (
+                        <tr key={info._id} className="odd:bg-gray-50">
+                          <td className="px-4 py-2 border-b border-gray-200">
+                            {info.workAreaType}
+                          </td>
+                          <td className="px-4 py-2 border-b border-gray-200">
+                            {`${info.chemicalQuantity} Ltr.`}
+                          </td>
+                          <td className="px-4 py-2 border-b border-gray-200">
+                            {`₹ ${info.chemicalRate} ${info.chemicalRateUnit}`}
+                          </td>
+                          <td className="px-4 py-2 border-b border-gray-200">
                             {info.chemical}
                           </td>
                         </tr>

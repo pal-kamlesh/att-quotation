@@ -1,19 +1,24 @@
 import { Button, Modal } from "flowbite-react";
 import { useState } from "react";
+import { CgDanger } from "react-icons/cg";
+import { MdVerified } from "react-icons/md";
 
 // eslint-disable-next-line react/prop-types
-function PopUp({ click }) {
+function PopUp({ click, approved, id }) {
   const [openModal, setOpenModal] = useState(false);
 
   return (
     <>
-      <Button
-        outline
-        gradientDuoTone="cyanToBlue"
+      <button
         onClick={() => setOpenModal(true)}
+        className={
+          approved
+            ? "bg-green-400 rounded-lg flex items-center justify-center text-white hover:cursor-default"
+            : "bg-orange-500 rounded-lg flex items-center justify-center text-white"
+        }
       >
-        Done<span style={{ fontSize: "30px" }}>&#128519;</span>
-      </Button>
+        {approved ? <MdVerified size="15px" /> : <CgDanger size="15px" />}
+      </button>
       <Modal
         show={openModal}
         size="md"
@@ -25,17 +30,17 @@ function PopUp({ click }) {
           <div className="text-center">
             <span
               className="mx-auto mb-4 h-14 w-14 text-gray-400 dark:text-gray-200"
-              style={{ fontSize: "30px" }}
+              style={{ fontSize: "40px" }}
             >
-              &#128517;
+              &#128529;
             </span>
             <h3 className="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
-              Are you sure? This will trigger an email to the client.
+              Are you sure? One will not be able to edit this quotation.
             </h3>
             <div className="flex justify-center gap-4">
               <Button
                 color="failure"
-                onClick={() => [setOpenModal(false), click()]}
+                onClick={() => [setOpenModal(false), click(id)]}
               >
                 {"Yes, I'm sure"}
               </Button>
