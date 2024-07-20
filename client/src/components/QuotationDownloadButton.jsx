@@ -147,7 +147,10 @@ const QuotationGenerator = ({ id }) => {
         new Paragraph({
           children: [
             new TextRun({
-              text: `We hope you will accept the same and will give us the opportunity to be of service to you.`,
+              text:
+                data?.docType === "supply"
+                  ? "The offer provided is for product supply as per your requirements provided and we hope you will accept the same and will give us the opportunity to supply."
+                  : `We hope you will accept the same and will give us the opportunity to be of service to you.`,
             }),
           ],
         }),
@@ -388,6 +391,48 @@ const QuotationGenerator = ({ id }) => {
     });
   };
   const createInfoTable = (data, sL, aL) => {
+    const supplyRows = [
+      createInfoRow("Subject:", data.subject + " " + data.shipToAddress.a4),
+      ...(sL <= 2 && aL <= 5 ? [createEmptyRow()] : []),
+      createInfoRow("Reference:", data.reference),
+      ...(sL <= 2 && aL <= 5 ? [createEmptyRow()] : []),
+      createInfoRow(
+        "Treatment Type:",
+        data.treatmentType + "  [Sac-code ... 998531]"
+      ),
+      ...(sL <= 2 && aL <= 5 ? [createEmptyRow()] : []),
+      createInfoRow("Specification:", data.specification),
+      ...(sL <= 2 && aL <= 5 ? [createEmptyRow()] : []),
+      createInfoRow("Payment Terms:", data.paymentTerms),
+      ...(sL <= 2 && aL <= 5 ? [createEmptyRow()] : []),
+      createInfoRow("Taxation:", data.taxation),
+      //createInfoRow("Note:", data.note),
+      ...(sL <= 2 && aL <= 5 ? [createEmptyRow()] : []),
+    ];
+    const normalRows = [
+      createInfoRow("Subject:", data.subject + " " + data.shipToAddress.a4),
+      ...(sL <= 2 && aL <= 5 ? [createEmptyRow()] : []),
+      createInfoRow("Reference:", data.reference),
+      ...(sL <= 2 && aL <= 5 ? [createEmptyRow()] : []),
+      createInfoRow(
+        "Treatment Type:",
+        data.treatmentType + "  [Sac-code ... 998531]"
+      ),
+      ...(sL <= 2 && aL <= 5 ? [createEmptyRow()] : []),
+      createInfoRow("Specification:", data.specification),
+      ...(sL <= 2 && aL <= 5 ? [createEmptyRow()] : []),
+      createInfoRow("Equipments:", data.equipments),
+      ...(sL <= 2 && aL <= 5 ? [createEmptyRow()] : []),
+      createInfoRow("Payment Terms:", data.paymentTerms),
+      ...(sL <= 2 && aL <= 5 ? [createEmptyRow()] : []),
+      createInfoRow("Taxation:", data.taxation),
+      //createInfoRow("Note:", data.note),
+      ...(sL <= 2 && aL <= 5 ? [createEmptyRow()] : []),
+      createInfoRow(
+        "Service Warranty:",
+        "10 Years In case of subterranean or ground dwelling of termite infestation during the guarantee period, we undertake to treat the same and eradicate the termite infestation without any extra cost to you. This guarantee will be forwarded on stamp paper."
+      ),
+    ];
     return new Table({
       width: { size: 100, type: WidthType.PERCENTAGE },
       borders: {
@@ -398,30 +443,7 @@ const QuotationGenerator = ({ id }) => {
         insideHorizontal: { style: BorderStyle.NONE },
         insideVertical: { style: BorderStyle.NONE },
       },
-      rows: [
-        createInfoRow("Subject:", data.subject + " " + data.shipToAddress.a4),
-        ...(sL <= 2 && aL <= 5 ? [createEmptyRow()] : []),
-        createInfoRow("Reference:", data.reference),
-        ...(sL <= 2 && aL <= 5 ? [createEmptyRow()] : []),
-        createInfoRow(
-          "Treatment Type:",
-          data.treatmentType + "  [Sac-code ... 998531]"
-        ),
-        ...(sL <= 2 && aL <= 5 ? [createEmptyRow()] : []),
-        createInfoRow("Specification:", data.specification),
-        ...(sL <= 2 && aL <= 5 ? [createEmptyRow()] : []),
-        createInfoRow("Equipments:", data.equipments),
-        ...(sL <= 2 && aL <= 5 ? [createEmptyRow()] : []),
-        createInfoRow("Payment Terms:", data.paymentTerms),
-        ...(sL <= 2 && aL <= 5 ? [createEmptyRow()] : []),
-        createInfoRow("Taxation:", data.taxation),
-        //createInfoRow("Note:", data.note),
-        ...(sL <= 2 && aL <= 5 ? [createEmptyRow()] : []),
-        createInfoRow(
-          "Service Warranty:",
-          "10 Years In case of subterranean or ground dwelling of termite infestation during the guarantee period, we undertake to treat the same and eradicate the termite infestation without any extra cost to you. This guarantee will be forwarded on stamp paper."
-        ),
-      ],
+      rows: data.docType === "supply" ? supplyRows : normalRows,
     });
   };
   const createEmptyRow = () => {

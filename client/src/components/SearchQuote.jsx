@@ -16,6 +16,7 @@ const SearchQuote = ({ setExtraQuery }) => {
   const dispatch = useDispatch();
   const [createdBy, setCreatedBy] = useState("");
   const [projectName, setProjectName] = useState("");
+  const [clientName, setClientName] = useState("");
   const [quotationNo, setQuotationNo] = useState("EPPL/ATT/QTN/");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
@@ -23,6 +24,7 @@ const SearchQuote = ({ setExtraQuery }) => {
   const [selectedFilters, setSelectedFilters] = useState({
     createdBy: false,
     projectName: false,
+    clientName: false,
     fromDate: false,
     toDate: false,
     quotationNo: false,
@@ -38,6 +40,9 @@ const SearchQuote = ({ setExtraQuery }) => {
 
     if (selectedFilters.projectName) {
       query += `&projectName=${projectName}`;
+    }
+    if (selectedFilters.clientName) {
+      query += `&clientName=${clientName}`;
     }
 
     if (selectedFilters.fromDate) {
@@ -65,7 +70,7 @@ const SearchQuote = ({ setExtraQuery }) => {
   };
   return (
     <div className=" max-w-7xl mx-auto">
-      <div className="flex items-center  sm:justify-evenly gap-3 pr-6 flex-wrap">
+      <div className="flex items-center  sm:justify-evenly  pr-6 flex-wrap">
         <div>
           <Label htmlFor="quotationNo" className="font-bold text-blue-600">
             Quotation No
@@ -145,6 +150,32 @@ const SearchQuote = ({ setExtraQuery }) => {
                 setSelectedFilters({
                   ...selectedFilters,
                   projectName: e.target.checked,
+                })
+              }
+            />
+          </div>
+        </div>
+        <div>
+          <Label htmlFor="projectName" className=" font-bold text-blue-600">
+            Client Name
+          </Label>
+          <div className="flex items-center justify-center">
+            <TextInput
+              type="text"
+              value={clientName}
+              name="clientName"
+              id="clientName"
+              onChange={(e) => setClientName(e.target.value)}
+            />
+            <Checkbox
+              type="checkbox"
+              checked={selectedFilters.clientName}
+              className=" ml-1"
+              name="clientName"
+              onChange={(e) =>
+                setSelectedFilters({
+                  ...selectedFilters,
+                  clientName: e.target.checked,
                 })
               }
             />

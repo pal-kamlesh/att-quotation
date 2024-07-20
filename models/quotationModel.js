@@ -269,7 +269,9 @@ quotationSchema.plugin(mongooseLeanVirtuals);
 
 // Define the virtual property 'subject'
 quotationSchema.virtual("subject").get(function () {
-  return `Pre Construction Anti Termite Treatment to your ${this.shipToAddress.projectName}`;
+  return this.docType === "supply"
+    ? "Supply Offer for Chemical as per your requirement."
+    : `Pre Construction Anti Termite Treatment to your ${this.shipToAddress.projectName}`;
 });
 quotationSchema.virtual("archive", {
   ref: "QuoteArchive",
@@ -400,6 +402,30 @@ quotationSchema.methods.approve = async function () {
 quotationSchema.statics.isApproved = async function (id) {
   const doc = await this.findById(id, "approved");
   return doc ? doc.approved : false;
+};
+quotationSchema.methods.reviseQuotationNo = async function () {
+  if (!this.approved) {
+    return;
+  } else {
+    const currentQuotationNo = this.quotationNo;
+    // Process the existing quotationNo
+    const parts = currentQuotationNo.split("/");
+    let newQuotationNo;
+    if (parts.length === 5 && parts[4].startsWith("R")) {
+      // If already revised, increment the revision number
+      const revisionNumber = parseInt(parts[4].substring(1)) + 1;
+      parts[4] = `R${revisionNumber}`;
+      newQuotationNo = parts.join("/");
+    } else if (parts.length === 4) {
+      // If first revision, add /R1
+      newQuotationNo = `${currentQuotationNo}/R1`;
+    } else {
+      // Unexpected format, just append /R1
+      newQuotationNo = `${currentQuotationNo}/R1`;
+    }
+    this.quotationNo = newQuotationNo;
+    return this.save();
+  }
 };
 quotationSchema.statics.generateQuotationNo = async function () {
   try {

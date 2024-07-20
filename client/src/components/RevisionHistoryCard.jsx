@@ -1,10 +1,9 @@
 /* eslint-disable react/prop-types */
 const RevisionHistoryCard = ({ revision, onClick, active }) => {
   const { author, state, timestamp } = revision;
-  const { quotationNo, shipToAddress, summary } = state;
+  const { quotationNo, shipToAddress } = state;
   const formattedDate = new Date(timestamp).toLocaleDateString("en-GB");
   const formattedTime = new Date(timestamp).toLocaleTimeString();
-
   const cardStyles = active
     ? "w-sm bg-blue-100 shadow-lg rounded-lg overflow-hidden mb-4 border-2 border-blue-500"
     : "w-sm bg-white shadow-lg rounded-lg overflow-hidden mb-4";
@@ -29,10 +28,10 @@ const RevisionHistoryCard = ({ revision, onClick, active }) => {
           <span className="font-semibold">Project Name:</span>{" "}
           {shipToAddress?.projectName}
         </div>
-        {summary && (
+        {revision?.message && (
           <div className="mt-4">
-            <h3 className="text-lg font-semibold">Summary</h3>
-            <p className="text-gray-700">{summary}</p>
+            <h3 className="text-lg font-semibold">Revision Reason:</h3>
+            <p className="text-gray-700">{revision.message}</p>
           </div>
         )}
       </div>

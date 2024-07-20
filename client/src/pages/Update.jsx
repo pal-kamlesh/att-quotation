@@ -5,11 +5,13 @@ import { unwrapResult } from "@reduxjs/toolkit";
 import { KCI, Loading } from "../components";
 import { Button, Label, Select, Textarea, TextInput } from "flowbite-react";
 import { IoCheckmarkDoneCircleOutline } from "react-icons/io5";
+import { toast } from "react-toastify";
 
 // eslint-disable-next-line react/prop-types
 function Update({ quoteId, onClose }) {
   const dispatch = useDispatch();
   const [quote, setQuote] = useState(null);
+  const [message, setMessage] = useState("");
   const [subRef, setSubRef] = useState();
   const { loading } = useSelector((state) => state.quote);
 
@@ -70,7 +72,11 @@ function Update({ quoteId, onClose }) {
     }
   };
   async function handleSubmit() {
-    const data = { id: quoteId, quote };
+    if (message === "") {
+      toast.error("Please provide resion for Revision.");
+      return;
+    }
+    const data = { id: quoteId, quote, message };
     const actionResult = await dispatch(updateQuote(data));
     const result = unwrapResult(actionResult);
     console.log(result);
@@ -608,6 +614,19 @@ function Update({ quoteId, onClose }) {
             </div>
           ))
         : null}
+      {quote.approved ? (
+        <div className="col-span-1 mb-4">
+          <Label>
+            <span>Revision Reason:</span>
+            <span className="text-red-500">*</span>
+          </Label>
+          <Textarea
+            name="note"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+          />
+        </div>
+      ) : null}
       <div className="col-span-1 mb-4">
         <Label>Notes: </Label>
         <Textarea name="note" value={quote.note} onChange={handleChange} />

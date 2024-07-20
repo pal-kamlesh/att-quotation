@@ -130,6 +130,11 @@ const quotes = async (req, res, next) => {
           $regex: new RegExp(req.query.projectName, "i"),
         },
       }),
+      ...(req.query.clientName && {
+        "billToAddress.name": {
+          $regex: new RegExp(req.query.clientName, "i"),
+        },
+      }),
       ...(req.query.quotationNo && {
         quotationNo: { $regex: new RegExp(req.query.quotationNo, "i") },
       }),
@@ -199,7 +204,7 @@ const singleQuote = async (req, res, next) => {
 const update = async (req, res, next) => {
   try {
     const quotationId = req.params.id;
-    const updatedData = req.body;
+    const { message, quote: updatedData } = req.body;
     const { quoteInfo, ...otherFields } = updatedData;
     const { reference } = otherFields;
     const referenceArray = String(reference).split(">.");
@@ -214,7 +219,12 @@ const update = async (req, res, next) => {
         .populate({ path: "createdBy", select: "-password" })
         .lean({ virtuals: ["subject"] });
       const author = req.user.id;
-      const archive = await createQuoteArchiveEntry(quotationId, state, author);
+      const archive = await createQuoteArchiveEntry(
+        quotationId,
+        state,
+        author,
+        message
+      );
     }
 
     // Fetch the existing quotation document
@@ -252,30 +262,31 @@ const update = async (req, res, next) => {
 
     // Update the quotation with the new quoteInfo ids
     quotation.quoteInfo = updatedQuoteInfoIds;
-    await quotation.save();
+
+    await quotation.reviseQuotationNo();
 
     // Fetch the updated quotation with populated quoteInfo
     const finalQuotation = await Quotation.findById(quotationId)
       .populate("quoteInfo")
       .populate("createdBy");
-
     res
       .status(200)
       .json({ message: "Quotation Updated", result: finalQuotation });
   } catch (error) {
+    console.log(error);
     next(error);
   }
 };
 
-async function createQuoteArchiveEntry(quoteId, state, author) {
+async function createQuoteArchiveEntry(quoteId, state, author, message) {
   const theArchive = await QuoteArchive.findOne({ quotationId: quoteId });
   if (theArchive) {
-    theArchive.revisions.push({ state, author });
+    theArchive.revisions.push({ state, author, message });
     await theArchive.save();
   } else {
     const newArchive = new QuoteArchive({
       quotationId: quoteId,
-      revisions: [{ state, author }],
+      revisions: [{ state, author, message }],
     });
     await newArchive.save();
   }
