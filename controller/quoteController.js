@@ -381,7 +381,7 @@ const docData = async (req, res, next) => {
     const data = await Quotation.findById(id)
       .populate("quoteInfo")
       .populate("salesPerson")
-      .populate("createdBy", "initials")
+      .populate("createdBy")
       .lean({ virtuals: ["subject"] });
     res.status(200).json({
       message: "Nothing to say for now.",
@@ -412,7 +412,7 @@ const getArchive = async (req, res, next) => {
     const data = await Quotation.findById(id)
       .populate("quoteInfo")
       .populate("salesPerson")
-      .populate("createdBy", "initials")
+      .populate("createdBy")
       .populate({
         path: "archive",
         populate: { path: "revisions.author", model: "User" },

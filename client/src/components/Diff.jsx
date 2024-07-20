@@ -51,7 +51,7 @@ function Diff({ quoteId }) {
   const revisionDetails = selectedRevision || latest;
 
   return (
-    <div className="container mx-auto p-4 flex h-screen">
+    <div className=" p-4 flex h-screen">
       {/* Left Side: Revision History Cards */}
       <div
         className="w-1/4 pr-4 overflow-y-auto"
