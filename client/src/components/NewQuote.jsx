@@ -60,7 +60,7 @@ function NewQuote({ onClose }) {
       specification: "",
       emailTo: "",
       note: "",
-      quotationNo: "EPPL/ATT/QTN/",
+      quotationNo: "",
       docType: "standard",
     };
   };

@@ -240,7 +240,6 @@ const ViewQuote = forwardRef((props) => {
 
           <div>
             <h2 className="text-lg font-semibold mb-4">Quote Information:</h2>
-            <h5 className="text-lg font-semibold mb-4">Supply</h5>
             {standard.length > 0 && (
               <div className="mb-6">
                 <div className="border border-gray-300 rounded-lg overflow-hidden">

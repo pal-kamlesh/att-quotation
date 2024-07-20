@@ -211,9 +211,9 @@ function Diff({ quoteId }) {
         <div className="bg-gray-200 p-4 rounded-b-lg flex justify-between items-center">
           <div>
             <p>
-              Created By: {revisionDetails?.salesPerson?.prefix}{" "}
-              {revisionDetails?.salesPerson?.username} (
-              {revisionDetails?.salesPerson?.initials})
+              Created By: {revisionDetails?.createdBy?.prefix}{" "}
+              {revisionDetails?.createdBy?.username} (
+              {revisionDetails?.createdBy?.initials})
             </p>
           </div>
           <div>
