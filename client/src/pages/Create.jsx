@@ -99,7 +99,7 @@ export default function Create() {
               <Table.Body>
                 {quotations.length > 0 &&
                   quotations.map((ticket) => (
-                    <Table.Row key={ticket._id}>
+                    <Table.Row key={ticket._id} className=" border-b-2">
                       <Table.Cell>
                         <div className="flex items-center justify-start w-full gap-1 ">
                           <PopUp
