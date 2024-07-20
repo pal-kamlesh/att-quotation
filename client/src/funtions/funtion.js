@@ -5,4 +5,17 @@ function saprateQuoteInfo(a1) {
   return [stan, ApSp];
 }
 
-export { saprateQuoteInfo };
+function getDotColor(docType) {
+  switch (docType) {
+    case "standard":
+      return "bg-green-500";
+    case "supply":
+      return "bg-yellow-400";
+    case "supply/apply":
+      return "bg-blue-500";
+    default:
+      return "bg-red-500"; // Default background color if docType doesn't match the cases
+  }
+}
+
+export { saprateQuoteInfo, getDotColor };

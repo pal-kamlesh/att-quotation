@@ -18,6 +18,7 @@ import Update from "./Update";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
 import PopUp from "../components/PopUp";
+import { getDotColor } from "../funtions/funtion";
 
 export default function Create() {
   const {
@@ -139,8 +140,14 @@ export default function Create() {
                           )}
                         </Button>
                       </Table.Cell>
-                      <Table.Cell className="border">
-                        <div className="flex items-center justify-evenly flex-wrap gap-1">
+                      <Table.Cell className="border ">
+                        <div className="flex items-center justify-evenly flex-wrap gap-1 relative">
+                          <div
+                            className={`absolute top-0 left-0 w-2 h-2 rounded-full transform -translate-x-1/2 -translate-y-1/2 ${getDotColor(
+                              ticket.docType
+                            )}`}
+                          ></div>
+                          {/* Rest of your content */}
                           <Button
                             gradientDuoTone="purpleToBlue"
                             onClick={() => [
@@ -156,18 +163,16 @@ export default function Create() {
                           ) : null}
 
                           {ticket.approved ? (
-                            <>
-                              <Button
-                                onClick={() => [
-                                  setArchiveModel(true),
-                                  setQuoteId(ticket._id),
-                                  setQuoteNo(ticket.quotationNo),
-                                ]}
-                                gradientDuoTone="tealToLime"
-                              >
-                                History
-                              </Button>
-                            </>
+                            <Button
+                              onClick={() => [
+                                setArchiveModel(true),
+                                setQuoteId(ticket._id),
+                                setQuoteNo(ticket.quotationNo),
+                              ]}
+                              gradientDuoTone="tealToLime"
+                            >
+                              History
+                            </Button>
                           ) : null}
                           <QuotationDownloadButton id={ticket._id} />
                         </div>

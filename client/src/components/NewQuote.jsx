@@ -918,9 +918,23 @@ function NewQuote({ onClose }) {
                     value="standard"
                     defaultChecked
                     disabled={disableRadio}
+                    color="yellow"
                     onChange={(e) => handleDocType(e)}
+                    className="text-bg-green-500 focus:ring-green-500 checked:bg-green-500"
                   />
                   <Label htmlFor="united-state">Standard</Label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Radio
+                    id="supply"
+                    name="docType"
+                    value="supply"
+                    disabled={disableRadio}
+                    color="red"
+                    onChange={(e) => handleDocType(e)}
+                    className="text-yellow-400 focus:ring-yellow-400 checked:bg-yellow-400"
+                  />
+                  <Label htmlFor="supply">Supply</Label>
                 </div>
                 <div className="flex items-center gap-2">
                   <Radio
@@ -929,18 +943,9 @@ function NewQuote({ onClose }) {
                     value="supply/apply"
                     disabled={disableRadio}
                     onChange={(e) => handleDocType(e)}
+                    className="text-blue-500 focus:ring-blue-500 checked:bg-blue-500"
                   />
                   <Label htmlFor="supply/apply">Supply/Apply</Label>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Radio
-                    id="supply"
-                    name="docType"
-                    value="supply"
-                    disabled={disableRadio}
-                    onChange={(e) => handleDocType(e)}
-                  />
-                  <Label htmlFor="supply">Supply</Label>
                 </div>
               </fieldset>
             </div>

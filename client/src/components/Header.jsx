@@ -18,11 +18,21 @@ export default function Header() {
 
   return (
     <Navbar fluid rounded className="border-b-2 max-w-7xl mx-auto ">
-      <Navbar.Brand className=" cursor-pointer" onClick={() => navigate("/")}>
-        <img src={logo} className="mr-1 h-[65px] " alt="Flowbite React Logo" />
-        <span className="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
-          Quotation
-        </span>
+      <Navbar.Brand
+        className="cursor-pointer relative"
+        onClick={() => navigate("/")}
+      >
+        <div className="flex items-center">
+          <img src={logo} className="mr-1 h-[65px]" alt="Flowbite React Logo" />
+          <span className="whitespace-nowrap text-xl font-semibold dark:text-white relative">
+            Quotation
+            <div className="absolute top-full left-0 flex justify-evenly w-full items-center">
+              <div className="w-2 h-2 bg-green-500 rounded-full ml-1"></div>
+              <div className="w-2 h-2 bg-yellow-400 rounded-full ml-1"></div>
+              <div className="w-2 h-2 bg-blue-500 rounded-full ml-1"></div>
+            </div>
+          </span>
+        </div>
       </Navbar.Brand>
 
       <div className="flex md:order-2">
