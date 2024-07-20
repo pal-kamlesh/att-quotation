@@ -391,48 +391,42 @@ const QuotationGenerator = ({ id }) => {
     });
   };
   const createInfoTable = (data, sL, aL) => {
-    const supplyRows = [
-      createInfoRow("Subject:", data.subject + " " + data.shipToAddress.a4),
-      ...(sL <= 2 && aL <= 5 ? [createEmptyRow()] : []),
-      createInfoRow("Reference:", data.reference),
-      ...(sL <= 2 && aL <= 5 ? [createEmptyRow()] : []),
-      createInfoRow(
-        "Treatment Type:",
-        data.treatmentType + "  [Sac-code ... 998531]"
-      ),
-      ...(sL <= 2 && aL <= 5 ? [createEmptyRow()] : []),
-      createInfoRow("Specification:", data.specification),
-      ...(sL <= 2 && aL <= 5 ? [createEmptyRow()] : []),
-      createInfoRow("Payment Terms:", data.paymentTerms),
-      ...(sL <= 2 && aL <= 5 ? [createEmptyRow()] : []),
-      createInfoRow("Taxation:", data.taxation),
-      //createInfoRow("Note:", data.note),
-      ...(sL <= 2 && aL <= 5 ? [createEmptyRow()] : []),
+    const commonFields = [
+      { label: "Subject:", value: data.subject + " " + data.shipToAddress.a4 },
+      { label: "Reference:", value: data.reference },
+      {
+        label: "Treatment Type:",
+        value: data.treatmentType + "  [Sac-code ... 998531]",
+      },
+      { label: "Specification:", value: data.specification },
+      { label: "Payment Terms:", value: data.paymentTerms },
+      { label: "Taxation:", value: data.taxation },
     ];
-    const normalRows = [
-      createInfoRow("Subject:", data.subject + " " + data.shipToAddress.a4),
-      ...(sL <= 2 && aL <= 5 ? [createEmptyRow()] : []),
-      createInfoRow("Reference:", data.reference),
-      ...(sL <= 2 && aL <= 5 ? [createEmptyRow()] : []),
-      createInfoRow(
-        "Treatment Type:",
-        data.treatmentType + "  [Sac-code ... 998531]"
-      ),
-      ...(sL <= 2 && aL <= 5 ? [createEmptyRow()] : []),
-      createInfoRow("Specification:", data.specification),
-      ...(sL <= 2 && aL <= 5 ? [createEmptyRow()] : []),
-      createInfoRow("Equipments:", data.equipments),
-      ...(sL <= 2 && aL <= 5 ? [createEmptyRow()] : []),
-      createInfoRow("Payment Terms:", data.paymentTerms),
-      ...(sL <= 2 && aL <= 5 ? [createEmptyRow()] : []),
-      createInfoRow("Taxation:", data.taxation),
-      //createInfoRow("Note:", data.note),
-      ...(sL <= 2 && aL <= 5 ? [createEmptyRow()] : []),
-      createInfoRow(
-        "Service Warranty:",
-        "10 Years In case of subterranean or ground dwelling of termite infestation during the guarantee period, we undertake to treat the same and eradicate the termite infestation without any extra cost to you. This guarantee will be forwarded on stamp paper."
-      ),
+
+    const supplyFields = [...commonFields];
+
+    const normalFields = [
+      ...commonFields,
+      { label: "Equipments:", value: data.equipments },
+      {
+        label: "Service Warranty:",
+        value:
+          "10 Years In case of subterranean or ground dwelling of termite infestation during the guarantee period, we undertake to treat the same and eradicate the termite infestation without any extra cost to you. This guarantee will be forwarded on stamp paper.",
+      },
     ];
+
+    let fields = data.docType === "supply" ? supplyFields : normalFields;
+
+    // Conditionally add the Note field if it's not empty
+    if (data.note && data.note.trim() !== "") {
+      fields.push({ label: "Note:", value: data.note });
+    }
+
+    const rows = fields.flatMap((field) => [
+      createInfoRow(field.label, field.value),
+      ...(sL <= 2 && aL <= 5 ? [createEmptyRow()] : []),
+    ]);
+
     return new Table({
       width: { size: 100, type: WidthType.PERCENTAGE },
       borders: {
@@ -443,7 +437,7 @@ const QuotationGenerator = ({ id }) => {
         insideHorizontal: { style: BorderStyle.NONE },
         insideVertical: { style: BorderStyle.NONE },
       },
-      rows: data.docType === "supply" ? supplyRows : normalRows,
+      rows: rows,
     });
   };
   const createEmptyRow = () => {
