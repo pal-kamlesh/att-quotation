@@ -360,70 +360,70 @@ function NewQuote({ onClose }) {
       shipToAddress: { ...shipToAddress, ...updatedShipToAddress },
     });
   }
-  function dummyQuote() {
-    const data = {
-      quote: {
-        billToAddress: {
-          prefix: "M/s.",
-          name: "KEC International Ltd.",
-          a1: "Raghuram Heights",
-          a2: "463",
-          a3: "Dr Annie Besant Raod",
-          a4: "Worli",
-          a5: "Opposite Hell",
-          city: "Mumbai",
-          pincode: "400030",
-          kci: [],
-        },
-        shipToAddress: {
-          projectName: "Prestige City Rehab Project",
-          a1: "Raghuram Heights",
-          a2: "463",
-          a3: "Dr Annie Besant Raod",
-          a4: "Worli",
-          a5: "Opposite Hell",
-          city: "Mumbai",
-          pincode: "400030",
-          kci: [],
-        },
-        kindAttentionPrefix: "Mr.",
-        kindAttention: "Malahari Naik",
-        reference: "Our earlier quotation No EPPL/ATT/QTN/401",
-        specification: "As per IS 6313 (Part 2):2013",
-        note: "",
-      },
-      quoteInfo: [
-        {
-          workAreaType: "Basement Area",
-          workArea: "6,696",
-          workAreaUnit: "Sq.mts",
-          chemicalRate: null,
-          chemicalRateUnit: null,
-          serviceRate: "27.00",
-          serviceRateUnit: "Per Sq.mt",
-          applyRate: null,
-          applyRateUnit: null,
-          chemical: "Imidachloprid 30.5% SC",
-          chemicalQuantity: null,
-        },
-        {
-          workAreaType: "Basement Area",
-          workArea: "66,967",
-          workAreaUnit: "Sq.mts",
-          chemicalRate: "12.00",
-          chemicalRateUnit: "Per Ltr.",
-          serviceRate: null,
-          serviceRateUnit: null,
-          applyRate: "13",
-          applyRateUnit: "Per Sq.mt",
-          chemical: "Imidachloprid 30.5% SC",
-          chemicalQuantity: "201",
-        },
-      ],
-    };
-    setQuote(data.quote);
-    setInfoArray(data.quoteInfo);
-  }
+  // function dummyQuote() {
+  //   const data = {
+  //     quote: {
+  //       billToAddress: {
+  //         prefix: "M/s.",
+  //         name: "KEC International Ltd.",
+  //         a1: "Raghuram Heights",
+  //         a2: "463",
+  //         a3: "Dr Annie Besant Raod",
+  //         a4: "Worli",
+  //         a5: "Opposite Hell",
+  //         city: "Mumbai",
+  //         pincode: "400030",
+  //         kci: [],
+  //       },
+  //       shipToAddress: {
+  //         projectName: "Prestige City Rehab Project",
+  //         a1: "Raghuram Heights",
+  //         a2: "463",
+  //         a3: "Dr Annie Besant Raod",
+  //         a4: "Worli",
+  //         a5: "Opposite Hell",
+  //         city: "Mumbai",
+  //         pincode: "400030",
+  //         kci: [],
+  //       },
+  //       kindAttentionPrefix: "Mr.",
+  //       kindAttention: "Malahari Naik",
+  //       reference: "Our earlier quotation No EPPL/ATT/QTN/401",
+  //       specification: "As per IS 6313 (Part 2):2013",
+  //       note: "",
+  //     },
+  //     quoteInfo: [
+  //       {
+  //         workAreaType: "Basement Area",
+  //         workArea: "6,696",
+  //         workAreaUnit: "Sq.mts",
+  //         chemicalRate: null,
+  //         chemicalRateUnit: null,
+  //         serviceRate: "27.00",
+  //         serviceRateUnit: "Per Sq.mt",
+  //         applyRate: null,
+  //         applyRateUnit: null,
+  //         chemical: "Imidachloprid 30.5% SC",
+  //         chemicalQuantity: null,
+  //       },
+  //       {
+  //         workAreaType: "Basement Area",
+  //         workArea: "66,967",
+  //         workAreaUnit: "Sq.mts",
+  //         chemicalRate: "12.00",
+  //         chemicalRateUnit: "Per Ltr.",
+  //         serviceRate: null,
+  //         serviceRateUnit: null,
+  //         applyRate: "13",
+  //         applyRateUnit: "Per Sq.mt",
+  //         chemical: "Imidachloprid 30.5% SC",
+  //         chemicalQuantity: "201",
+  //       },
+  //     ],
+  //   };
+  //   setQuote(data.quote);
+  //   setInfoArray(data.quoteInfo);
+  // }
   function handleSubRef(e) {
     const { value } = e.target;
     setSubRef(value);
@@ -574,9 +574,6 @@ function NewQuote({ onClose }) {
             onClick={duplicateBillToShipTo}
           >
             Copy BillTo/ShipTo
-          </Button>
-          <Button outline gradientMonochrome="cyan" onClick={dummyQuote}>
-            Dummy Quote
           </Button>
         </div>
         <div className="grid grid-cols-8 gap-4 border mb-4 rounded-md">
