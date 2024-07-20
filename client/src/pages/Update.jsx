@@ -71,11 +71,18 @@ function Update({ quoteId, onClose }) {
       }
     }
   };
-  async function handleSubmit() {
+  async function handleSubmitApproved() {
     if (message === "") {
       toast.error("Please provide resion for Revision.");
       return;
     }
+    const data = { id: quoteId, quote, message };
+    const actionResult = await dispatch(updateQuote(data));
+    const result = unwrapResult(actionResult);
+    console.log(result);
+    onClose();
+  }
+  async function handleSubmitNotApproved() {
     const data = { id: quoteId, quote, message };
     const actionResult = await dispatch(updateQuote(data));
     const result = unwrapResult(actionResult);
@@ -632,7 +639,12 @@ function Update({ quoteId, onClose }) {
         <Textarea name="note" value={quote.note} onChange={handleChange} />
       </div>
       <div>
-        <Button onClick={handleSubmit} gradientDuoTone="redToYellow">
+        <Button
+          onClick={
+            quote.approved ? handleSubmitApproved : handleSubmitNotApproved
+          }
+          gradientDuoTone="redToYellow"
+        >
           Update
         </Button>
       </div>
