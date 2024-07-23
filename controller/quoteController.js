@@ -174,12 +174,18 @@ const quotes = async (req, res, next) => {
     const todayQuotes = await Quotation.countDocuments({
       createdAt: { $gte: today },
     });
+    const approvedCount = await Quotation.countDocuments({ approved: true });
+    const approvePending = await Quotation.countDocuments({
+      approved: false,
+    });
 
     res.status(200).json({
       message: "Quotations Retrieved",
       result: quotes,
       totalQuotes,
       todayQuotes,
+      approvedCount,
+      approvePending,
     });
   } catch (error) {
     console.log(error);

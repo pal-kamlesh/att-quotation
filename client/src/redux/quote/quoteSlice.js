@@ -5,6 +5,8 @@ const initialState = {
   quotations: [],
   totalQuotations: "",
   todayQuotations: "",
+  approvedCount: "",
+  approvePending: "",
   loading: false,
   showMore: true,
 };
@@ -336,6 +338,8 @@ export const quoteSlice = createSlice({
         state.loading = false;
         state.todayQuotations = payload.todayQuotes;
         state.totalQuotations = payload.totalQuotes;
+        state.approvedCount = payload.approvedCount;
+        state.approvePending = payload.approvePending;
         if (payload.result.length < 9) {
           state.showMore = false;
         } else {
@@ -354,6 +358,8 @@ export const quoteSlice = createSlice({
         state.quotations = payload.result;
         state.todayQuotations = payload.todayQuotes;
         state.totalQuotations = payload.totalQuotes;
+        state.approvedCount = payload.approvedCount;
+        state.approvePending = payload.approvePending;
         if (payload.result.length < 9) {
           state.showMore = false;
         } else {

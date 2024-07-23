@@ -9,9 +9,8 @@ export default function Dashboard() {
     dispatch(getInitials());
     dispatch(getQuotes());
   }, [dispatch]);
-  const { totalQuotations, todayQuotations } = useSelector(
-    (state) => state.quote
-  );
+  const { totalQuotations, todayQuotations, approvePending, approvedCount } =
+    useSelector((state) => state.quote);
 
   return (
     <div className="max-w-7xl mx-auto min-h-screen p-4 bg-gray-100">
@@ -33,12 +32,12 @@ export default function Dashboard() {
 
         {/* Placeholder for Additional Metrics */}
         <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold mb-2">Metric 1</h2>
-          <p className="text-3xl font-bold text-red-500">123</p>
+          <h2 className="text-xl font-semibold mb-2">Approved</h2>
+          <p className="text-3xl font-bold text-red-500">{approvedCount}</p>
         </div>
         <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold mb-2">Metric 2</h2>
-          <p className="text-3xl font-bold text-yellow-500">456</p>
+          <h2 className="text-xl font-semibold mb-2">Pending Aprovel</h2>
+          <p className="text-3xl font-bold text-yellow-500">{approvePending}</p>
         </div>
       </div>
 
