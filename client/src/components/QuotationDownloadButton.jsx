@@ -11,6 +11,7 @@ import {
   AlignmentType,
   BorderStyle,
   ImageRun,
+  VerticalAlign,
 } from "docx";
 import { saveAs } from "file-saver";
 import { useDispatch } from "react-redux";
@@ -230,6 +231,15 @@ const QuotationGenerator = ({ id }) => {
 
       // Generate DOCX
       const doc = new Document({
+        styles: {
+          default: {
+            document: {
+              run: {
+                font: "Arial",
+              },
+            },
+          },
+        },
         sections: [
           {
             properties: {
@@ -297,8 +307,12 @@ const QuotationGenerator = ({ id }) => {
               children: [
                 new Paragraph({ text: "Bill To:", bold: true }),
                 new Paragraph({
-                  text: billTo.prefix + " " + billTo.name + ".",
-                  bold: true,
+                  children: [
+                    new TextRun({
+                      text: billTo.prefix + " " + billTo.name + ".",
+                      bold: true,
+                    }),
+                  ],
                 }),
                 new Paragraph({ text: billTo.a1 + " " + billTo.a2 + "," }),
                 new Paragraph({ text: billTo.a3 + "," }),
@@ -312,7 +326,15 @@ const QuotationGenerator = ({ id }) => {
             }),
             new TableCell({
               children: [
-                new Paragraph({ text: "Ship To:", bold: true }),
+                new Paragraph({
+                  text: "Ship To:",
+                  bold: true,
+                }),
+                new Paragraph({
+                  children: [
+                    new TextRun({ text: shipTo.projectName + ".", bold: true }),
+                  ],
+                }),
                 new Paragraph({ text: shipTo.projectName + ".", bold: true }),
                 new Paragraph({ text: shipTo.a1 + " " + shipTo.a2 + "," }),
                 new Paragraph({ text: shipTo.a3 + "," }),
@@ -466,8 +488,15 @@ const QuotationGenerator = ({ id }) => {
           ].map(
             (header) =>
               new TableCell({
-                children: [new Paragraph({ text: header, bold: true })],
+                children: [
+                  new Paragraph({
+                    text: header,
+                    bold: true,
+                    alignment: AlignmentType.CENTER,
+                  }),
+                ],
                 shading: { fill: "D3D3D3" },
+                verticalAlign: VerticalAlign.CENTER,
               })
           ),
         }),
@@ -480,7 +509,16 @@ const QuotationGenerator = ({ id }) => {
                 `₹ ${info.serviceRate} ${info.serviceRateUnit}`,
                 info.chemical,
               ].map(
-                (text) => new TableCell({ children: [new Paragraph({ text })] })
+                (text) =>
+                  new TableCell({
+                    children: [
+                      new Paragraph({
+                        text,
+                        alignment: AlignmentType.CENTER,
+                      }),
+                    ],
+                    verticalAlign: VerticalAlign.CENTER,
+                  })
               ),
             })
         ),
