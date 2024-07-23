@@ -18,7 +18,7 @@ import {
 } from "docx";
 import fs from "fs/promises";
 import path from "path";
-import mongoose, { model } from "mongoose";
+import mongoose, { isValidObjectId, model } from "mongoose";
 import libre from "libreoffice-convert";
 import { promisify } from "util";
 
@@ -40,7 +40,7 @@ const toPdf = async (req, res, next) => {
 };
 const create = async (req, res, next) => {
   try {
-    const { quote, infoArray = [] } = req.body;
+    const { quote } = req.body;
     const {
       quotationDate,
       kindAttention,
@@ -64,8 +64,8 @@ const create = async (req, res, next) => {
     billToAddress.kci = removeIdFromDocuments(billToAddress.kci);
     shipToAddress.kci = removeIdFromDocuments(shipToAddress.kci);
     let quoteInfoIds = [];
-    for (let i = 0; i < infoArray.length; i++) {
-      const quoteData = infoArray[i];
+    for (let i = 0; i < quote.quoteInfo.length; i++) {
+      const quoteData = remove_IdFromObj(quote.quoteInfo[i]);
       const newInfo = await QuoteInfo.create(quoteData);
       quoteInfoIds.push(newInfo._id);
     }
@@ -248,23 +248,48 @@ const update = async (req, res, next) => {
     const updatedQuoteInfoIds = [];
     for (const info of quoteInfo) {
       let quoteInfoDoc;
-      if (info._id) {
-        // Update existing quoteInfo
+      if (info._id && isValidObjectId(info._id) && info._id.length !== 21) {
         quoteInfoDoc = await QuoteInfo.findByIdAndUpdate(info._id, info, {
           new: true,
           runValidators: true,
         });
-      } else {
-        // Create new quoteInfo
-        quoteInfoDoc = new QuoteInfo(info);
+      } else if (info._id.length == 21) {
+        const noIdInfo = remove_IdFromObj(info);
+        quoteInfoDoc = new QuoteInfo(noIdInfo);
+        console.log(quoteInfoDoc);
         await quoteInfoDoc.save();
+      } else {
+        //throw exception
       }
       updatedQuoteInfoIds.push(quoteInfoDoc._id);
+    }
+    if (!isapproved) {
+      const { quoteInfo: oldIdArray } = await Quotation.findById(
+        quotationId
+      ).select("quoteInfo");
+
+      // Convert IDs to strings for comparison
+      const oldIdArrayStrings = oldIdArray.map((id) => id.toString());
+      const updatedQuoteInfoIdsStrings = updatedQuoteInfoIds.map((id) =>
+        id.toString()
+      );
+
+      console.log("old", oldIdArrayStrings);
+      console.log("new", updatedQuoteInfoIdsStrings);
+      const differenceIds = differenceBetweenArrays(
+        oldIdArrayStrings,
+        updatedQuoteInfoIdsStrings
+      );
+      console.log("difference", differenceIds);
+
+      if (differenceIds.length > 0) {
+        await QuoteInfo.deleteMany({ _id: { $in: differenceIds } });
+      }
     }
 
     // Update the quotation with the new quoteInfo ids
     quotation.quoteInfo = updatedQuoteInfoIds;
-
+    await quotation.save();
     await quotation.reviseQuotationNo();
 
     // Fetch the updated quotation with populated quoteInfo
@@ -293,7 +318,9 @@ async function createQuoteArchiveEntry(quoteId, state, author, message) {
     await newArchive.save();
   }
 }
-
+function differenceBetweenArrays(A, B) {
+  return A.filter((element) => !B.includes(element));
+}
 const docx = async (req, res, next) => {
   try {
     const __dirname = path.resolve();
@@ -429,6 +456,11 @@ const getArchive = async (req, res, next) => {
 const removeIdFromDocuments = (documents) => {
   return documents.map(({ id, ...rest }) => rest);
 };
+const remove_IdFromObj = (obj) => {
+  const { _id, ...rest } = obj;
+  return rest;
+};
+
 function generateQuotation(data) {
   const doc = new Document({
     sections: [

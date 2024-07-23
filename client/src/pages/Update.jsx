@@ -2,9 +2,14 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getSingleQuote, updateQuote } from "../redux/quote/quoteSlice";
 import { unwrapResult } from "@reduxjs/toolkit";
-import { KCI, Loading } from "../components";
+import {
+  InputStandardAdv,
+  InputSupplyAdv,
+  InputSupplyApplyAdv,
+  KCI,
+  Loading,
+} from "../components";
 import { Button, Label, Select, Textarea, TextInput } from "flowbite-react";
-import { IoCheckmarkDoneCircleOutline } from "react-icons/io5";
 import { toast } from "react-toastify";
 
 // eslint-disable-next-line react/prop-types
@@ -12,6 +17,7 @@ function Update({ quoteId, onClose }) {
   const dispatch = useDispatch();
   const [quote, setQuote] = useState(null);
   const [message, setMessage] = useState("");
+  // eslint-disable-next-line no-unused-vars
   const [subRef, setSubRef] = useState();
   const { loading } = useSelector((state) => state.quote);
 
@@ -85,8 +91,8 @@ function Update({ quoteId, onClose }) {
   async function handleSubmitNotApproved() {
     const data = { id: quoteId, quote, message };
     const actionResult = await dispatch(updateQuote(data));
+    // eslint-disable-next-line no-unused-vars
     const result = unwrapResult(actionResult);
-    console.log(result);
     onClose();
   }
 
@@ -102,6 +108,7 @@ function Update({ quoteId, onClose }) {
       }));
     }
   }
+  console.log(quote);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -392,7 +399,7 @@ function Update({ quoteId, onClose }) {
               onChange={handleChange}
             />
           </div>
-          <KCI quote={quote} setQuote={setQuote} addressKey="billToAddress" />
+          <KCI quote={quote} setQuote={setQuote} addressKey="shipToAddress" />
         </div>
       </div>
 
@@ -447,180 +454,17 @@ function Update({ quoteId, onClose }) {
           </Select>
         </div>
       </div>
-      {quote.quoteInfo?.length >= 1
-        ? quote.quoteInfo.map((type) => (
-            <div
-              key={type._id}
-              className="grid grid-cols-12 gap-4 mb-4  border border-blue-600 "
-            >
-              <div className="col-span-3 border p-1">
-                <Label>Work Area Type: </Label>
-                <Select
-                  name="quoteInfo.workAreaType"
-                  onChange={handleChange}
-                  value={type.workAreaType}
-                  data-id={type._id}
-                >
-                  <option></option>
-                  <option>Basement Area</option>
-                  <option>Retaining Wall</option>
-                  <option>Raft</option>
-                  <option>Plinth</option>
-                  <option>Periphery</option>
-                  <option>Floor</option>
-                  <option>Basement Area (Horizontal)</option>
-                  <option>Basement Area (Vertical)</option>
-                </Select>
-              </div>
-              <div className="col-span-3 border grid grid-cols-4 gap-1 p-1">
-                <div className="col-span-2">
-                  <Label>Work Area: </Label>
-                  <TextInput
-                    name="quoteInfo.workArea"
-                    value={type.workArea}
-                    onChange={handleChange}
-                    data-id={type._id}
-                  />
-                </div>
-                <div className="col-span-2">
-                  <Label>Work Area Unit: </Label>
-                  <Select
-                    name="quoteInfo.workAreaUnit"
-                    value={type.workAreaUnit}
-                    onChange={handleChange}
-                    data-id={type._id}
-                  >
-                    <option></option>
-                    <option value="Sq.fts">Sq.fts</option>
-                    <option value="Sq.mts">Sq.mts</option>
-                    <option value="R.fts">R.fts</option>
-                    <option value="R.mts">R.mts</option>
-                  </Select>
-                </div>
-              </div>
-              {type.serviceRate ? (
-                <div className="col-span-3 border grid grid-cols-2 gap-1 p-1">
-                  <div className="col-span-1">
-                    <Label>Service Charges: </Label>
-                    <TextInput
-                      name="quoteInfo.serviceRate"
-                      value={type.serviceRate}
-                      onChange={handleChange}
-                      data-id={type._id}
-                    />
-                  </div>
-                  <div className="col-span-1">
-                    <Label>Unit: </Label>
-                    <Select
-                      name="quoteInfo.serviceRateUnit"
-                      value={type.serviceRateUnit}
-                      onChange={handleChange}
-                      data-id={type._id}
-                    >
-                      <option></option>
-                      <option value="Per Sq.ft">Per Sq.ft</option>
-                      <option value="Per Sq.mt">Per Sq.mt</option>
-                      <option value="Per Rn.ft">Per Rn.ft</option>
-                      <option value="Lumpsum">Lumpsum</option>
-                    </Select>
-                  </div>
-                </div>
-              ) : (
-                <div className="col-span-3 border grid grid-cols-2 gap-1 p-1">
-                  <div className="col-span-1">
-                    <Label>Chemical Rate: </Label>
-                    <TextInput
-                      name="quoteInfo.chemicalRate"
-                      value={type.chemicalRate}
-                      onChange={handleChange}
-                      data-id={type._id}
-                    />
-                  </div>
-                  <div className="col-span-1">
-                    <Label>Unit: </Label>
-                    <Select
-                      name="quoteInfo.chemicalRateUnit"
-                      value={type.chemicalRateUnit}
-                      onChange={handleChange}
-                      data-id={type._id}
-                    >
-                      <option></option>
-                      <option value="Per Ltr.">Per Ltr.</option>
-                      <option value="Lumpsum">Lumpsum</option>
-                    </Select>
-                  </div>
-                </div>
-              )}
-              <div className="col-span-3 border grid grid-cols-8 p-1">
-                <div className="col-span-6">
-                  <Label>Chemical: </Label>
-                  <Select
-                    name="quoteInfo.chemical"
-                    value={type.chemical}
-                    onChange={handleChange}
-                    data-id={type._id}
-                  >
-                    <option></option>
-                    <option>Imidachloprid 30.5% SC</option>
-                    <option>Chloropyriphos 20% EC</option>
-                    <option>
-                      Imidachloprid 30.5% SC (&quot;PREMISE&quot; - By Bayer
-                      India/ENVU)
-                    </option>
-                  </Select>
-                </div>
-                <div className="col-span-2 flex items-center justify-center">
-                  <Button
-                    gradientDuoTone="purpleToPink"
-                    className="rounded-full"
-                  >
-                    <IoCheckmarkDoneCircleOutline size="20px" />
-                  </Button>
-                </div>
-              </div>
-              {type.chemicalQuantity && (
-                <div className="col-span-3 border p-1">
-                  <Label>Chemical Quantity: </Label>
-                  <TextInput
-                    name="quoteInfo.chemicalQuantity"
-                    value={type.chemicalQuantity}
-                    onChange={handleChange}
-                    data-id={type._id}
-                  ></TextInput>
-                </div>
-              )}
-              {type.applyRate && (
-                <div className="col-span-3 border grid grid-cols-4 gap-1 p-1">
-                  <div className="col-span-2">
-                    <Label>Apply Rate: </Label>
-                    <TextInput
-                      name="quoteInfo.applyRate"
-                      value={type.applyRate}
-                      type="text"
-                      onChange={handleChange}
-                      data-id={type._id}
-                    />
-                  </div>
-                  <div className="col-span-2">
-                    <Label>Unit: </Label>
-                    <Select
-                      name="quoteInfo.quoteInfo.applyRateUnit"
-                      value={type.applyRateUnit}
-                      onChange={handleChange}
-                      data-id={type._id}
-                    >
-                      <option></option>
-                      <option value="Per Sq.ft">Per Sq.ft</option>
-                      <option value="Per Sq.mt">Per Sq.mt</option>
-                      <option value="Per Rn.ft">Per Rn.ft</option>
-                      <option value="Lumpsum">Lumpsum</option>
-                    </Select>
-                  </div>
-                </div>
-              )}
-            </div>
-          ))
-        : null}
+
+      {quote.docType === "standard" && (
+        <InputStandardAdv quote={quote} setQuote={setQuote} />
+      )}
+
+      {quote.docType === "supply" && (
+        <InputSupplyAdv quote={quote} setQuote={setQuote} />
+      )}
+      {quote.docType === "supply/apply" && (
+        <InputSupplyApplyAdv quote={quote} setQuote={setQuote} />
+      )}
       {quote.approved ? (
         <div className="col-span-1 mb-4">
           <Label>

@@ -208,7 +208,7 @@ export default function Create() {
       <CustomModal
         isOpen={viewModel}
         onClose={() => setViewModel(!viewModel)}
-        size="6xl"
+        size="7xl"
         heading={
           <div className="flex items-center justify-center">
             <span>View/Edit</span>
@@ -225,7 +225,7 @@ export default function Create() {
       <CustomModal
         isOpen={updateModel}
         onClose={() => setUpdateModel(!updateModel)}
-        size="6xl"
+        size="7xl"
         heading={
           <div className="flex items-center justify-center">
             <span>View/Edit</span>

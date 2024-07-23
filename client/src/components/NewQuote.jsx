@@ -7,303 +7,102 @@ import {
   TextInput,
   Textarea,
 } from "flowbite-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import CustomModal from "./CustomModal";
 import { useDispatch, useSelector } from "react-redux";
 import { createQuote } from "../redux/quote/quoteSlice";
 import { unwrapResult } from "@reduxjs/toolkit";
 import Loading from "./Loading";
 import { toast } from "react-toastify";
-import InputSupplyApply from "./InputSupplyApply";
-import InputSupply from "./InputSupply";
-import InputStandard from "./InputStandard";
 import KCI from "./KCI";
-import InfoDisplay from "./InfoDisplay";
-
+import InputStandardAdv from "./InputStandardAdv";
+import InputSupplyAdv from "./InputSupplyAdv";
+import InputSupplyApplyAdv from "./InputSupplyApplyAdv";
+const getInitialQuoteState = () => {
+  console.log("we run");
+  const savedData = localStorage.getItem("newQuote");
+  if (savedData) {
+    const { quote } = JSON.parse(savedData);
+    return quote;
+  }
+  return {
+    quotationDate: new Date().toISOString().split("T")[0],
+    kindAttention: "",
+    kindAttentionPrefix: "",
+    reference: "",
+    salePerson: "",
+    billToAddress: {
+      prefix: "",
+      name: "",
+      a1: "",
+      a2: "",
+      a3: "",
+      a4: "",
+      a5: "",
+      city: "",
+      pincode: "",
+      kci: [],
+    },
+    shipToAddress: {
+      projectName: "",
+      a1: "",
+      a2: "",
+      a3: "",
+      a4: "",
+      a5: "",
+      city: "",
+      pincode: "",
+      kci: [],
+    },
+    specification: "",
+    emailTo: "",
+    note: "",
+    quotationNo: "",
+    docType: "standard",
+    quoteInfo: [],
+  };
+};
 // eslint-disable-next-line react/prop-types
 function NewQuote({ onClose }) {
-  const getInitialQuoteState = () => {
-    const savedData = localStorage.getItem("newQuote");
-    if (savedData) {
-      const { quote } = JSON.parse(savedData);
-      return quote;
-    }
-    return {
-      quotationDate: new Date().toISOString().split("T")[0],
-      kindAttention: "",
-      kindAttentionPrefix: "",
-      reference: "",
-      salePerson: "",
-      billToAddress: {
-        prefix: "",
-        name: "",
-        a1: "",
-        a2: "",
-        a3: "",
-        a4: "",
-        a5: "",
-        city: "",
-        pincode: "",
-        kci: [],
-      },
-      shipToAddress: {
-        projectName: "",
-        a1: "",
-        a2: "",
-        a3: "",
-        a4: "",
-        a5: "",
-        city: "",
-        pincode: "",
-        kci: [],
-      },
-      specification: "",
-      emailTo: "",
-      note: "",
-      quotationNo: "",
-      docType: "standard",
-    };
-  };
-
-  const getInitialInfoArrayState = () => {
-    const savedData = localStorage.getItem("newQuote");
-    if (savedData) {
-      const { infoArray } = JSON.parse(savedData);
-      return infoArray;
-    }
-    return [];
-  };
   const { loading } = useSelector((state) => state.quote);
-  const [infoObj, setInfoObj] = useState({
-    workAreaType: "",
-    workArea: "",
-    workAreaUnit: "",
-    chemicalRate: "",
-    chemicalRateUnit: "",
-    serviceRate: "",
-    serviceRateUnit: "",
-    chemical: "",
-    chemicalQuantity: "",
-    applyRate: "",
-    applyRateUnit: "",
-  });
-  const [quote, setQuote] = useState(getInitialQuoteState());
+  const initialState = useMemo(() => getInitialQuoteState(), []);
+  const [quote, setQuote] = useState(initialState);
   const [subRef, setSubRef] = useState("");
-  const [infoArray, setInfoArray] = useState(getInitialInfoArrayState());
-  const [types, setTypes] = useState([]);
   const [doc, setDoc] = useState("standard");
   const [disableRadio, setDisableRadio] = useState(false);
   const [areaTypeModel, setAreaTypeModel] = useState(false);
   const dispatch = useDispatch();
   const { initials } = useSelector((state) => state.user);
 
-  useEffect(() => {
-    const words = infoObj.workAreaType.split("+");
-    if (words.length === 1 && words[0] === "") return;
-    setTypes(words);
-  }, [infoObj.workAreaType]);
-
   // Load data from local storage on component mount
   useEffect(() => {
     const savedData = localStorage.getItem("newQuote");
     if (savedData) {
-      const { quote, infoArray } = JSON.parse(savedData);
+      const { quote } = JSON.parse(savedData);
       setQuote(quote);
-      setInfoArray(infoArray);
     }
   }, []);
 
   // Save data to local storage whenever quote or infoArray changes
   useEffect(() => {
-    localStorage.setItem("newQuote", JSON.stringify({ quote, infoArray }));
-  }, [quote, infoArray]);
-
-  function handleInfoChange(e) {
-    const { name, value } = e.target;
-    if (name === "chemicalRateUnit" && doc === "supply/apply") {
-      let applyRateU = value === "Lumpsum" ? "Lumpsum" : null;
-      setInfoObj((prev) => ({
-        ...prev,
-        [name]: value,
-        applyRateUnit: applyRateU,
-      }));
-      return;
-    }
-    if (name === "workAreaUnit" && doc === "standard") {
-      let serviceRateU =
-        value === "Sq.fts"
-          ? "Per Sq.ft"
-          : value === "Sq.mts"
-          ? "Per Sq.mt"
-          : value === "R.fts"
-          ? "Per R.ft"
-          : value === "R.mts"
-          ? "Per R.mt"
-          : null;
-      setInfoObj((prev) => ({
-        ...prev,
-        [name]: value,
-        serviceRateUnit: serviceRateU,
-      }));
-      return;
-    }
-    if (name === "workAreaUnit" && doc === "standard") {
-      let applyRateU =
-        value === "Sq.fts"
-          ? "Per Sq.ft"
-          : value === "Sq.mts"
-          ? "Per Sq.mt"
-          : value === "R.fts"
-          ? "Per R.ft"
-          : value === "R.mts"
-          ? "Per R.mt"
-          : value === "Lumpsum"
-          ? "Lumpsum"
-          : null;
-      setInfoObj((prev) => ({
-        ...prev,
-        [name]: value,
-        applyRateUnit: applyRateU,
-      }));
-      return;
-    }
-    setInfoObj((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  }
-  function convertToFloatingPoint(number) {
-    let floatingPointNumber = Number(number).toFixed(2);
-    return floatingPointNumber;
-  }
-  function handleMoreInfo() {
-    if (doc === "standard") {
-      if (
-        infoObj.workArea === "" ||
-        infoObj.workAreaUnit === "" ||
-        infoObj.serviceRate === "" ||
-        infoObj.serviceRateUnit === "" ||
-        infoObj.chemical === ""
-      ) {
-        toast.error("Information is incomplete.");
-        return;
-      }
-    }
-    if (doc === "supply/apply") {
-      if (
-        infoObj.workArea === "" ||
-        infoObj.workAreaUnit === "" ||
-        infoObj.chemicalRate === "" ||
-        infoObj.chemicalRateUnit === "" ||
-        infoObj.chemicalQuantity === "" ||
-        infoObj.chemical === "" ||
-        infoObj.applyRate === "" ||
-        infoObj.applyRateUnit === ""
-      ) {
-        toast.error("Information is incomplete.");
-        return;
-      }
-    }
-    if (doc === "supply") {
-      if (
-        infoObj.chemicalRate === "" ||
-        infoObj.chemicalRateUnit === "" ||
-        infoObj.chemicalQuantity === "" ||
-        infoObj.chemical === ""
-      ) {
-        toast.error("Information is incomplete.");
-        return;
-      }
-    }
-
-    let chemicalQuantityFormated = null;
-    if (
-      infoObj.chemicalQuantity === "" ||
-      infoObj.chemicalQuantity === null ||
-      infoObj.chemicalQuantity === undefined
-    ) {
-      chemicalQuantityFormated = null;
-    } else {
-      chemicalQuantityFormated = Number(
-        infoObj.chemicalQuantity
-      ).toLocaleString("en-IN");
-    }
-    let chemicalRateFormated = null;
-    if (
-      infoObj.chemicalRate === "" ||
-      infoObj.chemicalRate === null ||
-      infoObj.chemicalRate === undefined
-    ) {
-      chemicalRateFormated = null;
-      infoObj.chemicalRateUnit = null;
-    } else {
-      chemicalRateFormated = convertToFloatingPoint(infoObj.chemicalRate);
-    }
-    let serviceRateFormated = null;
-    if (infoObj.serviceRate === "" || infoObj.serviceRate === null) {
-      serviceRateFormated = null;
-      infoObj.serviceRateUnit = null;
-    } else {
-      serviceRateFormated = convertToFloatingPoint(infoObj.serviceRate);
-    }
-    let applyRateFormated = null;
-    if (infoObj.applyRate === "" || infoObj.applyRate === null) {
-      applyRateFormated = null;
-      infoObj.applyRateUnit = null;
-    } else {
-      applyRateFormated = infoObj.applyRate;
-    }
-    let workAreaFormted = null;
-    if (
-      infoObj.workArea === "" ||
-      infoObj.workArea === null ||
-      infoObj.workArea === undefined
-    ) {
-      workAreaFormted = null;
-      infoObj.workAreaUnit = null;
-    } else {
-      workAreaFormted = Number(infoObj.workArea).toLocaleString("en-IN");
-    }
-    const infoDup = new Object(infoObj);
-    infoDup.workArea = workAreaFormted;
-    infoDup.chemicalRate = chemicalRateFormated;
-    infoDup.serviceRate = serviceRateFormated;
-    infoDup.chemicalQuantity = chemicalQuantityFormated;
-    infoDup.chemicalRate = chemicalRateFormated;
-    infoObj.applyRate = applyRateFormated;
-    setInfoArray((prev) => [...prev, infoDup]);
-    setInfoObj({
-      workAreaType: "",
-      workArea: "",
-      workAreaUnit: "",
-      chemicalRate: "",
-      chemicalRateUnit: "",
-      serviceRate: "",
-      serviceRateUnit: "",
-      chemical: "",
-    });
-    setTypes([]);
-  }
+    localStorage.setItem("newQuote", JSON.stringify({ quote }));
+  }, [quote]);
 
   function handleDocType(e) {
-    if (infoArray.length <= 0) {
+    if (quote.quoteInfo.length <= 0) {
       const { value } = e.target;
       setDoc(value);
     }
   }
   useEffect(() => {
-    if (infoArray.length <= 0) {
+    if (quote.quoteInfo.length <= 0) {
       setDisableRadio(false);
     } else {
       setDisableRadio(true);
       setQuote((prev) => ({ ...prev, docType: doc }));
     }
-  }, [doc, infoArray.length]);
-  function handleDeleteInfo(workAreaType) {
-    setInfoArray((prev) =>
-      prev.filter((info) => info.workAreaType !== workAreaType)
-    );
-  }
+  }, [doc, quote.quoteInfo.length]);
+
   function handleQuoteChange(e) {
     const { name, value } = e.target;
     if (name === "kindAttentionPrefix" && value === "NA") {
@@ -360,70 +159,42 @@ function NewQuote({ onClose }) {
       shipToAddress: { ...shipToAddress, ...updatedShipToAddress },
     });
   }
-  // function dummyQuote() {
-  //   const data = {
-  //     quote: {
-  //       billToAddress: {
-  //         prefix: "M/s.",
-  //         name: "KEC International Ltd.",
-  //         a1: "Raghuram Heights",
-  //         a2: "463",
-  //         a3: "Dr Annie Besant Raod",
-  //         a4: "Worli",
-  //         a5: "Opposite Hell",
-  //         city: "Mumbai",
-  //         pincode: "400030",
-  //         kci: [],
-  //       },
-  //       shipToAddress: {
-  //         projectName: "Prestige City Rehab Project",
-  //         a1: "Raghuram Heights",
-  //         a2: "463",
-  //         a3: "Dr Annie Besant Raod",
-  //         a4: "Worli",
-  //         a5: "Opposite Hell",
-  //         city: "Mumbai",
-  //         pincode: "400030",
-  //         kci: [],
-  //       },
-  //       kindAttentionPrefix: "Mr.",
-  //       kindAttention: "Malahari Naik",
-  //       reference: "Our earlier quotation No EPPL/ATT/QTN/401",
-  //       specification: "As per IS 6313 (Part 2):2013",
-  //       note: "",
-  //     },
-  //     quoteInfo: [
-  //       {
-  //         workAreaType: "Basement Area",
-  //         workArea: "6,696",
-  //         workAreaUnit: "Sq.mts",
-  //         chemicalRate: null,
-  //         chemicalRateUnit: null,
-  //         serviceRate: "27.00",
-  //         serviceRateUnit: "Per Sq.mt",
-  //         applyRate: null,
-  //         applyRateUnit: null,
-  //         chemical: "Imidachloprid 30.5% SC",
-  //         chemicalQuantity: null,
-  //       },
-  //       {
-  //         workAreaType: "Basement Area",
-  //         workArea: "66,967",
-  //         workAreaUnit: "Sq.mts",
-  //         chemicalRate: "12.00",
-  //         chemicalRateUnit: "Per Ltr.",
-  //         serviceRate: null,
-  //         serviceRateUnit: null,
-  //         applyRate: "13",
-  //         applyRateUnit: "Per Sq.mt",
-  //         chemical: "Imidachloprid 30.5% SC",
-  //         chemicalQuantity: "201",
-  //       },
-  //     ],
-  //   };
-  //   setQuote(data.quote);
-  //   setInfoArray(data.quoteInfo);
-  // }
+  function dummyQuote() {
+    const data = {
+      quote: {
+        billToAddress: {
+          prefix: "M/s.",
+          name: "KEC International Ltd.",
+          a1: "Raghuram Heights",
+          a2: "463",
+          a3: "Dr Annie Besant Raod",
+          a4: "Worli",
+          a5: "Opposite Hell",
+          city: "Mumbai",
+          pincode: "400030",
+          kci: [],
+        },
+        shipToAddress: {
+          projectName: "Prestige City Rehab Project",
+          a1: "Raghuram Heights",
+          a2: "463",
+          a3: "Dr Annie Besant Raod",
+          a4: "Worli",
+          a5: "Opposite Hell",
+          city: "Mumbai",
+          pincode: "400030",
+          kci: [],
+        },
+        kindAttentionPrefix: "Mr.",
+        kindAttention: "Malahari Naik",
+        reference: "Our earlier quotation No EPPL/ATT/QTN/401",
+        specification: "As per IS 6313 (Part 2):2013",
+        note: "",
+        quoteInfo: [],
+      },
+    };
+    setQuote(data.quote);
+  }
   function handleSubRef(e) {
     const { value } = e.target;
     setSubRef(value);
@@ -471,7 +242,7 @@ function NewQuote({ onClose }) {
       toast.error("Please select salePerson!");
       return;
     }
-    if (infoArray.length <= 0) {
+    if (quote.quoteInfo.length <= 0) {
       toast.error("Please fill the number details.");
       return;
     }
@@ -479,7 +250,7 @@ function NewQuote({ onClose }) {
       toast.error("Please enter Kind Attn: value!");
       return;
     }
-    const data = { quote, infoArray };
+    const data = { quote };
     const actionResult = await dispatch(createQuote(data));
     const result = await unwrapResult(actionResult);
     if (result.message === "Quotation Created!") {
@@ -575,9 +346,9 @@ function NewQuote({ onClose }) {
           >
             Copy BillTo/ShipTo
           </Button>
-          {/* <Button outline gradientMonochrome="cyan" onClick={dummyQuote}>
+          <Button outline gradientMonochrome="cyan" onClick={dummyQuote}>
             Dummy Quote
-          </Button> */}
+          </Button>
         </div>
         <div className="grid grid-cols-8 gap-4 border mb-4 rounded-md">
           <div className=" p-4 col-span-4">
@@ -609,7 +380,6 @@ function NewQuote({ onClose }) {
                 />
               </div>
             </div>
-
             <div className="max-w-full">
               <div className="mb-2 block">
                 <Label htmlFor="a1">
@@ -823,8 +593,8 @@ function NewQuote({ onClose }) {
             <KCI quote={quote} setQuote={setQuote} addressKey="shipToAddress" />
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-4 mb-4">
-          <div className="max-w-full border p-1">
+        <div className="grid grid-cols-12 gap-4 mb-4">
+          <div className=" col-span-5 max-w-full border p-1">
             <div className="mb-2 block">
               <Label htmlFor="reference" className="grid grid-cols-12">
                 <span className=" col-span-2">
@@ -861,7 +631,7 @@ function NewQuote({ onClose }) {
               placeholder="Reference"
             />
           </div>
-          <div className="max-w-full">
+          <div className=" col-span-3 max-w-full">
             <div className="mb-2 block">
               <Label htmlFor="specification" value="Specification">
                 <span>Specification</span>
@@ -878,120 +648,63 @@ function NewQuote({ onClose }) {
               <option>As per IS 6313 (Part 2):2013</option>
             </Select>
           </div>
-        </div>
-        <div className="grid grid-cols-12 gap-4 mb-4 ">
-          <div className="col-span-6 border p-1">
-            <Label className="flex justify-between mb-2">
-              <span>Work Area Type:</span>{" "}
-              <Button
-                onClick={() => setAreaTypeModel(true)}
-                gradientDuoTone="tealToLime"
-                size="xs"
-              >
-                +
-              </Button>
-            </Label>
-            <Select
-              name="workAreaType"
-              onChange={handleInfoChange}
-              value={infoObj.workAreaType}
-            >
-              <option></option>
-              <option>Basement Area</option>
-              <option>Retaining Wall</option>
-              <option>Raft</option>
-              <option>Plinth</option>
-              <option>Periphery</option>
-              <option>Floor</option>
-              <option>Basement Area (Horizontal)</option>
-              <option>Basement Area (Vertical)</option>
-            </Select>
-          </div>
-          <div className="col-span-4 border p-1">
-            <div className="col-span-2">
-              <fieldset className="flex gap-4 w-full justify-evenly">
-                <legend className="mb-4">Choose doc type</legend>
-                <div className="flex gap-2">
-                  <Radio
-                    id="united-state"
-                    name="docType"
-                    value="standard"
-                    defaultChecked
-                    disabled={disableRadio}
-                    color="yellow"
-                    onChange={(e) => handleDocType(e)}
-                    className="text-bg-green-500 focus:ring-green-500 checked:bg-green-500"
-                  />
-                  <Label htmlFor="united-state">Standard</Label>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Radio
-                    id="supply"
-                    name="docType"
-                    value="supply"
-                    disabled={disableRadio}
-                    color="red"
-                    onChange={(e) => handleDocType(e)}
-                    className="text-yellow-400 focus:ring-yellow-400 checked:bg-yellow-400"
-                  />
-                  <Label htmlFor="supply">Supply</Label>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Radio
-                    id="supply/apply"
-                    name="docType"
-                    value="supply/apply"
-                    disabled={disableRadio}
-                    onChange={(e) => handleDocType(e)}
-                    className="text-blue-500 focus:ring-blue-500 checked:bg-blue-500"
-                  />
-                  <Label htmlFor="supply/apply">Supply/Apply</Label>
-                </div>
-              </fieldset>
+          <div className=" col-span-4 gap-4 mb-4 ">
+            <div className="col-span-4 border p-1">
+              <div className="col-span-2">
+                <fieldset className="flex gap-4 w-full justify-evenly">
+                  <legend className="mb-4">Choose doc type</legend>
+                  <div className="flex gap-2">
+                    <Radio
+                      id="united-state"
+                      name="docType"
+                      value="standard"
+                      defaultChecked
+                      disabled={disableRadio}
+                      color="yellow"
+                      onChange={(e) => handleDocType(e)}
+                      className="text-bg-green-500 focus:ring-green-500 checked:bg-green-500"
+                    />
+                    <Label htmlFor="united-state">Standard</Label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Radio
+                      id="supply"
+                      name="docType"
+                      value="supply"
+                      disabled={disableRadio}
+                      color="red"
+                      onChange={(e) => handleDocType(e)}
+                      className="text-yellow-400 focus:ring-yellow-400 checked:bg-yellow-400"
+                    />
+                    <Label htmlFor="supply">Supply</Label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Radio
+                      id="supply/apply"
+                      name="docType"
+                      value="supply/apply"
+                      disabled={disableRadio}
+                      onChange={(e) => handleDocType(e)}
+                      className="text-blue-500 focus:ring-blue-500 checked:bg-blue-500"
+                    />
+                    <Label htmlFor="supply/apply">Supply/Apply</Label>
+                  </div>
+                </fieldset>
+              </div>
             </div>
           </div>
         </div>
-        {types.length >= 1
-          ? types.map((type) => (
-              <div
-                key={type.workAreaType}
-                className="grid grid-cols-12 gap-4 mb-4  border border-blue-600 "
-              >
-                {doc === "standard" && (
-                  <InputStandard
-                    type={type}
-                    infoObj={infoObj}
-                    handleInfoChange={handleInfoChange}
-                    handleMoreInfo={handleMoreInfo}
-                  />
-                )}
-                {doc === "supply/apply" && (
-                  <InputSupplyApply
-                    type={type}
-                    infoObj={infoObj}
-                    handleInfoChange={handleInfoChange}
-                    handleMoreInfo={handleMoreInfo}
-                  />
-                )}
-                {doc === "supply" && (
-                  <InputSupply
-                    type={type}
-                    infoObj={infoObj}
-                    handleInfoChange={handleInfoChange}
-                    handleMoreInfo={handleMoreInfo}
-                  />
-                )}
-              </div>
-            ))
-          : null}
-        {infoArray.length > 0 && (
-          <InfoDisplay
-            infoArray={infoArray}
-            onDelete={handleDeleteInfo}
-            docType={doc}
-          />
+
+        {doc === "standard" && (
+          <InputStandardAdv quote={quote} setQuote={setQuote} />
         )}
 
+        {doc === "supply" && (
+          <InputSupplyAdv quote={quote} setQuote={setQuote} />
+        )}
+        {doc === "supply/apply" && (
+          <InputSupplyApplyAdv quote={quote} setQuote={setQuote} />
+        )}
         <div className="col-span-1 mb-4">
           <Label>Notes: </Label>
           <Textarea

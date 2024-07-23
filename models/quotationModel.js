@@ -46,6 +46,7 @@ const quoteInfoSchema = mongoose.Schema({
   },
   workArea: {
     type: String,
+    default: null,
   },
   workAreaUnit: {
     type: String,
@@ -57,9 +58,11 @@ const quoteInfoSchema = mongoose.Schema({
       message: (props) =>
         `${props.value} is required when workArea is provided!`,
     },
+    default: null,
   },
   chemicalRate: {
     type: String,
+    default: null,
   },
   chemicalRateUnit: {
     type: String,
@@ -71,6 +74,7 @@ const quoteInfoSchema = mongoose.Schema({
       message: (props) =>
         `${props.value} is required when chemicalRate is provided!`,
     },
+    default: null,
   },
   serviceRate: {
     type: String,
@@ -156,9 +160,6 @@ const quotationSchema = mongoose.Schema(
       kci: {
         type: [
           {
-            id: {
-              type: String,
-            },
             name: {
               type: String,
             },
@@ -189,9 +190,6 @@ const quotationSchema = mongoose.Schema(
       kci: {
         type: [
           {
-            id: {
-              type: String,
-            },
             name: {
               type: String,
             },

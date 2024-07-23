@@ -12,6 +12,9 @@ import InputSupply from "./InputSupply";
 import InputSupplyApply from "./InputSupplyApply";
 import KCI from "./KCI";
 import InfoDisplay from "./InfoDisplay";
+import InputStandardAdv from "./InputStandardAdv";
+import InputSupplyAdv from "./InputSupplyAdv";
+import InputSupplyApplyAdv from "./InputSupplyApplyAdv";
 
 export {
   CustomModal,
@@ -28,4 +31,7 @@ export {
   InputSupplyApply,
   KCI,
   InfoDisplay,
+  InputStandardAdv,
+  InputSupplyAdv,
+  InputSupplyApplyAdv,
 };
