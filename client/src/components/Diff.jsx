@@ -30,7 +30,7 @@ function Diff({ quoteId }) {
           timestamp: rest.updatedAt,
         };
         setLatest(rest);
-        setArchive(() => [obj, ...history.revisions]);
+        setArchive(() => [obj, ...(history?.revisions ?? [])]);
         setLoading(false);
       } catch (error) {
         setLoading(false);
