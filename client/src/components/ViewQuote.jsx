@@ -64,7 +64,6 @@ const ViewQuote = forwardRef((props) => {
         // close();
       },
     });
-    console.log(supply);
     return (
       <>
         <div

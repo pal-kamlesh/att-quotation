@@ -20,9 +20,17 @@ function Diff({ quoteId }) {
         setLoading(true);
         const resultAction = await dispatch(archiveData(quoteId));
         const result = unwrapResult(resultAction);
-        const { archive, ...rest } = result.result;
+
+        const { archive: history, ...rest } = result.result;
+        const obj = {
+          state: rest,
+          message: "",
+          author: rest.createdBy,
+          _id: rest._id,
+          timestamp: rest.updatedAt,
+        };
         setLatest(rest);
-        setArchive(archive?.revisions);
+        setArchive(() => [obj, ...history.revisions]);
         setLoading(false);
       } catch (error) {
         setLoading(false);
@@ -35,7 +43,6 @@ function Diff({ quoteId }) {
   useEffect(() => {
     if (archive?.length > 0) {
       const modifiedKeys = getModifiedKeys(archive[0].state, latest);
-      console.log(modifiedKeys);
     }
   }, [latest, archive]);
 
@@ -49,14 +56,10 @@ function Diff({ quoteId }) {
   };
 
   const revisionDetails = selectedRevision || latest;
-
   return (
-    <div className=" p-4 flex h-screen">
+    <div className="p-4 flex h-screen overflow-hidden">
       {/* Left Side: Revision History Cards */}
-      <div
-        className="w-1/4 pr-4 overflow-y-auto"
-        style={{ height: "calc(100vh - 2rem)" }}
-      >
+      <div className="w-1/4 pr-4 overflow-y-auto h-[calc(100vh-2rem)]">
         {/* Adjust height and add overflow-y-auto */}
         <h2 className="text-lg font-semibold sticky top-0 bg-white pb-2">
           Revision History:
@@ -77,14 +80,12 @@ function Diff({ quoteId }) {
       </div>
 
       {/* Right Side: Details */}
-      <div
-        className="w-3/4 overflow-y-auto"
-        style={{ height: "calc(100vh - 2rem)" }}
-      >
+
+      <div className="w-3/4 overflow-y-auto h-[calc(100vh-2rem)]">
         {/* Add overflow-y-auto and set height */}
         {loading && <Loading />}
         {/* Quotation Header */}
-        <div className="bg-gray-200 p-4 rounded-t-lg sticky top-0">
+        <div className="bg-gray-200 p-4 rounded-t-lg top-0">
           {/* Make the header sticky */}
           <h1 className="text-xl font-bold">
             Quotation No: {revisionDetails?.quotationNo}

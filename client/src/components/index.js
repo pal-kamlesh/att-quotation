@@ -7,9 +7,6 @@ import ViewQuote from "./ViewQuote";
 import QuotationDownloadButton from "./QuotationDownloadButton";
 import Diff from "./Diff";
 import RevisionHistoryCard from "./RevisionHistoryCard";
-import InputStandard from "./InputStandard";
-import InputSupply from "./InputSupply";
-import InputSupplyApply from "./InputSupplyApply";
 import KCI from "./KCI";
 import InfoDisplay from "./InfoDisplay";
 import InputStandardAdv from "./InputStandardAdv";
@@ -26,9 +23,6 @@ export {
   QuotationDownloadButton,
   Diff,
   RevisionHistoryCard,
-  InputStandard,
-  InputSupply,
-  InputSupplyApply,
   KCI,
   InfoDisplay,
   InputStandardAdv,

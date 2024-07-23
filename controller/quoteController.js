@@ -256,7 +256,6 @@ const update = async (req, res, next) => {
       } else if (info._id.length == 21) {
         const noIdInfo = remove_IdFromObj(info);
         quoteInfoDoc = new QuoteInfo(noIdInfo);
-        console.log(quoteInfoDoc);
         await quoteInfoDoc.save();
       } else {
         //throw exception
@@ -274,13 +273,10 @@ const update = async (req, res, next) => {
         id.toString()
       );
 
-      console.log("old", oldIdArrayStrings);
-      console.log("new", updatedQuoteInfoIdsStrings);
       const differenceIds = differenceBetweenArrays(
         oldIdArrayStrings,
         updatedQuoteInfoIdsStrings
       );
-      console.log("difference", differenceIds);
 
       if (differenceIds.length > 0) {
         await QuoteInfo.deleteMany({ _id: { $in: differenceIds } });

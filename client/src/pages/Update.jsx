@@ -84,8 +84,8 @@ function Update({ quoteId, onClose }) {
     }
     const data = { id: quoteId, quote, message };
     const actionResult = await dispatch(updateQuote(data));
+    // eslint-disable-next-line no-unused-vars
     const result = unwrapResult(actionResult);
-    console.log(result);
     onClose();
   }
   async function handleSubmitNotApproved() {
@@ -108,7 +108,6 @@ function Update({ quoteId, onClose }) {
       }));
     }
   }
-  console.log(quote);
 
   return (
     <div className="container mx-auto px-4 py-8">

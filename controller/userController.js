@@ -80,7 +80,6 @@ const register = async (req, res, next) => {
       const existingUser = await User.findOne({
         $or: [{ username: uname }, { initials }],
       });
-      console.log(existingUser);
       if (existingUser) {
         return res.status(409).json({ message: "Oops! Username taken!" });
       }

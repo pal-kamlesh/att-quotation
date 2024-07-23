@@ -19,7 +19,6 @@ import InputStandardAdv from "./InputStandardAdv";
 import InputSupplyAdv from "./InputSupplyAdv";
 import InputSupplyApplyAdv from "./InputSupplyApplyAdv";
 const getInitialQuoteState = () => {
-  console.log("we run");
   const savedData = localStorage.getItem("newQuote");
   if (savedData) {
     const { quote } = JSON.parse(savedData);
