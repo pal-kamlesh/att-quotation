@@ -135,12 +135,13 @@ function InputSupplyApplyAdv({ quote, setQuote }) {
         newApplyRateUnit = "Lumpsum";
         break;
       default:
-        newApplyRateUnit = "";
+        newApplyRateUnit = infoObj.applyRateUnit;
     }
     setInfoObj((prevInfoObj) => ({
       ...prevInfoObj,
       applyRateUnit: newApplyRateUnit,
     }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [infoObj.chemicalRateUnit]);
 
   return (
@@ -271,7 +272,7 @@ function InputSupplyApplyAdv({ quote, setQuote }) {
       </div>
       <div className="max-w-full overflow-x-auto">
         <Table hoverable={true} className="w-full">
-          <Table.Head className="bg-blue-100">
+          <Table.Head className="bg-blue-200">
             <Table.HeadCell className="text-blue-700">Sr.No</Table.HeadCell>
             <Table.HeadCell className="text-blue-700">
               Work Area Type

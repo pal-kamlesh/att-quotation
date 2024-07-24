@@ -57,7 +57,7 @@ const getInitialQuoteState = () => {
     emailTo: "",
     note: "",
     quotationNo: "",
-    docType: "standard",
+    docType: "",
     quoteInfo: [],
   };
 };
@@ -67,7 +67,7 @@ function NewQuote({ onClose }) {
   const initialState = useMemo(() => getInitialQuoteState(), []);
   const [quote, setQuote] = useState(initialState);
   const [subRef, setSubRef] = useState("");
-  const [doc, setDoc] = useState("standard");
+  const [doc, setDoc] = useState(quote.docType);
   const [disableRadio, setDisableRadio] = useState(false);
   const [areaTypeModel, setAreaTypeModel] = useState(false);
   const dispatch = useDispatch();
@@ -657,7 +657,11 @@ function NewQuote({ onClose }) {
                       id="united-state"
                       name="docType"
                       value="standard"
-                      defaultChecked
+                      defaultChecked={
+                        doc === "" || quote.docType === "standard"
+                          ? true
+                          : false
+                      }
                       disabled={disableRadio}
                       color="yellow"
                       onChange={(e) => handleDocType(e)}
@@ -671,6 +675,7 @@ function NewQuote({ onClose }) {
                       name="docType"
                       value="supply"
                       disabled={disableRadio}
+                      defaultChecked={doc === "supply" ? true : false}
                       color="red"
                       onChange={(e) => handleDocType(e)}
                       className="text-yellow-400 focus:ring-yellow-400 checked:bg-yellow-400"
@@ -683,6 +688,7 @@ function NewQuote({ onClose }) {
                       name="docType"
                       value="supply/apply"
                       disabled={disableRadio}
+                      defaultChecked={doc === "supply/apply" ? true : false}
                       onChange={(e) => handleDocType(e)}
                       className="text-blue-500 focus:ring-blue-500 checked:bg-blue-500"
                     />

@@ -178,7 +178,7 @@ function InputSupplyAdv({ quote, setQuote }) {
       </div>
       <div className="max-w-full overflow-x-auto mt-4">
         <Table hoverable={true} className="w-full">
-          <Table.Head className="bg-yellow-100 rounded-lg">
+          <Table.Head className="bg-yellow-200 rounded-lg">
             <Table.HeadCell className="text-yellow-700">Sr.No</Table.HeadCell>
             <Table.HeadCell className="text-yellow-700">
               Work Area Type
