@@ -4,11 +4,13 @@ import { useEffect, useState } from "react";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 import { Spinner } from "flowbite-react";
+import { unwrapResult } from "@reduxjs/toolkit";
 
 const Login = () => {
   const navigate = useNavigate();
-  const { currentUser, loading } = useSelector((store) => store.user);
+  const { currentUser } = useSelector((store) => store.user);
   const dispatch = useDispatch();
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (currentUser) {
@@ -19,9 +21,17 @@ const Login = () => {
     // eslint-disable-next-line
   }, [currentUser]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    dispatch(login(loginData));
+    try {
+      setLoading(true);
+      const actionResult = await dispatch(login(loginData));
+      const result = unwrapResult(actionResult);
+      console.log(result);
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+    }
   };
   const [loginData, setLoginData] = useState({
     username: "",
