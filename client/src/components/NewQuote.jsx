@@ -96,6 +96,7 @@ function NewQuote({ onClose }) {
   useEffect(() => {
     if (quote.quoteInfo.length <= 0) {
       setDisableRadio(false);
+      setQuote((prev) => ({ ...prev, docType: doc }));
     } else {
       setDisableRadio(true);
       setQuote((prev) => ({ ...prev, docType: doc }));
@@ -257,6 +258,7 @@ function NewQuote({ onClose }) {
     }
     onClose();
   }
+  console.log(quote);
   return (
     <div>
       {loading ? <Loading /> : null}
