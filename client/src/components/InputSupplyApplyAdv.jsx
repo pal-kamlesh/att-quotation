@@ -144,15 +144,15 @@ function InputSupplyApplyAdv({ quote, setQuote }) {
   }, [infoObj.chemicalRateUnit]);
 
   return (
-    <div className="bg-blue-50 p-4 rounded-lg shadow-md">
+    <div className="bg-blue-200 p-4 rounded-lg shadow-md">
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-4">
-        <div className="border border-blue-300 p-3 rounded bg-blue-100">
-          <Label className="text-blue-800">Work Area Type: </Label>
+        <div className="border border-blue-400 p-3 rounded bg-blue-100">
+          <Label className="text-blue-700">Work Area Type: </Label>
           <Select
             name="workAreaType"
             onChange={handleInfoChange}
             value={infoObj.workAreaType}
-            className="bg-blue-100 border-blue-300 focus:border-blue-500 focus:ring-blue-500"
+            className="bg-blue-100 border-blue-400 focus:border-blue-600 focus:ring-blue-600"
           >
             <option value=""></option>
             <option>Basement Area</option>
@@ -165,20 +165,20 @@ function InputSupplyApplyAdv({ quote, setQuote }) {
             <option>Basement Area (Vertical)</option>
           </Select>
         </div>
-        <div className="border border-blue-300 p-3 rounded bg-blue-100">
-          <Label className="text-blue-800">Work Area: </Label>
+        <div className="border border-blue-400 p-3 rounded bg-blue-100">
+          <Label className="text-blue-700">Work Area: </Label>
           <div className="flex gap-2">
             <TextInput
               name="workArea"
               value={infoObj.workArea}
               onChange={handleInfoChange}
-              className="flex-1 bg-blue-100 border-blue-300 focus:border-blue-500 focus:ring-blue-500"
+              className="flex-1 bg-blue-100 border-blue-400 focus:border-blue-600 focus:ring-blue-600"
             />
             <Select
               name="workAreaUnit"
               onChange={handleInfoChange}
               value={infoObj.workAreaUnit}
-              className="flex-1 bg-blue-100 border-blue-300 focus:border-blue-500 focus:ring-blue-500"
+              className="flex-1 bg-blue-100 border-blue-400 focus:border-blue-600 focus:ring-blue-600"
             >
               <option value=""></option>
               <option value="Sq.fts">Sq.fts</option>
@@ -188,20 +188,20 @@ function InputSupplyApplyAdv({ quote, setQuote }) {
             </Select>
           </div>
         </div>
-        <div className="border border-blue-300 p-3 rounded bg-blue-100">
-          <Label className="text-blue-800">Chemical Rate: </Label>
+        <div className="border border-blue-400 p-3 rounded bg-blue-100">
+          <Label className="text-blue-700">Chemical Rate: </Label>
           <div className="flex gap-2">
             <TextInput
               name="chemicalRate"
               value={infoObj.chemicalRate}
               onChange={handleInfoChange}
-              className="flex-1 bg-blue-100 border-blue-300 focus:border-blue-500 focus:ring-blue-500"
+              className="flex-1 bg-blue-100 border-blue-400 focus:border-blue-600 focus:ring-blue-600"
             />
             <Select
               name="chemicalRateUnit"
               onChange={handleInfoChange}
               value={infoObj.chemicalRateUnit}
-              className="flex-1 bg-blue-100 border-blue-300 focus:border-blue-500 focus:ring-blue-500"
+              className="flex-1 bg-blue-100 border-blue-400 focus:border-blue-600 focus:ring-blue-600"
             >
               <option value=""></option>
               <option value="Per Ltr.">Per Ltr.</option>
@@ -209,29 +209,29 @@ function InputSupplyApplyAdv({ quote, setQuote }) {
             </Select>
           </div>
         </div>
-        <div className="border border-blue-300 p-3 rounded bg-blue-100">
-          <Label className="text-blue-800">Chemical Quantity: </Label>
+        <div className="border border-blue-400 p-3 rounded bg-blue-100">
+          <Label className="text-blue-700">Chemical Quantity: </Label>
           <TextInput
             name="chemicalQuantity"
             value={infoObj.chemicalQuantity}
             onChange={handleInfoChange}
-            className="bg-blue-100 border-blue-300 focus:border-blue-500 focus:ring-blue-500"
+            className="bg-blue-100 border-blue-400 focus:border-blue-600 focus:ring-blue-600"
           />
         </div>
-        <div className="border border-blue-300 p-3 rounded bg-blue-100">
-          <Label className="text-blue-800">Apply Rate: </Label>
+        <div className="border border-blue-400 p-3 rounded bg-blue-100">
+          <Label className="text-blue-700">Apply Rate: </Label>
           <div className="flex gap-2">
             <TextInput
               name="applyRate"
               value={infoObj.applyRate}
               onChange={handleInfoChange}
-              className="flex-1 bg-blue-100 border-blue-300 focus:border-blue-500 focus:ring-blue-500"
+              className="flex-1 bg-blue-100 border-blue-400 focus:border-blue-600 focus:ring-blue-600"
             />
             <Select
               name="applyRateUnit"
               onChange={handleInfoChange}
               value={infoObj.applyRateUnit}
-              className="flex-1 bg-blue-100 border-blue-300 focus:border-blue-500 focus:ring-blue-500"
+              className="flex-1 bg-blue-100 border-blue-400 focus:border-blue-600 focus:ring-blue-600"
             >
               <option value=""></option>
               <option value="Per Sq.ft">Per Sq.ft</option>
@@ -242,14 +242,14 @@ function InputSupplyApplyAdv({ quote, setQuote }) {
             </Select>
           </div>
         </div>
-        <div className="border border-blue-300 p-3 rounded bg-blue-100 col-span-full md:col-span-2">
-          <Label className="text-blue-800">Chemical: </Label>
+        <div className="border border-blue-400 p-3 rounded bg-blue-100 col-span-full md:col-span-2">
+          <Label className="text-blue-700">Chemical: </Label>
           <div className="flex gap-2 items-center justify-center">
             <Select
               name="chemical"
               onChange={handleInfoChange}
               value={infoObj.chemical}
-              className="flex-1 bg-blue-100 border-blue-300 focus:border-blue-500 focus:ring-blue-500"
+              className="flex-1 bg-blue-100 border-blue-400 focus:border-blue-600 focus:ring-blue-600"
             >
               <option value=""></option>
               <option>Imidachloprid 30.5% SC</option>
@@ -272,39 +272,39 @@ function InputSupplyApplyAdv({ quote, setQuote }) {
       <div className="max-w-full overflow-x-auto">
         <Table hoverable={true} className="w-full">
           <Table.Head className="bg-blue-100">
-            <Table.HeadCell className="text-blue-800">Sr.No</Table.HeadCell>
-            <Table.HeadCell className="text-blue-800">
+            <Table.HeadCell className="text-blue-700">Sr.No</Table.HeadCell>
+            <Table.HeadCell className="text-blue-700">
               Work Area Type
             </Table.HeadCell>
-            <Table.HeadCell className="text-blue-800">Work Area</Table.HeadCell>
-            <Table.HeadCell className="text-blue-800">
+            <Table.HeadCell className="text-blue-700">Work Area</Table.HeadCell>
+            <Table.HeadCell className="text-blue-700">
               Work Area Unit
             </Table.HeadCell>
-            <Table.HeadCell className="text-blue-800">
+            <Table.HeadCell className="text-blue-700">
               Chemical Rate
             </Table.HeadCell>
-            <Table.HeadCell className="text-blue-800">
+            <Table.HeadCell className="text-blue-700">
               Chemical Rate Unit
             </Table.HeadCell>
-            <Table.HeadCell className="text-blue-800">
+            <Table.HeadCell className="text-blue-700">
               Chemical Quantity
             </Table.HeadCell>
-            <Table.HeadCell className="text-blue-800">
+            <Table.HeadCell className="text-blue-700">
               Apply Rate
             </Table.HeadCell>
-            <Table.HeadCell className="text-blue-800">
+            <Table.HeadCell className="text-blue-700">
               Apply Rate Unit
             </Table.HeadCell>
-            <Table.HeadCell className="text-blue-800">Chemical</Table.HeadCell>
-            <Table.HeadCell className="text-blue-800">Delete</Table.HeadCell>
-            <Table.HeadCell className="text-blue-800">Edit</Table.HeadCell>
+            <Table.HeadCell className="text-blue-700">Chemical</Table.HeadCell>
+            <Table.HeadCell className="text-blue-700">Delete</Table.HeadCell>
+            <Table.HeadCell className="text-blue-700">Edit</Table.HeadCell>
           </Table.Head>
           <Table.Body className="divide-y divide-blue-200">
             {infoArray.length > 0 &&
               infoArray.map((info, idx) => (
                 <Table.Row
                   key={info._id}
-                  className="bg-blue-100 hover:bg-blue-50"
+                  className="bg-blue-100 hover:bg-blue-200"
                 >
                   <Table.Cell>{idx + 1}</Table.Cell>
                   <Table.Cell>{info.workAreaType}</Table.Cell>
@@ -318,7 +318,7 @@ function InputSupplyApplyAdv({ quote, setQuote }) {
                   <Table.Cell>{info.chemical}</Table.Cell>
                   <Table.Cell>
                     <button
-                      className="bg-red-400 rounded-full hover:bg-red-600 text-white p-1"
+                      className="bg-red-500 rounded-full hover:bg-red-700 text-white p-1"
                       onClick={() => deleteInfo(info._id)}
                     >
                       <GiCancel className="w-5 h-5" />
@@ -326,7 +326,7 @@ function InputSupplyApplyAdv({ quote, setQuote }) {
                   </Table.Cell>
                   <Table.Cell>
                     <button
-                      className="bg-green-400 hover:bg-green-600 rounded-full text-white p-1"
+                      className="bg-green-500 hover:bg-green-700 rounded-full text-white p-1"
                       onClick={() => editInfo(info._id)}
                     >
                       <FaEdit className="w-5 h-5" />

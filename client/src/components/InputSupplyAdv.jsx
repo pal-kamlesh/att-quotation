@@ -87,15 +87,15 @@ function InputSupplyAdv({ quote, setQuote }) {
   }, [infoArray, setQuote]);
 
   return (
-    <div className="bg-yellow-50 p-4 rounded-lg shadow-md">
+    <div className="bg-yellow-200 p-4 rounded-lg shadow-md">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-        <div className="border border-yellow-300 p-3 rounded bg-yellow-100">
-          <Label className="text-yellow-800">Work Area Type: </Label>
+        <div className="border border-yellow-400 p-3 rounded bg-yellow-100">
+          <Label className="text-yellow-700">Work Area Type: </Label>
           <Select
             name="workAreaType"
             onChange={handleInfoChange}
             value={infoObj.workAreaType}
-            className="bg-yellow-50 border-yellow-300 focus:border-yellow-500 focus:ring-yellow-500"
+            className="bg-yellow-100 border-yellow-400 focus:border-yellow-600 focus:ring-yellow-600"
           >
             <option value=""></option>
             <option value="Basement Area">Basement Area</option>
@@ -112,20 +112,20 @@ function InputSupplyAdv({ quote, setQuote }) {
             </option>
           </Select>
         </div>
-        <div className="border border-yellow-300 p-3 rounded bg-yellow-100">
-          <Label className="text-yellow-800">Chemical Rate: </Label>
+        <div className="border border-yellow-400 p-3 rounded bg-yellow-100">
+          <Label className="text-yellow-700">Chemical Rate: </Label>
           <div className="flex gap-2">
             <TextInput
               name="chemicalRate"
               value={infoObj.chemicalRate}
               onChange={handleInfoChange}
-              className="flex-1 bg-yellow-50 border-yellow-300 focus:border-yellow-500 focus:ring-yellow-500"
+              className="flex-1 bg-yellow-100 border-yellow-400 focus:border-yellow-600 focus:ring-yellow-600"
             />
             <Select
               name="chemicalRateUnit"
               onChange={handleInfoChange}
               value={infoObj.chemicalRateUnit}
-              className="flex-1 bg-yellow-50 border-yellow-300 focus:border-yellow-500 focus:ring-yellow-500"
+              className="flex-1 bg-yellow-100 border-yellow-400 focus:border-yellow-600 focus:ring-yellow-600"
             >
               <option value=""></option>
               <option value="Per Ltr.">Per Ltr.</option>
@@ -133,23 +133,23 @@ function InputSupplyAdv({ quote, setQuote }) {
             </Select>
           </div>
         </div>
-        <div className="border border-yellow-300 p-3 rounded bg-yellow-100">
-          <Label className="text-yellow-800">Chemical Quantity: </Label>
+        <div className="border border-yellow-400 p-3 rounded bg-yellow-100">
+          <Label className="text-yellow-700">Chemical Quantity: </Label>
           <TextInput
             name="chemicalQuantity"
             value={infoObj.chemicalQuantity}
             onChange={handleInfoChange}
-            className="bg-yellow-50 border-yellow-300 focus:border-yellow-500 focus:ring-yellow-500"
+            className="bg-yellow-100 border-yellow-400 focus:border-yellow-600 focus:ring-yellow-600"
           />
         </div>
-        <div className="border border-yellow-300 p-3 rounded bg-yellow-100">
-          <Label className="text-yellow-800">Chemical: </Label>
+        <div className="border border-yellow-400 p-3 rounded bg-yellow-100">
+          <Label className="text-yellow-700">Chemical: </Label>
           <div className="flex gap-2 items-center justify-center">
             <Select
               name="chemical"
               onChange={handleInfoChange}
               value={infoObj.chemical}
-              className="flex-1 bg-yellow-50 border-yellow-300 focus:border-yellow-500 focus:ring-yellow-500"
+              className="flex-1 bg-yellow-100 border-yellow-400 focus:border-yellow-600 focus:ring-yellow-600"
             >
               <option value=""></option>
               <option value="Imidachloprid 30.5% SC">
@@ -178,30 +178,30 @@ function InputSupplyAdv({ quote, setQuote }) {
       </div>
       <div className="max-w-full overflow-x-auto mt-4">
         <Table hoverable={true} className="w-full">
-          <Table.Head className="bg-yellow-50 rounded-lg">
-            <Table.HeadCell className="text-yellow-800">Sr.No</Table.HeadCell>
-            <Table.HeadCell className="text-yellow-800">
+          <Table.Head className="bg-yellow-100 rounded-lg">
+            <Table.HeadCell className="text-yellow-700">Sr.No</Table.HeadCell>
+            <Table.HeadCell className="text-yellow-700">
               Work Area Type
             </Table.HeadCell>
-            <Table.HeadCell className="text-yellow-800">
+            <Table.HeadCell className="text-yellow-700">
               Chemical Rate
             </Table.HeadCell>
-            <Table.HeadCell className="text-yellow-800">Unit</Table.HeadCell>
-            <Table.HeadCell className="text-yellow-800">
+            <Table.HeadCell className="text-yellow-700">Unit</Table.HeadCell>
+            <Table.HeadCell className="text-yellow-700">
               Chemical Quantity
             </Table.HeadCell>
-            <Table.HeadCell className="text-yellow-800">
+            <Table.HeadCell className="text-yellow-700">
               Chemical
             </Table.HeadCell>
-            <Table.HeadCell className="text-yellow-800">Delete</Table.HeadCell>
-            <Table.HeadCell className="text-yellow-800">Edit</Table.HeadCell>
+            <Table.HeadCell className="text-yellow-700">Delete</Table.HeadCell>
+            <Table.HeadCell className="text-yellow-700">Edit</Table.HeadCell>
           </Table.Head>
-          <Table.Body className="divide-y divide-yellow-200">
+          <Table.Body className="divide-y divide-yellow-400">
             {infoArray.length > 0 &&
               infoArray.map((info, idx) => (
                 <Table.Row
                   key={info._id}
-                  className="bg-yellow-100 hover:bg-yellow-50"
+                  className="bg-yellow-100 hover:bg-yellow-200"
                 >
                   <Table.Cell>{idx + 1}</Table.Cell>
                   <Table.Cell>{info.workAreaType}</Table.Cell>
@@ -212,7 +212,7 @@ function InputSupplyAdv({ quote, setQuote }) {
                   <Table.Cell>
                     <div className="flex items-center justify-center">
                       <button
-                        className="bg-red-400 rounded-full hover:bg-red-600 text-white p-1"
+                        className="bg-red-500 rounded-full hover:bg-red-700 text-white p-1"
                         onClick={() => deleteInfo(info._id)}
                       >
                         <GiCancel className="w-5 h-5" />
@@ -222,7 +222,7 @@ function InputSupplyAdv({ quote, setQuote }) {
                   <Table.Cell>
                     <div className="flex items-center justify-center">
                       <button
-                        className="bg-green-400 hover:bg-green-600 rounded-full text-white p-1"
+                        className="bg-green-500 hover:bg-green-700 rounded-full text-white p-1"
                         onClick={() => editInfo(info._id)}
                       >
                         <FaEdit className="w-5 h-5" />
