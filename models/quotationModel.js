@@ -1,132 +1,7 @@
 import mongoose from "mongoose";
 import mongooseLeanVirtuals from "mongoose-lean-virtuals";
+import { Counter } from "./counterModel.js";
 
-const quoteArchiveSchema = mongoose.Schema({
-  quotationId: {
-    type: mongoose.Schema.Types.ObjectId,
-    required: true,
-  },
-  revisions: [
-    {
-      timestamp: {
-        type: Date,
-        default: Date.now,
-      },
-      state: {
-        type: Object,
-        required: true,
-      },
-      message: {
-        type: String,
-      },
-      author: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        required: true,
-      },
-    },
-  ],
-});
-quoteArchiveSchema.plugin(mongooseLeanVirtuals);
-
-const quoteInfoSchema = mongoose.Schema({
-  workAreaType: {
-    type: String,
-    enum: [
-      "Basement Area",
-      "Basement Area (Horizontal)",
-      "Basement Area (Vertical)",
-      "Retaining Wall",
-      "Raft",
-      "Plinth",
-      "Periphery",
-      "Floor",
-    ],
-    required: true,
-  },
-  workArea: {
-    type: String,
-    default: null,
-  },
-  workAreaUnit: {
-    type: String,
-    enum: ["Sq.fts", "Sq.mts", "R.fts", "R.mts"],
-    validate: {
-      validator: function (v) {
-        return v === null || this.workArea !== null;
-      },
-      message: (props) =>
-        `${props.value} is required when workArea is provided!`,
-    },
-    default: null,
-  },
-  chemicalRate: {
-    type: String,
-    default: null,
-  },
-  chemicalRateUnit: {
-    type: String,
-    enum: ["Per Ltr.", "Lumpsum"],
-    validate: {
-      validator: function (v) {
-        return v === null || this.chemicalRate !== null;
-      },
-      message: (props) =>
-        `${props.value} is required when chemicalRate is provided!`,
-    },
-    default: null,
-  },
-  serviceRate: {
-    type: String,
-    default: null,
-  },
-  serviceRateUnit: {
-    type: String,
-    enum: ["Per Sq.ft", "Per Sq.mt", "Per R.ft", "Per R.mt", "Lumpsum"],
-    default: null,
-    validate: {
-      validator: function (v) {
-        return v === null || this.serviceRate !== null;
-      },
-      message: (props) =>
-        `${props.value} is required when serviceRate is provided!`,
-    },
-  },
-  applyRate: {
-    type: String,
-    default: null,
-  },
-  applyRateUnit: {
-    type: String,
-    enum: ["Per Sq.ft", "Per Sq.mt", "Per R.ft", "Per R.mt", "Lumpsum"],
-    default: null,
-    validate: {
-      validator: function (v) {
-        return v === null || this.applyRate !== null;
-      },
-      message: (props) =>
-        `${props.value} is required when applyRate is provided!`,
-    },
-  },
-  chemical: {
-    type: String,
-    enum: [
-      "Chloropyriphos 20% EC",
-      "Imidachloprid 30.5% SC",
-      "Imidachloprid 30.5% SC 'Termida'",
-      'Imidachloprid 30.5% SC ("PREMISE" - By Bayer India/ENVU)',
-    ],
-    required: true,
-  },
-  chemicalQuantity: {
-    type: String,
-    default: null,
-  },
-});
-const counterSchema = new mongoose.Schema({
-  _id: { type: String, default: "quotationCounter" },
-  seq: { type: Number, default: 2 },
-});
 const quotationSchema = mongoose.Schema(
   {
     quotationNo: {
@@ -262,7 +137,6 @@ const quotationSchema = mongoose.Schema(
   },
   { timestamps: true }
 );
-
 quotationSchema.plugin(mongooseLeanVirtuals);
 
 // Define the virtual property 'subject'
@@ -281,8 +155,6 @@ quotationSchema.virtual("archive", {
 // Set the virtual property to be populated by default
 quotationSchema.set("toObject", { virtuals: true });
 quotationSchema.set("toJSON", { virtuals: true });
-quoteArchiveSchema.set("toObject", { virtuals: true });
-quoteArchiveSchema.set("toJSON", { virtuals: true });
 
 // quotationSchema.pre("save", async function (next) {
 //   try {
@@ -460,7 +332,4 @@ quotationSchema.statics.generateQuotationNo = async function () {
 };
 
 const Quotation = mongoose.model("Quotation", quotationSchema);
-const QuoteInfo = mongoose.model("QuoteInfo", quoteInfoSchema);
-const QuoteArchive = mongoose.model("QuoteArchive", quoteArchiveSchema);
-const Counter = mongoose.model("Counter", counterSchema);
-export { Quotation, QuoteInfo, QuoteArchive, Counter };
+export { Quotation };

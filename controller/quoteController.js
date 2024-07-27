@@ -1,8 +1,6 @@
-import {
-  Quotation,
-  QuoteArchive,
-  QuoteInfo,
-} from "../models/quotationModel.js";
+import { Quotation } from "../models/quotationModel.js";
+import { QuoteInfo } from "../models/quoteInfoModel.js";
+import { QuoteArchive } from "../models/quoteArchiveModel.js";
 import {
   Document,
   Packer,
@@ -18,7 +16,7 @@ import {
 } from "docx";
 import fs from "fs/promises";
 import path from "path";
-import mongoose, { isValidObjectId, model } from "mongoose";
+import { isValidObjectId } from "mongoose";
 import libre from "libreoffice-convert";
 import { promisify } from "util";
 
@@ -254,12 +252,13 @@ const update = async (req, res, next) => {
     const updatedQuoteInfoIds = [];
     for (const info of quoteInfo) {
       let quoteInfoDoc;
+      console.log(info);
       if (info._id && isValidObjectId(info._id) && info._id.length !== 21) {
         quoteInfoDoc = await QuoteInfo.findByIdAndUpdate(info._id, info, {
           new: true,
           runValidators: true,
         });
-      } else if (info._id.length == 21) {
+      } else if (info?._id.length == 21) {
         const noIdInfo = remove_IdFromObj(info);
         quoteInfoDoc = new QuoteInfo(noIdInfo);
         await quoteInfoDoc.save();

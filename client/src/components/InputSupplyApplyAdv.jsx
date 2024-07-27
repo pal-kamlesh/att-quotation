@@ -1,6 +1,13 @@
 /* eslint-disable react/no-unescaped-entities */
 /* eslint-disable react/prop-types */
-import { Button, Label, Select, Table, TextInput } from "flowbite-react";
+import {
+  Button,
+  Label,
+  Select,
+  Table,
+  Textarea,
+  TextInput,
+} from "flowbite-react";
 import { useEffect, useState } from "react";
 import { GiCancel } from "react-icons/gi";
 import { customAlphabet } from "nanoid";
@@ -26,6 +33,7 @@ function InputSupplyApplyAdv({ quote, setQuote }) {
     applyRate: "",
     applyRateUnit: "",
     chemical: "",
+    description: "",
   });
 
   useEffect(() => {
@@ -89,6 +97,7 @@ function InputSupplyApplyAdv({ quote, setQuote }) {
         applyRate: "",
         applyRateUnit: "",
         chemical: "",
+        description: "",
       });
     } else {
       return toast.error("This much info is not sufficient.");
@@ -190,36 +199,6 @@ function InputSupplyApplyAdv({ quote, setQuote }) {
           </div>
         </div>
         <div className="border border-blue-400 p-3 rounded bg-blue-100">
-          <Label className="text-blue-700">Chemical Rate: </Label>
-          <div className="flex gap-2">
-            <TextInput
-              name="chemicalRate"
-              value={infoObj.chemicalRate}
-              onChange={handleInfoChange}
-              className="flex-1 bg-blue-100 border-blue-400 focus:border-blue-600 focus:ring-blue-600"
-            />
-            <Select
-              name="chemicalRateUnit"
-              onChange={handleInfoChange}
-              value={infoObj.chemicalRateUnit}
-              className="flex-1 bg-blue-100 border-blue-400 focus:border-blue-600 focus:ring-blue-600"
-            >
-              <option value=""></option>
-              <option value="Per Ltr.">Per Ltr.</option>
-              <option value="Lumpsum">Lumpsum</option>
-            </Select>
-          </div>
-        </div>
-        <div className="border border-blue-400 p-3 rounded bg-blue-100">
-          <Label className="text-blue-700">Chemical Quantity: </Label>
-          <TextInput
-            name="chemicalQuantity"
-            value={infoObj.chemicalQuantity}
-            onChange={handleInfoChange}
-            className="bg-blue-100 border-blue-400 focus:border-blue-600 focus:ring-blue-600"
-          />
-        </div>
-        <div className="border border-blue-400 p-3 rounded bg-blue-100">
           <Label className="text-blue-700">Apply Rate: </Label>
           <div className="flex gap-2">
             <TextInput
@@ -243,30 +222,73 @@ function InputSupplyApplyAdv({ quote, setQuote }) {
             </Select>
           </div>
         </div>
-        <div className="border border-blue-400 p-3 rounded bg-blue-100 col-span-full md:col-span-2">
-          <Label className="text-blue-700">Chemical: </Label>
-          <div className="flex gap-2 items-center justify-center">
-            <Select
-              name="chemical"
+        <div className="border border-blue-400 p-3 rounded bg-blue-100">
+          <Label className="text-blue-700">Chemical Quantity: </Label>
+          <TextInput
+            name="chemicalQuantity"
+            value={infoObj.chemicalQuantity}
+            onChange={handleInfoChange}
+            className="bg-blue-100 border-blue-400 focus:border-blue-600 focus:ring-blue-600"
+          />
+        </div>
+        <div className="border border-blue-400 p-3 rounded bg-blue-100">
+          <Label className="text-blue-700">Chemical Rate: </Label>
+          <div className="flex gap-2">
+            <TextInput
+              name="chemicalRate"
+              value={infoObj.chemicalRate}
               onChange={handleInfoChange}
-              value={infoObj.chemical}
+              className="flex-1 bg-blue-100 border-blue-400 focus:border-blue-600 focus:ring-blue-600"
+            />
+            <Select
+              name="chemicalRateUnit"
+              onChange={handleInfoChange}
+              value={infoObj.chemicalRateUnit}
               className="flex-1 bg-blue-100 border-blue-400 focus:border-blue-600 focus:ring-blue-600"
             >
               <option value=""></option>
-              <option>Imidachloprid 30.5% SC</option>
-              <option>Imidachloprid 30.5% SC 'Termida'</option>
-              <option>Chloropyriphos 20% EC</option>
-              <option>
-                Imidachloprid 30.5% SC ("PREMISE" - By Bayer India/ENVU)
-              </option>
+              <option value="Per Ltr.">Per Ltr.</option>
+              <option value="Lumpsum">Lumpsum</option>
             </Select>
-            <Button
-              onClick={moreInfo}
-              color={validInput ? "blue" : "failure"}
-              className="border flex items-center justify-center w-7 h-7"
-            >
-              +
-            </Button>
+          </div>
+        </div>
+        <div className=" bg-blue-200 col-span-full md:col-span-3 grid grid-cols-12 gap-4 mb-4">
+          <div className="border border-blue-400 p-3 rounded bg-blue-100 col-span-full md:col-span-8">
+            <Label className="text-blue-700">Description: </Label>
+            <div className="flex gap-2 items-center justify-center">
+              <Textarea
+                name="description"
+                onChange={handleInfoChange}
+                value={infoObj.description}
+                className="flex-1 border-blue-400 focus:border-blue-600 focus:ring-blue-600 bg-white text-gray-900 focus:outline-none focus:ring-2 "
+              ></Textarea>
+            </div>
+          </div>
+          <div className="border border-blue-400 p-3 rounded bg-blue-100 col-span-full md:col-span-4">
+            <Label className="text-blue-700">Chemical: </Label>
+            <div className="flex gap-2 items-center justify-center">
+              <Select
+                name="chemical"
+                onChange={handleInfoChange}
+                value={infoObj.chemical}
+                className="flex-1 bg-blue-100 border-blue-400 focus:border-blue-600 focus:ring-blue-600"
+              >
+                <option value=""></option>
+                <option>Imidachloprid 30.5% SC</option>
+                <option>Imidachloprid 30.5% SC 'Termida'</option>
+                <option>Chloropyriphos 20% EC</option>
+                <option>
+                  Imidachloprid 30.5% SC ("PREMISE" - By Bayer India/ENVU)
+                </option>
+              </Select>
+              <Button
+                onClick={moreInfo}
+                color={validInput ? "blue" : "failure"}
+                className="border flex items-center justify-center w-7 h-7"
+              >
+                +
+              </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -282,19 +304,19 @@ function InputSupplyApplyAdv({ quote, setQuote }) {
               Work Area Unit
             </Table.HeadCell>
             <Table.HeadCell className="text-blue-700">
-              Chemical Rate
+              Apply Rate
             </Table.HeadCell>
             <Table.HeadCell className="text-blue-700">
-              Chemical Rate Unit
+              Apply Rate Unit
             </Table.HeadCell>
             <Table.HeadCell className="text-blue-700">
               Chemical Quantity
             </Table.HeadCell>
             <Table.HeadCell className="text-blue-700">
-              Apply Rate
+              Chemical Rate
             </Table.HeadCell>
             <Table.HeadCell className="text-blue-700">
-              Apply Rate Unit
+              Chemical Rate Unit
             </Table.HeadCell>
             <Table.HeadCell className="text-blue-700">Chemical</Table.HeadCell>
             <Table.HeadCell className="text-blue-700">Delete</Table.HeadCell>
@@ -311,11 +333,11 @@ function InputSupplyApplyAdv({ quote, setQuote }) {
                   <Table.Cell>{info.workAreaType}</Table.Cell>
                   <Table.Cell>{info.workArea}</Table.Cell>
                   <Table.Cell>{info.workAreaUnit}</Table.Cell>
-                  <Table.Cell>{info.chemicalRate}</Table.Cell>
-                  <Table.Cell>{info.chemicalRateUnit}</Table.Cell>
-                  <Table.Cell>{info.chemicalQuantity}</Table.Cell>
                   <Table.Cell>{info.applyRate}</Table.Cell>
                   <Table.Cell>{info.applyRateUnit}</Table.Cell>
+                  <Table.Cell>{info.chemicalQuantity}</Table.Cell>
+                  <Table.Cell>{info.chemicalRate}</Table.Cell>
+                  <Table.Cell>{info.chemicalRateUnit}</Table.Cell>
                   <Table.Cell>{info.chemical}</Table.Cell>
                   <Table.Cell>
                     <button

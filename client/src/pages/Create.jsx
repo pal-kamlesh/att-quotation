@@ -6,8 +6,7 @@ import {
   Diff,
   Loading,
   NewQuote,
-  // eslint-disable-next-line no-unused-vars
-  QuotationDownloadButton,
+  PopUp2,
   ViewQuote,
 } from "../components";
 import { useDispatch, useSelector } from "react-redux";
@@ -54,11 +53,15 @@ export default function Create() {
   }
   const handleShowMore = async () => {
     const startIndex = quotations.length;
+    if (!showMore) {
+      toast.error("No more data.");
+      return;
+    }
     if (showMore && extraQuery) {
       dispatch(showMoreQuotes({ startIndex, extraQuery }));
-      setExtraQuery(null);
     } else {
-      dispatch(showMoreQuotes({ startIndex }));
+      dispatch(showMoreQuotes({ startIndex, extraQuery }));
+      setExtraQuery(null);
     }
   };
   return (
@@ -174,7 +177,7 @@ export default function Create() {
                               History
                             </Button>
                           ) : null}
-                          <QuotationDownloadButton id={ticket._id} />
+                          <PopUp2 id={ticket._id} />
                         </div>
                       </Table.Cell>
                     </Table.Row>

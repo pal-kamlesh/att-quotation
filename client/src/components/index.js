@@ -11,7 +11,7 @@ import KCI from "./KCI";
 import InputStandardAdv from "./InputStandardAdv";
 import InputSupplyAdv from "./InputSupplyAdv";
 import InputSupplyApplyAdv from "./InputSupplyApplyAdv";
-
+import PopUp2 from "./PopUp2";
 export {
   CustomModal,
   NewQuote,
@@ -26,4 +26,5 @@ export {
   InputStandardAdv,
   InputSupplyAdv,
   InputSupplyApplyAdv,
+  PopUp2,
 };

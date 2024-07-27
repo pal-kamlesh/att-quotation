@@ -18,4 +18,11 @@ function getDotColor(docType) {
   }
 }
 
-export { saprateQuoteInfo, getDotColor };
+// Function to fetch image data as ArrayBuffer
+const fetchImage = async (imagePath) => {
+  const response = await fetch(imagePath);
+  const blob = await response.blob();
+  return await blob.arrayBuffer();
+};
+
+export { saprateQuoteInfo, getDotColor, fetchImage };

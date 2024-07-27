@@ -21,10 +21,15 @@ import headerImage from "../images/header.png";
 import footerImage from "../images/footer.png";
 import stamp from "../images/stamp.png";
 import { Button } from "flowbite-react";
-import { saprateQuoteInfo } from "../funtions/funtion.js";
+import { saprateQuoteInfo, fetchImage } from "../funtions/funtion.js";
+import {
+  generateStandardDoc,
+  generateSupplyApplyDoc,
+  generateSupplyDoc,
+} from "./AnnexureTable.jsx";
 
 // eslint-disable-next-line react/prop-types
-const QuotationGenerator = ({ id }) => {
+const QuotationGenerator = ({ id, color, onClick, text, annexure }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const dispatch = useDispatch();
@@ -228,8 +233,14 @@ const QuotationGenerator = ({ id }) => {
           ],
         })
       );
-
-      // Generate DOCX
+      const { header, title, table } =
+        data.docType === "standard"
+          ? await generateStandardDoc(data.quoteInfo)
+          : data.docType === "supply"
+          ? await generateSupplyDoc(data.quoteInfo)
+          : data.docType === "supply/apply"
+          ? await generateSupplyApplyDoc(data.quoteInfo)
+          : null;
       const doc = new Document({
         styles: {
           default: {
@@ -245,7 +256,7 @@ const QuotationGenerator = ({ id }) => {
             properties: {
               page: {
                 margin: {
-                  top: 500, // 0.5 cm in twips (1 cm = 1000 twips)
+                  top: 500, // 0.5 cm in twips
                   bottom: 500, // 0.5 cm in twips
                   left: 800, // 1.27 cm in twips
                   right: 800, // 1.27 cm in twips
@@ -254,6 +265,24 @@ const QuotationGenerator = ({ id }) => {
             },
             children: children,
           },
+          // Conditionally include the second page if annexure is true
+          ...(annexure
+            ? [
+                {
+                  properties: {
+                    page: {
+                      margin: {
+                        top: 500, // 0.5 cm in twips
+                        bottom: 500, // 0.5 cm in twips
+                        left: 800, // 1.27 cm in twips
+                        right: 800, // 1.27 cm in twips
+                      },
+                    },
+                  },
+                  children: [header, title, table],
+                },
+              ]
+            : []),
         ],
       });
 
@@ -271,12 +300,6 @@ const QuotationGenerator = ({ id }) => {
     }
   };
 
-  // Function to fetch image data as ArrayBuffer
-  const fetchImage = async (imagePath) => {
-    const response = await fetch(imagePath);
-    const blob = await response.blob();
-    return await blob.arrayBuffer();
-  };
   // eslint-disable-next-line no-unused-vars
   const boldWithinText = (boldText, normalText) => {
     const parts = normalText.split(boldText);
@@ -635,11 +658,11 @@ const QuotationGenerator = ({ id }) => {
   return (
     <div>
       <Button
-        gradientDuoTone="purpleToPink"
-        onClick={generateQuotation}
+        color={color}
+        onClick={() => [generateQuotation(), onClick()]}
         disabled={isLoading}
       >
-        {isLoading ? "Generating..." : ".docx"}
+        {isLoading ? "Generating..." : `${text}`}
       </Button>
       {error && <p style={{ color: "red" }}>{error}</p>}
     </div>

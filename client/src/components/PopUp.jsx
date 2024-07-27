@@ -2,6 +2,7 @@ import { Button, Modal } from "flowbite-react";
 import { useState } from "react";
 import { CgDanger } from "react-icons/cg";
 import { MdVerified } from "react-icons/md";
+import { toast } from "react-toastify";
 
 // eslint-disable-next-line react/prop-types
 function PopUp({ click, approved, id }) {
@@ -10,7 +11,11 @@ function PopUp({ click, approved, id }) {
   return (
     <>
       <button
-        onClick={() => setOpenModal(true)}
+        onClick={
+          approved
+            ? () => toast.error("Already approved")
+            : () => setOpenModal(true)
+        }
         className={
           approved === true
             ? "bg-green-400 rounded-lg flex items-center justify-center text-white hover:cursor-default"

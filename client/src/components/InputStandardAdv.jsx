@@ -1,6 +1,13 @@
 /* eslint-disable react/no-unescaped-entities */
 /* eslint-disable react/prop-types */
-import { Button, Label, Select, Table, TextInput } from "flowbite-react";
+import {
+  Button,
+  Label,
+  Select,
+  Table,
+  Textarea,
+  TextInput,
+} from "flowbite-react";
 import { useEffect, useState } from "react";
 import { GiCancel } from "react-icons/gi";
 import { customAlphabet } from "nanoid";
@@ -23,6 +30,7 @@ function InputStandardAdv({ quote, setQuote }) {
     serviceRate: "",
     serviceRateUnit: "",
     chemical: "",
+    description: "",
   });
 
   useEffect(() => {
@@ -68,13 +76,14 @@ function InputStandardAdv({ quote, setQuote }) {
     ) {
       setInfoArray((prevArray) => [...prevArray, infoObj]);
       setInfoObj({
-        id: nanoid(),
+        _id: nanoid(),
         workAreaType: "",
         workArea: "",
         workAreaUnit: "",
         serviceRate: "",
         serviceRateUnit: "",
         chemical: "",
+        description: "",
       });
     } else {
       return toast.error("This much info is not sufficient.");
@@ -204,6 +213,19 @@ function InputStandardAdv({ quote, setQuote }) {
             >
               +
             </Button>
+          </div>
+        </div>
+      </div>
+      <div className="w-full">
+        <div className="border border-lime-400 p-3 rounded bg-lime-100">
+          <Label className="text-lime-700">Description: </Label>
+          <div className="flex gap-2">
+            <Textarea
+              name="description"
+              value={infoObj.description}
+              onChange={handleInfoChange}
+              className="flex-1 bg-white border-lime-400 focus:border-lime-600 focus:ring-lime-600"
+            />
           </div>
         </div>
       </div>

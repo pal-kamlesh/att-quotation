@@ -1,6 +1,13 @@
 /* eslint-disable react/no-unescaped-entities */
 /* eslint-disable react/prop-types */
-import { Button, Label, Select, Table, TextInput } from "flowbite-react";
+import {
+  Button,
+  Label,
+  Select,
+  Table,
+  Textarea,
+  TextInput,
+} from "flowbite-react";
 import { useEffect, useState } from "react";
 import { GiCancel } from "react-icons/gi";
 import { customAlphabet } from "nanoid";
@@ -22,6 +29,7 @@ function InputSupplyAdv({ quote, setQuote }) {
     chemicalRateUnit: "",
     chemicalQuantity: "",
     chemical: "",
+    description: "",
   });
 
   useEffect(() => {
@@ -73,6 +81,7 @@ function InputSupplyAdv({ quote, setQuote }) {
         chemicalRateUnit: "",
         chemicalQuantity: "",
         chemical: "",
+        description: "",
       });
     } else {
       return toast.error("This much info is not sufficient.");
@@ -174,6 +183,17 @@ function InputSupplyAdv({ quote, setQuote }) {
               +
             </Button>
           </div>
+        </div>
+      </div>
+      <div className="w-full">
+        <div className="border border-yellow-400 p-3 rounded bg-yellow-100">
+          <Label className="text-yellow-700">Description: </Label>
+          <Textarea
+            name="description"
+            value={infoObj.description}
+            onChange={handleInfoChange}
+            className="bg-white border-yellow-400 focus:border-yellow-600 focus:ring-yellow-600"
+          />
         </div>
       </div>
       <div className="max-w-full overflow-x-auto mt-4">
