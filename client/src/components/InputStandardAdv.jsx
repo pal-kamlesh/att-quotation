@@ -229,7 +229,7 @@ function InputStandardAdv({ quote, setQuote }) {
           </div>
         </div>
       </div>
-      <div className="max-w-full overflow-x-auto">
+      <div className="max-w-full overflow-x-auto mt-4">
         <Table hoverable={true} className="w-full">
           <Table.Head className="bg-lime-200 rounded-lg">
             <Table.HeadCell className="text-lime-700">Sr.No</Table.HeadCell>
