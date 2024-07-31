@@ -69,7 +69,7 @@ const SearchQuote = ({ setExtraQuery }) => {
     }
   };
   return (
-    <div className=" max-w-7xl mx-auto">
+    <div className="max-w-[1400px] mx-auto">
       <div className="flex items-center  sm:justify-evenly  pr-6 flex-wrap">
         <div>
           <Label htmlFor="quotationNo" className="font-bold text-blue-600">
