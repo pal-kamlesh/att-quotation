@@ -454,6 +454,58 @@ const getArchive = async (req, res, next) => {
     next(error);
   }
 };
+
+const similarProjects = async (req, res, next) => {
+  try {
+    const { clientName, projectName, workAreaType, workArea } = req.body;
+
+    // Build the query object
+    const query = {};
+    if (clientName) {
+      query["billToAddress.name"] = new RegExp(clientName, "i");
+    }
+    if (projectName) {
+      query["shipToAddress.projectName"] = new RegExp(projectName, "i");
+    }
+
+    // Find quotations based on the query
+    let quotations = await Quotation.find(query).populate("quoteInfo");
+
+    // Filter quotations based on workAreaType and workArea
+    if (workAreaType || workArea) {
+      quotations = quotations.filter((quotation) => {
+        return quotation.quoteInfo.some((info) => {
+          let matchWorkAreaType = true;
+          if (workAreaType) {
+            matchWorkAreaType = new RegExp(workAreaType, "i").test(
+              info.workAreaType
+            );
+          }
+
+          let matchWorkArea = true;
+          if (workArea) {
+            const workAreaNum = parseFloat(info.workArea);
+            const targetWorkArea = parseFloat(workArea);
+            if (!isNaN(workAreaNum) && !isNaN(targetWorkArea)) {
+              matchWorkArea = Math.abs(workAreaNum - targetWorkArea) <= 50;
+            } else {
+              matchWorkArea = false;
+            }
+          }
+
+          // Both conditions must be true if both are present
+          return matchWorkAreaType && matchWorkArea;
+        });
+      });
+    }
+    console.log(quotations.length);
+    res.status(200).json(quotations);
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
+};
+
 const removeIdFromDocuments = (documents) => {
   return documents.map(({ id, ...rest }) => rest);
 };
@@ -632,4 +684,5 @@ export {
   approve,
   toPdf,
   getArchive,
+  similarProjects,
 };

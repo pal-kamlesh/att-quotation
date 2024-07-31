@@ -81,7 +81,6 @@ function NewQuote({ onClose }) {
       setQuote(quote);
     }
   }, []);
-
   // Save data to local storage whenever quote or infoArray changes
   useEffect(() => {
     localStorage.setItem("newQuote", JSON.stringify({ quote }));
@@ -102,7 +101,6 @@ function NewQuote({ onClose }) {
       setQuote((prev) => ({ ...prev, docType: doc }));
     }
   }, [doc, quote.quoteInfo.length]);
-
   function handleQuoteChange(e) {
     const { name, value } = e.target;
     if (name === "kindAttentionPrefix" && value === "NA") {
@@ -159,42 +157,42 @@ function NewQuote({ onClose }) {
       shipToAddress: { ...shipToAddress, ...updatedShipToAddress },
     });
   }
-  function dummyQuote() {
-    const data = {
-      quote: {
-        billToAddress: {
-          prefix: "M/s.",
-          name: "KEC International Ltd.",
-          a1: "Raghuram Heights",
-          a2: "463",
-          a3: "Dr Annie Besant Raod",
-          a4: "Worli",
-          a5: "Opposite Hell",
-          city: "Mumbai",
-          pincode: "400030",
-          kci: [],
-        },
-        shipToAddress: {
-          projectName: "Prestige City Rehab Project",
-          a1: "Raghuram Heights",
-          a2: "463",
-          a3: "Dr Annie Besant Raod",
-          a4: "Worli",
-          a5: "Opposite Hell",
-          city: "Mumbai",
-          pincode: "400030",
-          kci: [],
-        },
-        kindAttentionPrefix: "Mr.",
-        kindAttention: "Malahari Naik",
-        reference: "Our earlier quotation No EPPL/ATT/QTN/401",
-        specification: "As per IS 6313 (Part 2):2013",
-        note: "",
-        quoteInfo: [],
-      },
-    };
-    setQuote(data.quote);
-  }
+  // function dummyQuote() {
+  //   const data = {
+  //     quote: {
+  //       billToAddress: {
+  //         prefix: "M/s.",
+  //         name: "KEC International Ltd.",
+  //         a1: "Raghuram Heights",
+  //         a2: "463",
+  //         a3: "Dr Annie Besant Raod",
+  //         a4: "Worli",
+  //         a5: "Opposite Hell",
+  //         city: "Mumbai",
+  //         pincode: "400030",
+  //         kci: [],
+  //       },
+  //       shipToAddress: {
+  //         projectName: "Prestige City Rehab Project",
+  //         a1: "Raghuram Heights",
+  //         a2: "463",
+  //         a3: "Dr Annie Besant Raod",
+  //         a4: "Worli",
+  //         a5: "Opposite Hell",
+  //         city: "Mumbai",
+  //         pincode: "400030",
+  //         kci: [],
+  //       },
+  //       kindAttentionPrefix: "Mr.",
+  //       kindAttention: "Malahari Naik",
+  //       reference: "Our earlier quotation No EPPL/ATT/QTN/401",
+  //       specification: "As per IS 6313 (Part 2):2013",
+  //       note: "",
+  //       quoteInfo: [],
+  //     },
+  //   };
+  //   setQuote(data.quote);
+  // }
   function handleSubRef(e) {
     const { value } = e.target;
     setSubRef(value);
@@ -258,7 +256,6 @@ function NewQuote({ onClose }) {
     }
     onClose();
   }
-  console.log(quote);
   return (
     <div>
       {loading ? <Loading /> : null}
@@ -271,7 +268,7 @@ function NewQuote({ onClose }) {
             <input
               name="quotationDate"
               type="date"
-              value={quote.quotationDate}
+              value={new Date().toISOString().split("T")[0]}
               onChange={handleQuoteChange}
             />
           </div>
@@ -347,9 +344,9 @@ function NewQuote({ onClose }) {
           >
             Copy BillTo/ShipTo
           </Button>
-          <Button outline gradientMonochrome="cyan" onClick={dummyQuote}>
+          {/* <Button outline gradientMonochrome="cyan" onClick={dummyQuote}>
             Dummy Quote
-          </Button>
+          </Button> */}
         </div>
         <div className="grid grid-cols-8 gap-4 border mb-4 rounded-md">
           <div className=" p-4 col-span-4">

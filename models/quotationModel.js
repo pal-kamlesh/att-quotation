@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import mongooseLeanVirtuals from "mongoose-lean-virtuals";
 import { Counter } from "./counterModel.js";
+import { QuoteArchive } from "./quoteArchiveModel.js";
 
 const quotationSchema = mongoose.Schema(
   {
@@ -156,56 +157,8 @@ quotationSchema.virtual("archive", {
 quotationSchema.set("toObject", { virtuals: true });
 quotationSchema.set("toJSON", { virtuals: true });
 
-// quotationSchema.pre("save", async function (next) {
-//   try {
-//     if (!this.isNew && !this.isModified("quotationNo")) {
-//       return next();
-//     }
-//     let newQuoteNo;
-
-//     if (this.isNew) {
-//       // For new quotations
-//       const highestQuote = await this.constructor
-//         .findOne({}, "quotationNo")
-//         .sort({ createdAt: -1 })
-//         .limit(1);
-
-//       if (highestQuote) {
-//         const highestQuoteNo = Number(highestQuote.quotationNo.split("/")[3]);
-//         newQuoteNo = `EPPL/ATT/QTN/${highestQuoteNo + 1}`;
-//       } else {
-//         newQuoteNo = `EPPL/ATT/QTN/1`;
-//       }
-//     } else {
-//       // For revised quotations
-//       const parts = this.quotationNo.split("/");
-
-//       if (parts.length === 5 && parts[4].startsWith("R")) {
-//         // If already revised, increment the revision number
-//         const revisionNumber = parseInt(parts[4].substring(1)) + 1;
-//         parts[4] = `R${revisionNumber}`;
-//       } else if (parts.length === 4) {
-//         // If first revision, add /R1
-//         parts.push("R1");
-//       } else {
-//         // Unexpected format, just append /R1
-//         newQuoteNo = `${this.quotationNo}/R1`;
-//       }
-
-//       if (!newQuoteNo) {
-//         newQuoteNo = parts.join("/");
-//       }
-//     }
-
-//     this.quotationNo = newQuoteNo;
-//     next();
-//   } catch (error) {
-//     next(error);
-//   }
-// });
-
 quotationSchema.pre("remove", async function (next) {
-  const quoteHistory = await QuoteHistory.findOne({
+  const quoteHistory = await QuoteArchive.findOne({
     quotationNo: this.quotationNo,
   });
   if (quoteHistory) {
@@ -213,57 +166,6 @@ quotationSchema.pre("remove", async function (next) {
   }
   next();
 });
-
-quotationSchema.pre("findOneAndUpdate", async function (next) {
-  try {
-    // Access the query object to find the existing document
-    const query = this.getQuery();
-
-    // Fetch the existing document
-    const existingDoc = await this.model.findOne(query).exec();
-
-    if (!existingDoc) {
-      return next(new Error("Document not found"));
-    }
-
-    // Check the existing value of `approved` and `quotationNo`
-    const isApproved = existingDoc.approved;
-    const currentQuotationNo = existingDoc.quotationNo;
-
-    // If not approved skip the update
-    if (!isApproved) {
-      return next();
-    }
-
-    // Process the existing quotationNo
-    const parts = currentQuotationNo.split("/");
-    let newQuotationNo;
-
-    if (parts.length === 5 && parts[4].startsWith("R")) {
-      // If already revised, increment the revision number
-      const revisionNumber = parseInt(parts[4].substring(1)) + 1;
-      parts[4] = `R${revisionNumber}`;
-      newQuotationNo = parts.join("/");
-    } else if (parts.length === 4) {
-      // If first revision, add /R1
-      newQuotationNo = `${currentQuotationNo}/R1`;
-    } else {
-      // Unexpected format, just append /R1
-      newQuotationNo = `${currentQuotationNo}/R1`;
-    }
-
-    // Modify the update operation to include the new quotation number
-    this.setUpdate({
-      quotationNo: newQuotationNo,
-      quotationDate: new Date(),
-    });
-
-    next();
-  } catch (error) {
-    next(error);
-  }
-});
-
 quotationSchema.methods.approve = async function () {
   this.approved = true;
   this.quotationNo = await this.constructor.generateQuotationNo();
