@@ -57,7 +57,7 @@ const getInitialQuoteState = () => {
     emailTo: "",
     note: "",
     quotationNo: "",
-    docType: "",
+    docType: "standard",
     quoteInfo: [],
   };
 };

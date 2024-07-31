@@ -150,7 +150,6 @@ export default function Create() {
                               ticket.docType
                             )}`}
                           ></div>
-                          {/* Rest of your content */}
                           <Button
                             gradientDuoTone="purpleToBlue"
                             onClick={() => [
