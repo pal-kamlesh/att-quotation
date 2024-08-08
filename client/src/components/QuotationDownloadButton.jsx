@@ -120,7 +120,11 @@ const QuotationGenerator = ({ id, color, onClick, text, annexure }) => {
         new Paragraph({
           children: [
             new TextRun({
-              text: `We thank for your enquiry & the time given to our Representative ${data.salesPerson.prefix} ${data.salesPerson.username}`,
+              text: `${
+                data.salesPerson.initials === "SALES"
+                  ? "We thank you for your enquiry and the opportunity given to us to quote our rates, Further to your instructions, we are pleased to submit our quotation as below"
+                  : `We thank for your enquiry & the time given to our Representative ${data.salesPerson.prefix} ${data.salesPerson.username}`
+              }`,
               bold: true,
             }),
           ],
