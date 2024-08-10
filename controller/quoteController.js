@@ -17,6 +17,7 @@ import path from "path";
 import { isValidObjectId } from "mongoose";
 import libre from "libreoffice-convert";
 import { promisify } from "util";
+import { removeIdFromDocuments, remove_IdFromObj } from "../utils/functions.js";
 
 const convertAsync = promisify(libre.convert);
 

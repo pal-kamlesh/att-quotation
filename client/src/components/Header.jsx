@@ -95,7 +95,7 @@ export default function Header() {
             <Link to="/contracts">Contracts</Link>
           </Navbar.Link>
         )}
-        {/* {(currentUser?.rights.assign ||
+        {(currentUser?.rights.assign ||
           currentUser?.rights.admin ||
           currentUser?.rights.markDone) && (
           <Navbar.Link
@@ -104,8 +104,8 @@ export default function Header() {
           >
             <Link to="/cards">Cards</Link>
           </Navbar.Link>
-        )} */}
-        {/* {(currentUser?.rights.assign ||
+        )}
+        {(currentUser?.rights.assign ||
           currentUser?.rights.admin ||
           currentUser?.rights.markDone) && (
           <Navbar.Link
@@ -114,7 +114,7 @@ export default function Header() {
           >
             <Link to="/workLog">Work logs</Link>
           </Navbar.Link>
-        )} */}
+        )}
         {currentUser?.rights.admin && (
           <Navbar.Link
             as="div"
