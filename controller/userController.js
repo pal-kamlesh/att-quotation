@@ -1,7 +1,6 @@
 import { createToken } from "../middleware/verifyUser.js";
 import { errorHandler } from "../utils/error.js";
-import User from "../models/userModel.js";
-
+import { User } from "../models/index.js";
 const login = async (req, res, next) => {
   const { username, password } = req.body;
   if (!username || !password || username === "" || password === "") {
@@ -113,6 +112,11 @@ const users = async (req, res, next) => {
 const deleteUser = async (req, res, next) => {
   try {
     const { id } = req.params;
+    res.status(403).json({
+      message: `🌟 Enchanted Warning! 🌟
+Deleting a User would break the magical bonds of our data realm, scattering vital information into the void. Guard the User's existence to keep our enchanted system in balance!`,
+    });
+    return;
     const deleted = await User.deleteOne({ _id: id });
     res.status(200).json({ message: "User Deleted", result: id });
   } catch (error) {

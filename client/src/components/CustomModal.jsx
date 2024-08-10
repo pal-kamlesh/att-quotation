@@ -2,7 +2,7 @@
 import { Modal } from "flowbite-react";
 import { useEffect } from "react";
 
-const CustomModal = ({ isOpen, onClose, children, heading, size }) => {
+const CustomModal = ({ isOpen, onClose, children, heading, size, bg }) => {
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -19,8 +19,8 @@ const CustomModal = ({ isOpen, onClose, children, heading, size }) => {
     <>
       {isOpen && (
         <Modal size={size} show={isOpen} onClose={() => [onClose()]}>
-          <Modal.Header>{heading}</Modal.Header>
-          <Modal.Body>{children}</Modal.Body>
+          <Modal.Header className={`${bg}`}>{heading}</Modal.Header>
+          <Modal.Body className={`${bg}`}>{children}</Modal.Body>
         </Modal>
       )}
       {isOpen && (

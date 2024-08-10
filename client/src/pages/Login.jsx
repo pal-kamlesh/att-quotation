@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { useSelector, useDispatch } from "react-redux";
 import { login } from "../redux/user/userSlice";
 import { useEffect, useState } from "react";
@@ -27,7 +28,6 @@ const Login = () => {
       setLoading(true);
       const actionResult = await dispatch(login(loginData));
       const result = unwrapResult(actionResult);
-      console.log(result);
       setLoading(false);
     } catch (error) {
       setLoading(false);

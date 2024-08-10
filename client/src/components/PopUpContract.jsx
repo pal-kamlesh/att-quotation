@@ -1,10 +1,10 @@
 import { Button, Modal } from "flowbite-react";
 import { useState } from "react";
 import morpheus from "../images/morpheus.png";
-import { QuotationDownloadButton } from ".";
+import { ContractDownloadButton } from ".";
 
 // eslint-disable-next-line react/prop-types
-function PopUp2({ id, disabled }) {
+function PopUpContract({ id, disabled }) {
   const [openModal, setOpenModal] = useState(false);
 
   return (
@@ -25,7 +25,7 @@ function PopUp2({ id, disabled }) {
         onClose={() => setOpenModal(false)}
         popup
       >
-        <Modal.Header />
+        <Modal.Header>Contract docx</Modal.Header>
         <Modal.Body>
           <div className="text-center">
             <div className="max-w-md mx-auto p-4">
@@ -40,14 +40,14 @@ function PopUp2({ id, disabled }) {
           </div>
           <div>
             <div className="flex justify-center gap-4">
-              <QuotationDownloadButton
+              <ContractDownloadButton
                 id={id}
                 color="failure"
                 onClick={() => [setOpenModal(false)]}
                 text="With ANNEXURE"
                 annexure={true}
               />
-              <QuotationDownloadButton
+              <ContractDownloadButton
                 id={id}
                 color="blue"
                 onClick={() => setOpenModal(false)}
@@ -62,4 +62,4 @@ function PopUp2({ id, disabled }) {
   );
 }
 
-export default PopUp2;
+export default PopUpContract;

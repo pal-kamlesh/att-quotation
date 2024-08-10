@@ -101,4 +101,4 @@ const quoteInfoSchema = mongoose.Schema({
 
 const QuoteInfo = mongoose.model("QuoteInfo", quoteInfoSchema);
 
-export { QuoteInfo };
+export default QuoteInfo;

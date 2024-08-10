@@ -4,9 +4,11 @@ import { logout } from "../redux/user/userSlice";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import avatarImage from "../images/avatar.png";
 import logo from "../images/logo.png";
+import { useEffect, useState } from "react";
 
 export default function Header() {
   const { currentUser } = useSelector((state) => state.user);
+  const [title, setTitle] = useState("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -15,6 +17,26 @@ export default function Header() {
   };
 
   const location = useLocation();
+  useEffect(() => {
+    function extractPageTitle(location) {
+      // Extract the pathname from the location object
+      const path = location.pathname;
+
+      // Remove leading and trailing slashes, and split the path into segments
+      const segments = path.replace(/^\/|\/$/g, "").split("/");
+
+      // Get the first segment (assuming there's at least one)
+      const firstSegment = segments[0] || "";
+
+      // Capitalize the first letter and make the rest lowercase
+      const formattedTitle =
+        firstSegment.charAt(0).toUpperCase() +
+        firstSegment.slice(1).toLowerCase();
+
+      return formattedTitle;
+    }
+    setTitle(extractPageTitle(location));
+  }, [location]);
 
   return (
     <Navbar fluid rounded className="border-b-2 max-w-7xl mx-auto ">
@@ -25,7 +47,7 @@ export default function Header() {
         <div className="flex items-center">
           <img src={logo} className="mr-1 h-[65px]" alt="Flowbite React Logo" />
           <span className="whitespace-nowrap text-xl font-semibold dark:text-white relative">
-            Quotation
+            {title}
             <div className="absolute top-full left-0 flex justify-evenly w-full items-center">
               <div className="w-2 h-2 bg-green-500 rounded-full ml-1"></div>
               <div className="w-2 h-2 bg-yellow-400 rounded-full ml-1"></div>
@@ -58,9 +80,9 @@ export default function Header() {
         {(currentUser?.rights.create || currentUser?.rights.admin) && (
           <Navbar.Link
             as="div"
-            active={location.pathname === "/create" ? true : false}
+            active={location.pathname === "/quotes" ? true : false}
           >
-            <Link to="/create">Quotes</Link>
+            <Link to="/quotes">Quotes</Link>
           </Navbar.Link>
         )}
         {(currentUser?.rights.assign ||
@@ -68,11 +90,31 @@ export default function Header() {
           currentUser?.rights.markDone) && (
           <Navbar.Link
             as="div"
-            active={location.pathname === "/assign" ? true : false}
+            active={location.pathname === "/contracts" ? true : false}
           >
-            <Link to="/assign">Contracts</Link>
+            <Link to="/contracts">Contracts</Link>
           </Navbar.Link>
         )}
+        {/* {(currentUser?.rights.assign ||
+          currentUser?.rights.admin ||
+          currentUser?.rights.markDone) && (
+          <Navbar.Link
+            as="div"
+            active={location.pathname === "/cards" ? true : false}
+          >
+            <Link to="/cards">Cards</Link>
+          </Navbar.Link>
+        )} */}
+        {/* {(currentUser?.rights.assign ||
+          currentUser?.rights.admin ||
+          currentUser?.rights.markDone) && (
+          <Navbar.Link
+            as="div"
+            active={location.pathname === "/workLog" ? true : false}
+          >
+            <Link to="/workLog">Work logs</Link>
+          </Navbar.Link>
+        )} */}
         {currentUser?.rights.admin && (
           <Navbar.Link
             as="div"

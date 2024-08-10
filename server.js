@@ -6,8 +6,7 @@ import morgan from "morgan";
 import connectDB from "./config/mongoose.js";
 import errorMiddleware from "./middleware/errorMiddleware.js";
 import rootRouter from "./routes/index.js";
-import { Quotation } from "./models/quotationModel.js";
-
+import { Quotation } from "./models/index.js";
 connectDB();
 
 const app = express();

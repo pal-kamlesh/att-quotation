@@ -1,7 +1,6 @@
 import jwt from "jsonwebtoken";
 import { errorHandler } from "../utils/error.js";
-import User from "../models/userModel.js";
-
+import { User } from "../models/index.js";
 function createToken(user) {
   const token = jwt.sign(
     {

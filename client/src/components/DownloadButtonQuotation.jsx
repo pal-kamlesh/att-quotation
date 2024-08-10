@@ -11,12 +11,11 @@ import {
   AlignmentType,
   BorderStyle,
   ImageRun,
-  VerticalAlign,
 } from "docx";
 import { saveAs } from "file-saver";
 import { useDispatch } from "react-redux";
 import { unwrapResult } from "@reduxjs/toolkit";
-import { docxData } from "../redux/quote/quoteSlice";
+import { docxData } from "../redux/quote/quoteSlice.js";
 import headerImage from "../images/header.png";
 import footerImage from "../images/footer.png";
 import stamp from "../images/stamp.png";
@@ -26,6 +25,9 @@ import {
   generateStandardDoc,
   generateSupplyApplyDoc,
   generateSupplyDoc,
+  createQuoteInfoTableApplySupply,
+  createQuoteInfoTableStandard,
+  createQuoteInfoTableSupply,
 } from "./AnnexureTable.jsx";
 
 // eslint-disable-next-line react/prop-types
@@ -120,7 +122,11 @@ const QuotationGenerator = ({ id, color, onClick, text, annexure }) => {
         new Paragraph({
           children: [
             new TextRun({
-              text: `We thank for your enquiry & the time given to our Representative ${data.salesPerson.prefix} ${data.salesPerson.username}`,
+              text: `${
+                data.salesPerson.initials === "SALES"
+                  ? "We thank you for your enquiry and the opportunity given to us to quote our rates, Further to your instructions, we are pleased to submit our quotation as below"
+                  : `We thank for your enquiry & the time given to our Representative ${data.salesPerson.prefix} ${data.salesPerson.username}`
+              }`,
               bold: true,
             }),
           ],
@@ -287,9 +293,9 @@ const QuotationGenerator = ({ id, color, onClick, text, annexure }) => {
       });
 
       // Generate and save file
-      const buffer = await Packer.toBlob(doc);
+      const blob = await Packer.toBlob(doc);
       saveAs(
-        buffer,
+        blob,
         `Quotation_${data.quotationNo ? data.quotationNo : data._id}.docx`
       );
     } catch (err) {
@@ -494,163 +500,6 @@ const QuotationGenerator = ({ id, color, onClick, text, annexure }) => {
         new TableCell({
           children: [new Paragraph({})],
         }),
-      ],
-    });
-  };
-
-  const createQuoteInfoTableStandard = (quoteInfo) => {
-    return new Table({
-      width: { size: 100, type: WidthType.PERCENTAGE },
-      rows: [
-        new TableRow({
-          children: [
-            "Work Area Type",
-            "Work Area",
-            "Service Rate",
-            "Chemical",
-          ].map(
-            (header) =>
-              new TableCell({
-                children: [
-                  new Paragraph({
-                    text: header,
-                    bold: true,
-                    alignment: AlignmentType.CENTER,
-                  }),
-                ],
-                shading: { fill: "D3D3D3" },
-                verticalAlign: VerticalAlign.CENTER,
-              })
-          ),
-        }),
-        ...quoteInfo.map(
-          (info) =>
-            new TableRow({
-              children: [
-                info.workAreaType,
-                `${info.workArea} ${info.workAreaUnit}`,
-                `₹ ${info.serviceRate} ${info.serviceRateUnit}`,
-                info.chemical,
-              ].map(
-                (text) =>
-                  new TableCell({
-                    children: [
-                      new Paragraph({
-                        text,
-                        alignment: AlignmentType.CENTER,
-                      }),
-                    ],
-                    verticalAlign: VerticalAlign.CENTER,
-                  })
-              ),
-            })
-        ),
-      ],
-    });
-  };
-  const createQuoteInfoTableApplySupply = (quoteInfo) => {
-    const headers = [
-      { key: "workAreaType", label: "Work Area Type" },
-      { key: "workArea", label: "Work Area" },
-      { key: "applyRate", label: "Apply Rate" },
-      { key: "chemicalQuantity", label: "Chemical Quantity" },
-      { key: "chemicalRate", label: "Chemical Cost" },
-      { key: "chemical", label: "Chemical" },
-    ];
-
-    // Determine which columns should be included based on the presence of data
-    const includedHeaders = headers.filter((header) =>
-      quoteInfo.some((info) => info[header.key])
-    );
-
-    // Create the table
-    return new Table({
-      width: { size: 100, type: WidthType.PERCENTAGE },
-      rows: [
-        new TableRow({
-          children: includedHeaders.map(
-            (header) =>
-              new TableCell({
-                children: [new Paragraph({ text: header.label, bold: true })],
-                shading: { fill: "D3D3D3" },
-              })
-          ),
-        }),
-        ...quoteInfo.map(
-          (info) =>
-            new TableRow({
-              children: includedHeaders.map((header) => {
-                let text = info[header.key];
-
-                // Handle special cases for formatting
-                if (header.key === "workArea") {
-                  text = `${info.workArea} ${info.workAreaUnit}`;
-                } else if (header.key === "applyRate" && info.applyRate) {
-                  text = `₹ ${info.applyRate} ${info.applyRateUnit}`;
-                } else if (header.key === "chemicalQuantity") {
-                  text = `${info.chemicalQuantity} Ltr.`;
-                } else if (header.key === "chemicalRate" && info.chemicalRate) {
-                  text = `₹ ${info.chemicalRate} ${info.chemicalRateUnit}`;
-                }
-
-                return new TableCell({
-                  children: [new Paragraph({ text: text || "" })],
-                });
-              }),
-            })
-        ),
-      ],
-    });
-  };
-  const createQuoteInfoTableSupply = (quoteInfo) => {
-    const headers = [
-      { key: "workAreaType", label: "Work Area Type" },
-      { key: "chemicalQuantity", label: "Chemical Quantity" },
-      { key: "chemicalRate", label: "Chemical Cost" },
-      { key: "chemical", label: "Chemical" },
-    ];
-
-    // Determine which columns should be included based on the presence of data
-    const includedHeaders = headers.filter((header) =>
-      quoteInfo.some((info) => info[header.key])
-    );
-
-    // Create the table
-    return new Table({
-      width: { size: 100, type: WidthType.PERCENTAGE },
-      rows: [
-        new TableRow({
-          children: includedHeaders.map(
-            (header) =>
-              new TableCell({
-                children: [new Paragraph({ text: header.label, bold: true })],
-                shading: { fill: "D3D3D3" },
-              })
-          ),
-        }),
-        ...quoteInfo.map(
-          (info) =>
-            new TableRow({
-              children: includedHeaders.map((header) => {
-                let text = info[header.key];
-
-                // Handle special cases for formatting
-                if (header.key === "workArea") {
-                  text = `${info.workArea} ${info.workAreaUnit}`;
-                } else if (header.key === "applyRate" && info.applyRate) {
-                  text = `₹ ${info.applyRate} ${info.applyRateUnit}`;
-                } else if (header.key === "chemicalQuantity") {
-                  text = `${info.chemicalQuantity} Ltr.`;
-                } else if (header.key === "chemicalRate" && info.chemicalRate) {
-                  text = `₹ ${info.chemicalRate} ${info.chemicalRateUnit}`;
-                }
-
-                return new TableCell({
-                  children: [new Paragraph({ text: text || "" })],
-                });
-              }),
-            })
-        ),
       ],
     });
   };

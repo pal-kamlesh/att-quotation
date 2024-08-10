@@ -1,6 +1,4 @@
-import { Quotation } from "../models/quotationModel.js";
-import { QuoteInfo } from "../models/quoteInfoModel.js";
-import { QuoteArchive } from "../models/quoteArchiveModel.js";
+import { Quotation, QuoteInfo } from "../models/index.js";
 import {
   Document,
   Packer,
@@ -306,22 +304,6 @@ const update = async (req, res, next) => {
   }
 };
 
-async function createQuoteArchiveEntry(quoteId, state, author, message) {
-  const theArchive = await QuoteArchive.findOne({ quotationId: quoteId });
-  if (theArchive) {
-    theArchive.revisions.push({ state, author, message });
-    await theArchive.save();
-  } else {
-    const newArchive = new QuoteArchive({
-      quotationId: quoteId,
-      revisions: [{ state, author, message }],
-    });
-    await newArchive.save();
-  }
-}
-function differenceBetweenArrays(A, B) {
-  return A.filter((element) => !B.includes(element));
-}
 const docx = async (req, res, next) => {
   try {
     const __dirname = path.resolve();
@@ -504,14 +486,6 @@ const similarProjects = async (req, res, next) => {
     console.log(error);
     next(error);
   }
-};
-
-const removeIdFromDocuments = (documents) => {
-  return documents.map(({ id, ...rest }) => rest);
-};
-const remove_IdFromObj = (obj) => {
-  const { _id, ...rest } = obj;
-  return rest;
 };
 
 function generateQuotation(data) {

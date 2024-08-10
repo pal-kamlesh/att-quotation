@@ -2,9 +2,9 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
 
 const initialState = {
-  quotations: [],
-  totalQuotations: "",
-  todayQuotations: "",
+  contracts: [],
+  totalContracts: "",
+  todayContracts: "",
   approvedCount: "",
   approvePending: "",
   loading: false,
@@ -39,11 +39,11 @@ export const uploadFiles = createAsyncThunk(
     }
   }
 );
-export const createQuote = createAsyncThunk(
-  "create/Quote",
+export const createContract = createAsyncThunk(
+  "create/Contract",
   async (data, { rejectWithValue }) => {
     try {
-      const response = await fetch("/api/v1/quotation/create", {
+      const response = await fetch("/api/v1/contract/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -60,11 +60,11 @@ export const createQuote = createAsyncThunk(
     }
   }
 );
-export const showMoreQuotes = createAsyncThunk(
-  "showMore/quotes",
+export const showMoreContract = createAsyncThunk(
+  "showMore/contracts",
   async ({ startIndex, extraQuery = "" }, { rejectWithValue }) => {
     try {
-      let url = `/api/v1/quotation/getQuotes?startIndex=${startIndex}`;
+      let url = `/api/v1/contract/getcontracts?startIndex=${startIndex}`;
       if (extraQuery) {
         url += `&${extraQuery}`;
       }
@@ -77,11 +77,11 @@ export const showMoreQuotes = createAsyncThunk(
     }
   }
 );
-export const getQuotes = createAsyncThunk(
-  "get/quotes",
+export const getContracts = createAsyncThunk(
+  "get/contracts",
   async (data, { rejectWithValue }) => {
     try {
-      const response = await fetch(`/api/v1/quotation/getQuotes?${data}`);
+      const response = await fetch(`/api/v1/contract/getContracts?${data}`);
       if (!response.ok) {
         const errorData = await response.json();
         return rejectWithValue(errorData);
@@ -94,11 +94,11 @@ export const getQuotes = createAsyncThunk(
     }
   }
 );
-export const getSingleQuote = createAsyncThunk(
+export const getSingleContract = createAsyncThunk(
   "get/singleQuote",
   async (data, { rejectWithValue }) => {
     try {
-      const response = await fetch(`/api/v1/quotation/${data}`);
+      const response = await fetch(`/api/v1/contract/${data}`);
       if (!response.ok) {
         const errorData = await response.json();
         return rejectWithValue(errorData);
@@ -111,12 +111,11 @@ export const getSingleQuote = createAsyncThunk(
     }
   }
 );
-
 export const approve = createAsyncThunk(
-  "approve/singleQuote",
+  "approve/singleContract",
   async (data, { rejectWithValue }) => {
     try {
-      const response = await fetch(`/api/v1/quotation/approve/${data}`);
+      const response = await fetch(`/api/v1/contract/approve/${data}`);
       if (!response.ok) {
         const errorData = await response.json();
         return rejectWithValue(errorData);
@@ -129,12 +128,11 @@ export const approve = createAsyncThunk(
     }
   }
 );
-
-export const searchQuotes = createAsyncThunk(
-  "search/quotes",
+export const searchContracts = createAsyncThunk(
+  "search/contracts",
   async (data, { rejectWithValue }) => {
     try {
-      const response = await fetch(`/api/v1/quotation/getQuotes?${data}`);
+      const response = await fetch(`/api/v1/contract/getContracts?${data}`);
       if (!response.ok) {
         const errorData = await response.json();
         return rejectWithValue(errorData);
@@ -148,10 +146,10 @@ export const searchQuotes = createAsyncThunk(
   }
 );
 export const docxData = createAsyncThunk(
-  "get/docxdata",
+  "contract/docxdata",
   async (data, { rejectWithValue }) => {
     try {
-      const response = await fetch(`/api/v1/quotation/docx/${data}`);
+      const response = await fetch(`/api/v1/contract/docx/${data}`);
       if (!response.ok) {
         const errorData = await response.json();
         return rejectWithValue(errorData);
@@ -183,15 +181,15 @@ export const archiveData = createAsyncThunk(
   }
 );
 
-export const updateQuote = createAsyncThunk(
-  "update/quote",
+export const updateContract = createAsyncThunk(
+  "update/contract",
   async (data, { rejectWithValue }) => {
-    const { id, quote, message } = data;
+    const { id, contract, message } = data;
     try {
-      const response = await fetch(`/api/v1/quotation/${id}`, {
+      const response = await fetch(`/api/v1/contract/${id}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ quote, message }),
+        body: JSON.stringify({ contract, message }),
       });
       if (!response.ok) {
         const errorData = await response.json();
@@ -206,26 +204,8 @@ export const updateQuote = createAsyncThunk(
   }
 );
 
-export const makeContract = createAsyncThunk(
-  "quote/contract",
-  async (data, { rejectWithValue }) => {
-    try {
-      const response = await fetch(`/api/v1/contract/create/${data}`);
-      if (!response.ok) {
-        const errorData = await response.json();
-        return rejectWithValue(errorData);
-      }
-      const result = await response.json();
-      return result;
-    } catch (error) {
-      console.log(error);
-      return rejectWithValue(error.response.data);
-    }
-  }
-);
-
-export const quoteSlice = createSlice({
-  name: "quote",
+export const contractSlice = createSlice({
+  name: "contract",
   initialState,
   reducers: {
     updateIssueField: (state, action) => {
@@ -313,47 +293,67 @@ export const quoteSlice = createSlice({
         state.loading = false;
         toast.error(payload);
       })
-      .addCase(createQuote.pending, (state) => {
+      .addCase(createContract.pending, (state) => {
         state.loading = true;
       })
-      .addCase(createQuote.fulfilled, (state, { payload }) => {
+      .addCase(createContract.fulfilled, (state, { payload }) => {
         state.loading = false;
-        state.quotations.push(payload.result);
-        state.quotations.sort(
+        state.contracts.push(payload.result);
+        state.contracts.sort(
           (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
         );
-        state.todayQuotations = state.todayQuotations + 1;
-        state.totalQuotations = state.totalQuotations + 1;
+        state.todayContracts = state.todayContracts + 1;
+        state.totalContracts = state.totalContracts + 1;
         toast.success(payload.message);
       })
-      .addCase(createQuote.rejected, (state, { payload }) => {
+      .addCase(createContract.rejected, (state, { payload }) => {
         state.loading = false;
         toast.error(payload.message);
       })
-      .addCase(showMoreQuotes.pending, (state) => {
+      .addCase(showMoreContract.pending, (state) => {
         state.loading = true;
       })
-      .addCase(showMoreQuotes.fulfilled, (state, { payload }) => {
-        const newData = [...state.quotations, ...payload.result];
+      .addCase(showMoreContract.fulfilled, (state, { payload }) => {
+        const newData = [...state.contracts, ...payload.result];
         state.loading = false;
-        state.quotations = newData;
+        state.contracts = newData;
         if (payload.result.length < 9) {
           state.showMore = false;
         } else {
           state.showMore = true;
         }
       })
-      .addCase(showMoreQuotes.rejected, (state, { payload }) => {
+      .addCase(showMoreContract.rejected, (state, { payload }) => {
         state.loading = false;
         toast.error(payload);
       })
 
-      .addCase(searchQuotes.pending, (state) => {
+      .addCase(searchContracts.pending, (state) => {
         state.loading = true;
       })
-      .addCase(searchQuotes.fulfilled, (state, { payload }) => {
-        state.quotations = payload.result;
+      .addCase(searchContracts.fulfilled, (state, { payload }) => {
+        state.contracts = payload.result;
         state.loading = false;
+        state.todayContracts = payload.todayContracts;
+        state.totalContracts = payload.totalContracts;
+        state.approvedCount = payload.approvedCount;
+        state.approvePending = payload.approvePending;
+        if (payload.result.length < 9) {
+          state.showMore = false;
+        } else {
+          state.showMore = true;
+        }
+      })
+      .addCase(searchContracts.rejected, (state, { payload }) => {
+        state.loading = false;
+        toast.error(payload);
+      })
+      .addCase(getContracts.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(getContracts.fulfilled, (state, { payload }) => {
+        state.loading = false;
+        state.contracts = payload.result;
         state.todayQuotations = payload.todayQuotes;
         state.totalQuotations = payload.totalQuotes;
         state.approvedCount = payload.approvedCount;
@@ -364,37 +364,17 @@ export const quoteSlice = createSlice({
           state.showMore = true;
         }
       })
-      .addCase(searchQuotes.rejected, (state, { payload }) => {
+      .addCase(getContracts.rejected, (state, { payload }) => {
         state.loading = false;
         toast.error(payload);
       })
-      .addCase(getQuotes.pending, (state) => {
+      .addCase(getSingleContract.pending, (state) => {
         state.loading = true;
       })
-      .addCase(getQuotes.fulfilled, (state, { payload }) => {
-        state.loading = false;
-        state.quotations = payload.result;
-        state.todayQuotations = payload.todayQuotes;
-        state.totalQuotations = payload.totalQuotes;
-        state.approvedCount = payload.approvedCount;
-        state.approvePending = payload.approvePending;
-        if (payload.result.length < 9) {
-          state.showMore = false;
-        } else {
-          state.showMore = true;
-        }
-      })
-      .addCase(getQuotes.rejected, (state, { payload }) => {
-        state.loading = false;
-        toast.error(payload);
-      })
-      .addCase(getSingleQuote.pending, (state) => {
-        state.loading = true;
-      })
-      .addCase(getSingleQuote.fulfilled, (state) => {
+      .addCase(getSingleContract.fulfilled, (state) => {
         state.loading = false;
       })
-      .addCase(getSingleQuote.rejected, (state, { payload }) => {
+      .addCase(getSingleContract.rejected, (state, { payload }) => {
         state.loading = false;
         toast.error(payload);
       })
@@ -403,11 +383,11 @@ export const quoteSlice = createSlice({
       })
       .addCase(approve.fulfilled, (state, { payload }) => {
         state.loading = false;
-        state.quotations = state.quotations.filter(
+        state.contracts = state.contracts.filter(
           (quote) => quote._id !== payload.result._id
         );
-        state.quotations.push(payload.result);
-        state.quotations.sort(
+        state.contracts.push(payload.result);
+        state.contracts.sort(
           (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
         );
         toast.success(payload.message);
@@ -426,23 +406,23 @@ export const quoteSlice = createSlice({
         state.loading = false;
         toast.error(payload);
       })
-      .addCase(updateQuote.pending, (state) => {
+      .addCase(updateContract.pending, (state) => {
         state.loading = true;
       })
-      .addCase(updateQuote.fulfilled, (state, { payload }) => {
+      .addCase(updateContract.fulfilled, (state, { payload }) => {
         state.loading = false;
-        state.quotations = state.quotations.filter(
-          (quote) => quote._id !== payload.result._id
+        state.contracts = state.contracts.filter(
+          (contract) => contract._id !== payload.result._id
         );
-        state.quotations.push(payload.result);
-        state.quotations.sort(
+        state.contracts.push(payload.result);
+        state.contracts.sort(
           (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
         );
-        state.todayQuotations = state.todayQuotations + 1;
-        state.totalQuotations = state.totalQuotations + 1;
+        state.totalContracts = state.totalContracts + 1;
+        state.todayContracts = state.todayContracts + 1;
         toast.success(payload.message);
       })
-      .addCase(updateQuote.rejected, (state, { payload }) => {
+      .addCase(updateContract.rejected, (state, { payload }) => {
         state.loading = false;
         toast.error(payload.message);
       })
@@ -453,24 +433,6 @@ export const quoteSlice = createSlice({
         state.loading = false;
       })
       .addCase(archiveData.rejected, (state, { payload }) => {
-        state.loading = false;
-        toast.error(payload);
-      })
-      .addCase(makeContract.pending, (state) => {
-        state.loading = true;
-      })
-      .addCase(makeContract.fulfilled, (state, { payload }) => {
-        state.loading = false;
-        state.quotations = state.quotations.filter(
-          (quote) => quote._id !== payload.result._id
-        );
-        state.quotations.push(payload.result);
-        state.quotations.sort(
-          (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
-        );
-        toast.success(payload.message);
-      })
-      .addCase(makeContract.rejected, (state, { payload }) => {
         state.loading = false;
         toast.error(payload);
       });
@@ -484,6 +446,6 @@ export const {
   setCreator,
   setSelectedService,
   setInit,
-} = quoteSlice.actions;
+} = contractSlice.actions;
 
-export default quoteSlice.reducer;
+export default contractSlice.reducer;

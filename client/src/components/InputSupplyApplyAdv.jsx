@@ -37,6 +37,9 @@ function InputSupplyApplyAdv({ quote, setQuote }) {
   });
 
   useEffect(() => {
+    setInfoArray(quote.quoteInfo);
+  }, [quote.quoteInfo]);
+  useEffect(() => {
     if (
       infoObj.workAreaType !== "" &&
       infoObj.workArea !== "" &&

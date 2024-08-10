@@ -33,6 +33,9 @@ function InputSupplyAdv({ quote, setQuote }) {
   });
 
   useEffect(() => {
+    setInfoArray(quote.quoteInfo);
+  }, [quote.quoteInfo]);
+  useEffect(() => {
     if (
       infoObj.workAreaType !== "" &&
       infoObj.chemicalRate !== "" &&

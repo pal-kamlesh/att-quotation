@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import mongooseLeanVirtuals from "mongoose-lean-virtuals";
-import { Counter } from "./counterModel.js";
-import { QuoteArchive } from "./quoteArchiveModel.js";
+import { Counter, QuoteArchive } from "./index.js";
 
 const quotationSchema = mongoose.Schema(
   {
@@ -129,6 +128,10 @@ const quotationSchema = mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    contractified: {
+      type: Boolean,
+      default: false,
+    },
     docType: {
       type: String,
       enum: ["standard", "supply/apply", "supply"],
@@ -234,4 +237,4 @@ quotationSchema.statics.generateQuotationNo = async function () {
 };
 
 const Quotation = mongoose.model("Quotation", quotationSchema);
-export { Quotation };
+export default Quotation;

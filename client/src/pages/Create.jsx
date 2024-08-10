@@ -7,12 +7,18 @@ import {
   Loading,
   NewQuote,
   PopUp2,
+  Refresh,
   ViewQuote,
 } from "../components";
 import { useDispatch, useSelector } from "react-redux";
 import { getInitials } from "../redux/user/userSlice";
-import { getQuotes, approve, showMoreQuotes } from "../redux/quote/quoteSlice";
-import SearchQuote from "../components/SearchQuote";
+import {
+  getQuotes,
+  approve,
+  showMoreQuotes,
+  makeContract,
+} from "../redux/quote/quoteSlice";
+import { SearchQuote } from "../components/index.js";
 import Update from "./Update";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
@@ -34,13 +40,14 @@ export default function Create() {
   const [quoteId, setQuoteId] = useState("");
   const [quoteNo, setQuoteNo] = useState("");
   const [extraQuery, setExtraQuery] = useState(null);
+  const [pending, setPending] = useState(false);
 
   useEffect(() => {
     if (quotations.length <= 0) {
       dispatch(getInitials());
       dispatch(getQuotes());
     }
-  }, [dispatch]);
+  }, [dispatch, quotations.length]);
 
   async function handleClick(id) {
     if (!currentUser.rights.admin) {
@@ -51,7 +58,7 @@ export default function Create() {
     // eslint-disable-next-line no-unused-vars
     const result = unwrapResult(actionResult);
   }
-  const handleShowMore = async () => {
+  async function handleShowMore() {
     const startIndex = quotations.length;
     if (!showMore) {
       toast.error("No more data.");
@@ -63,13 +70,28 @@ export default function Create() {
       dispatch(showMoreQuotes({ startIndex, extraQuery }));
       setExtraQuery(null);
     }
-  };
+  }
+  async function handleContractify(id) {
+    try {
+      dispatch(makeContract(id));
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  async function handleRefresh() {
+    setPending(true);
+    await dispatch(getQuotes());
+    setPending(false);
+  }
   return (
     <div className=" max-w-[1400px] mx-auto ">
       {loading ? <Loading /> : null}
       <div className="h-full mt-3">
         <div className=" mt-2 h-full">
           <div className="h-16 text-lg flex items-center justify-between font-medium bg-[#6FDCE3] border border-black rounded-tl-lg rounded-br-lg">
+            <div className="m-2">
+              <Refresh loading={pending} onRefresh={handleRefresh} />
+            </div>
             <div className="flex-grow mr-4 flex items-center justify-evenly ">
               <div className="flex items-center justify-center">
                 <h3>Recent Quotations</h3>
@@ -127,21 +149,27 @@ export default function Create() {
                         <TimeAgo date={new Date(ticket.updatedAt)} />
                       </Table.Cell>
                       <Table.Cell>
-                        <Button
-                          outline
-                          gradientDuoTone="redToYellow"
-                          onClick={() => [
-                            setQuoteId(ticket._id),
-                            setQuoteNo(ticket.quotationNo),
-                            setUpdateModel(true),
-                          ]}
-                        >
-                          {ticket.approved ? (
-                            <span>Revise</span>
-                          ) : (
-                            <span>Edit</span>
-                          )}
-                        </Button>
+                        {ticket.contractified ? (
+                          <Button gradientDuoTone="redToYellow" disabled>
+                            Contract
+                          </Button>
+                        ) : (
+                          <Button
+                            outline
+                            gradientDuoTone="redToYellow"
+                            onClick={() => [
+                              setQuoteId(ticket._id),
+                              setQuoteNo(ticket.quotationNo),
+                              setUpdateModel(true),
+                            ]}
+                          >
+                            {ticket.approved ? (
+                              <span>Revise</span>
+                            ) : (
+                              <span>Edit</span>
+                            )}
+                          </Button>
+                        )}
                       </Table.Cell>
                       <Table.Cell className="border ">
                         <div className="flex items-center justify-evenly flex-wrap gap-1 relative">
@@ -164,6 +192,15 @@ export default function Create() {
                             <Button gradientDuoTone="greenToBlue">Email</Button>
                           ) : null}
 
+                          {ticket.approved && !ticket.contractified ? (
+                            <Button
+                              gradientMonochrome="purple"
+                              onClick={() => handleContractify(ticket._id)}
+                            >
+                              Make Contract
+                            </Button>
+                          ) : null}
+
                           {ticket.approved ? (
                             <Button
                               onClick={() => [
@@ -176,7 +213,10 @@ export default function Create() {
                               History
                             </Button>
                           ) : null}
-                          <PopUp2 id={ticket._id} />
+                          <PopUp2
+                            id={ticket._id}
+                            disabled={ticket.contractified}
+                          />
                         </div>
                       </Table.Cell>
                     </Table.Row>
@@ -204,6 +244,7 @@ export default function Create() {
         onClose={() => setCreateModel(!createModel)}
         size="7xl"
         heading="New Quotation"
+        bg="bg-teal-50"
       >
         <NewQuote onClose={() => setCreateModel(!createModel)} />
       </CustomModal>

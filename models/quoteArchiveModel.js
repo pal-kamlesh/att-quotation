@@ -35,4 +35,4 @@ quoteArchiveSchema.set("toJSON", { virtuals: true });
 
 const QuoteArchive = mongoose.model("QuoteArchive", quoteArchiveSchema);
 
-export { QuoteArchive };
+export default QuoteArchive;
