@@ -71,7 +71,6 @@ function UpdateContract({ onClose, activeId = null }) {
         try {
           const actionResult = await dispatch(getSingleContract(activeId));
           const result = unwrapResult(actionResult);
-          console.log(result);
 
           // Use optional chaining and handle the case when workOrderDate is not present
           const isoDateStr = result.result?.workOrderDate ?? ""; // Default to empty string if not present
@@ -202,7 +201,6 @@ function UpdateContract({ onClose, activeId = null }) {
     await unwrapResult(actionResult);
     onClose();
   }
-  console.log(contract);
   return (
     <div>
       {loading ? <Loading /> : null}

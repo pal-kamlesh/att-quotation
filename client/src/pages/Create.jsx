@@ -24,6 +24,7 @@ import { unwrapResult } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
 import PopUp from "../components/PopUp";
 import { getDotColor } from "../funtions/funtion";
+import { useNavigate } from "react-router-dom";
 
 export default function Create() {
   const {
@@ -41,6 +42,7 @@ export default function Create() {
   const [quoteNo, setQuoteNo] = useState("");
   const [extraQuery, setExtraQuery] = useState(null);
   const [pending, setPending] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (quotations.length <= 0) {
@@ -48,6 +50,18 @@ export default function Create() {
       dispatch(getQuotes());
     }
   }, [dispatch, quotations.length]);
+  useEffect(() => {
+    if (currentUser.rights.createQuote || currentUser.rights.admin) {
+      return;
+    } else {
+      navigate("/");
+    }
+  }, [
+    currentUser.rights.admin,
+    currentUser.rights.createQuote,
+    dispatch,
+    navigate,
+  ]);
 
   async function handleClick(id) {
     if (!currentUser.rights.admin) {

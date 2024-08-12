@@ -77,7 +77,7 @@ export default function Header() {
         <Navbar.Link as="div" active={location.pathname === "/" ? true : false}>
           <Link to="/">Dashboard</Link>
         </Navbar.Link>
-        {(currentUser?.rights.create || currentUser?.rights.admin) && (
+        {(currentUser?.rights.createQuote || currentUser?.rights.admin) && (
           <Navbar.Link
             as="div"
             active={location.pathname === "/quotes" ? true : false}
@@ -85,9 +85,7 @@ export default function Header() {
             <Link to="/quotes">Quotes</Link>
           </Navbar.Link>
         )}
-        {(currentUser?.rights.assign ||
-          currentUser?.rights.admin ||
-          currentUser?.rights.markDone) && (
+        {(currentUser?.rights.createContract || currentUser?.rights.admin) && (
           <Navbar.Link
             as="div"
             active={location.pathname === "/contracts" ? true : false}
@@ -95,9 +93,7 @@ export default function Header() {
             <Link to="/contracts">Contracts</Link>
           </Navbar.Link>
         )}
-        {(currentUser?.rights.assign ||
-          currentUser?.rights.admin ||
-          currentUser?.rights.markDone) && (
+        {(currentUser?.rights.genCard || currentUser?.rights.admin) && (
           <Navbar.Link
             as="div"
             active={location.pathname === "/cards" ? true : false}
@@ -105,9 +101,7 @@ export default function Header() {
             <Link to="/cards">Cards</Link>
           </Navbar.Link>
         )}
-        {(currentUser?.rights.assign ||
-          currentUser?.rights.admin ||
-          currentUser?.rights.markDone) && (
+        {(currentUser?.rights.workLogUpdate || currentUser?.rights.admin) && (
           <Navbar.Link
             as="div"
             active={location.pathname === "/workLog" ? true : false}

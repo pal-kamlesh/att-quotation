@@ -33,10 +33,12 @@ function InputStandardAdv({ quote, setQuote }) {
     description: "",
   });
 
+  //effect to set the infoArray initially
   useEffect(() => {
     setInfoArray(quote.quoteInfo);
   }, [quote.quoteInfo]);
 
+  //effect to set validInput variable
   useEffect(() => {
     if (
       infoObj.workAreaType !== "" &&
@@ -56,49 +58,14 @@ function InputStandardAdv({ quote, setQuote }) {
     infoObj.serviceRateUnit,
     infoObj.chemical,
   ]);
-
-  function handleInfoChange(e) {
-    const { name, value } = e.target;
-    setInfoObj((prev) => ({ ...prev, [name]: value }));
-  }
-
-  function deleteInfo(id) {
-    setInfoArray((prev) => prev.filter((info) => info._id !== id));
-  }
-  function editInfo(id) {
-    const info = infoArray.find((el) => el._id === id);
-    setInfoObj(info);
-    setInfoArray((prev) => prev.filter((info) => info._id !== id));
-  }
-
-  function moreInfo() {
-    if (
-      infoObj.workAreaType !== "" &&
-      infoObj.workArea !== "" &&
-      infoObj.serviceRate !== "" &&
-      infoObj.chemical !== ""
-    ) {
-      setInfoArray((prevArray) => [...prevArray, infoObj]);
-      setInfoObj({
-        _id: nanoid(),
-        workAreaType: "",
-        workArea: "",
-        workAreaUnit: "",
-        serviceRate: "",
-        serviceRateUnit: "",
-        chemical: "",
-        description: "",
-      });
-    } else {
-      return toast.error("This much info is not sufficient.");
-    }
-  }
+  //effect to trasfer the infoArray to parent variable
   useEffect(() => {
     setQuote((prev) => ({
       ...prev,
       quoteInfo: infoArray,
     }));
   }, [infoArray, setQuote]);
+
   useEffect(() => {
     let newServiceRateUnit = "";
 
@@ -124,6 +91,42 @@ function InputStandardAdv({ quote, setQuote }) {
       serviceRateUnit: newServiceRateUnit,
     }));
   }, [infoObj.workAreaUnit]);
+
+  function handleInfoChange(e) {
+    const { name, value } = e.target;
+    setInfoObj((prev) => ({ ...prev, [name]: value }));
+  }
+  function deleteInfo(id) {
+    setInfoArray((prev) => prev.filter((info) => info._id !== id));
+  }
+  function editInfo(id) {
+    const info = infoArray.find((el) => el._id === id);
+    setInfoObj(info);
+    setInfoArray((prev) => prev.filter((info) => info._id !== id));
+  }
+  function moreInfo() {
+    if (
+      infoObj.workAreaType !== "" &&
+      infoObj.workArea !== "" &&
+      infoObj.serviceRate !== "" &&
+      infoObj.chemical !== ""
+    ) {
+      setInfoArray((prevArray) => [...prevArray, infoObj]);
+      setInfoObj({
+        _id: nanoid(),
+        workAreaType: "",
+        workArea: "",
+        workAreaUnit: "",
+        serviceRate: "",
+        serviceRateUnit: "",
+        chemical: "",
+        description: "",
+      });
+    } else {
+      return toast.error("This much info is not sufficient.");
+    }
+  }
+
   return (
     <div className="bg-lime-200 p-4 rounded-lg shadow-md">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">

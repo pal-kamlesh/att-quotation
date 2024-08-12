@@ -24,9 +24,11 @@ const userInit = {
   initials: "",
   password: "",
   rights: {
-    create: false,
-    assign: false,
-    markDone: false,
+    createQuote: false,
+    createContract: false,
+    genCard: false,
+    workLogUpdate: false,
+    approve: false,
     admin: false,
   },
 };
@@ -37,10 +39,15 @@ export default function User() {
   const [user, setUser] = useState(userInit);
   const [openModal, setOpenModal] = useState(false);
   const [update, setUpdate] = useState(false);
+  const [rights, setRights] = useState([]);
 
   function onCloseModal() {
     setOpenModal(false);
   }
+
+  useEffect(() => {
+    setRights(Object.keys(userInit.rights));
+  }, [setRights]);
 
   useEffect(() => {
     if (!currentUser.rights.admin) {
@@ -93,6 +100,19 @@ export default function User() {
   const deleteIt = (id) => {
     dispatch(deleteUser(id));
   };
+  function splitByCapitalLetters(text) {
+    // Use a regular expression to split by capital letters
+    const splitArray = text.split(/(?=[A-Z])/).filter(Boolean);
+
+    // Capitalize the first character of the first word
+    if (splitArray.length > 0) {
+      splitArray[0] =
+        splitArray[0].charAt(0).toUpperCase() + splitArray[0].slice(1);
+    }
+
+    // Join the array with spaces in between
+    return splitArray.join(" ");
+  }
 
   return (
     <div className="max-w-7xl mx-auto ">
@@ -130,54 +150,24 @@ export default function User() {
                   >
                     <Table.Cell>{user.username}</Table.Cell>
                     <Table.Cell className="border">
-                      <div className="flex items-center justify-evenly flex-wrap">
-                        <div className="flex items-center justify-evenly">
-                          <div className="mr-2">
-                            <div className="mb-2 block">
-                              <Label htmlFor="create" value="Create" />
+                      <div className="flex items-center justify-around flex-wrap">
+                        <div className="grid grid-cols-12">
+                          {rights.map((right, idx) => (
+                            <div className="mr-2 col-span-2" key={idx}>
+                              <div className="">
+                                <Label
+                                  htmlFor={right}
+                                  value={splitByCapitalLetters(right)}
+                                />
+                              </div>
+                              <Checkbox
+                                disabled
+                                id={right}
+                                value={right}
+                                checked={user.rights[right]}
+                              />
                             </div>
-                            <Checkbox
-                              disabled
-                              id="create"
-                              value="create"
-                              checked={user.rights.create}
-                            />
-                          </div>
-                          <div className="">
-                            <div className="mb-2 block">
-                              <Label htmlFor="assign" value="Assign" />
-                            </div>
-                            <Checkbox
-                              disabled
-                              id="assign"
-                              value="assign"
-                              checked={user.rights.assign}
-                            />
-                          </div>
-                        </div>
-                        <div className="flex items-center justify-evenly">
-                          <div className="mr-2">
-                            <div className="mb-2 block">
-                              <Label htmlFor="markDone" value="Done" />
-                            </div>
-                            <Checkbox
-                              disabled
-                              id="markDone"
-                              value="markDone"
-                              checked={user.rights.markDone}
-                            />
-                          </div>
-                          <div className="">
-                            <div className="mb-2 block">
-                              <Label htmlFor="admin" value="Admin" />
-                            </div>
-                            <Checkbox
-                              disabled
-                              id="admin"
-                              value="admin"
-                              checked={user.rights.admin}
-                            />
-                          </div>
+                          ))}
                         </div>
                       </div>
                     </Table.Cell>
@@ -299,52 +289,30 @@ export default function User() {
                 onChange={handleChange}
               />
             </div>
-            <div className="flex items-center justify-evenly ">
-              <div>
-                <div className="mb-2 block">
-                  <Label htmlFor="create" value="Create" />
-                </div>
-                <Checkbox
-                  id="create"
-                  value="create"
-                  checked={user.rights.create}
-                  onClick={(e) => handleRights(e)}
-                />
-              </div>
-              <div>
-                <div className="mb-2 block">
-                  <Label htmlFor="assign" value="Assign" />
-                </div>
-                <Checkbox
-                  id="assign"
-                  value="assign"
-                  checked={user.rights.assign}
-                  onClick={(e) => handleRights(e)}
-                />
-              </div>
-              <div>
-                <div className="mb-2 block">
-                  <Label htmlFor="markDone" value="Mark Done" />
-                </div>
-                <Checkbox
-                  id="markDone"
-                  value="markDone"
-                  checked={user.rights.markDone}
-                  onClick={(e) => handleRights(e)}
-                />
-              </div>
-              <div>
-                <div className="mb-2 block">
-                  <Label htmlFor="admin" value="Admin" />
-                </div>
-                <Checkbox
-                  id="admin"
-                  value="admin"
-                  checked={user.rights.admin}
-                  onClick={(e) => handleRights(e)}
-                />
+            <div className="block font-bold">
+              <Label value="User Rights" />
+            </div>
+            <div className="w-full flex items-center justify-center border rounded-lg">
+              <div className="grid grid-cols-12 flex-wrap gap-2 p-1 ">
+                {rights.map((right, idx) => (
+                  <div key={idx} className=" col-span-4">
+                    <div className="mb-2 block">
+                      <Label
+                        htmlFor={right}
+                        value={splitByCapitalLetters(right)}
+                      />
+                    </div>
+                    <Checkbox
+                      id={right}
+                      value={right}
+                      checked={user.rights[right]}
+                      onClick={(e) => handleRights(e)}
+                    />
+                  </div>
+                ))}
               </div>
             </div>
+
             <div className="flex justify-between items-center text-sm font-medium text-gray-500 dark:text-gray-300">
               <Button
                 onClick={() => (update ? handleUpdateUser() : registerUser())}

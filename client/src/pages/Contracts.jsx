@@ -22,6 +22,7 @@ import { toast } from "react-toastify";
 import { getDotColor } from "../funtions/funtion.js";
 import PopUp from "../components/PopUp.jsx";
 import { unwrapResult } from "@reduxjs/toolkit";
+import { useNavigate } from "react-router-dom";
 function Contracts() {
   const {
     contracts = [],
@@ -36,6 +37,7 @@ function Contracts() {
   const [activeId, setActiveId] = useState("");
   const [pending, setPending] = useState(false);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   async function handleShowMore() {
     const startIndex = contracts.length;
@@ -56,6 +58,19 @@ function Contracts() {
       dispatch(getContracts());
     }
   }, [dispatch, contracts.length]);
+
+  useEffect(() => {
+    if (currentUser.rights.createContract || currentUser.rights.admin) {
+      return;
+    } else {
+      navigate("/");
+    }
+  }, [
+    currentUser.rights.admin,
+    currentUser.rights.createContract,
+    dispatch,
+    navigate,
+  ]);
   async function handleRefresh() {
     setPending(true);
     await dispatch(getContracts());

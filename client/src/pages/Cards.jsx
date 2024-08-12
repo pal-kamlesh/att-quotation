@@ -12,12 +12,15 @@ import {
   searchCards,
   showMoreCard,
 } from "../redux/card/cardSlice";
+import { useNavigate } from "react-router-dom";
 
 function Cards() {
   const { cards = [], showMore, loading } = useSelector((state) => state.card);
+  const { currentUser } = useSelector((state) => state.user);
   const [extraQuery, setExtraQuery] = useState("&approved=true");
   const [pending, setPending] = useState(false);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (cards.length <= 0) {
@@ -26,6 +29,18 @@ function Cards() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  useEffect(() => {
+    if (currentUser.rights.genCard || currentUser.rights.admin) {
+      return;
+    } else {
+      navigate("/");
+    }
+  }, [
+    currentUser.rights.admin,
+    currentUser.rights.genCard,
+    dispatch,
+    navigate,
+  ]);
 
   async function handleRefresh() {
     setPending(true);

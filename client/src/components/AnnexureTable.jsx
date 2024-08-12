@@ -39,6 +39,11 @@ const createQuoteInfoTableStandard = (quoteInfo) => {
                     }),
                   ],
                   alignment: AlignmentType.CENTER,
+                  spacing: {
+                    before: 120, // Space before the paragraph (in twips)
+                    after: 120, // Space after the paragraph (in twips)
+                    line: 200, // Line spacing (1.5 line spacing in twips)
+                  },
                 }),
               ],
               shading: { fill: "D3D3D3" },
@@ -61,6 +66,11 @@ const createQuoteInfoTableStandard = (quoteInfo) => {
                     new Paragraph({
                       text,
                       alignment: AlignmentType.CENTER,
+                      spacing: {
+                        before: 120, // Space before the paragraph (in twips)
+                        after: 120, // Space after the paragraph (in twips)
+                        line: 200, // Line spacing (1.5 line spacing in twips)
+                      },
                     }),
                   ],
                   verticalAlign: VerticalAlign.CENTER,
@@ -778,619 +788,6 @@ const generateSupplyApplyDoc = async (data) => {
     throw new Error("Standard BOQ filed");
   }
 };
-const generateStandardContract = async (data) => {
-  const {
-    contractNo,
-    billToAddress,
-    shipToAddress,
-    paymentTerms,
-    workOrderNo,
-    workOrderDate,
-    createdAt,
-  } = data;
-  console.log(data);
-  const formatDate = (dateStr) => {
-    const date = new Date(dateStr);
-    const day = date.getDate().toString().padStart(2, "0");
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
-    const year = date.getFullYear();
-    return `${day}.${month}.${year}`;
-  };
-
-  const doc = new Document({
-    styles: {
-      default: {
-        document: {
-          run: {
-            font: "Arial",
-          },
-        },
-      },
-    },
-    sections: [
-      {
-        properties: {
-          page: {
-            margin: {
-              top: 500, // 0.5 cm in twips
-              bottom: 500, // 0.5 cm in twips
-              left: 800, // 1.27 cm in twips
-              right: 800, // 1.27 cm in twips
-            },
-          },
-        },
-        children: [
-          // Header Section
-          new Paragraph({
-            alignment: AlignmentType.CENTER,
-            children: [
-              new ImageRun({
-                data: await fetchImage(headerImage),
-                transformation: {
-                  width: 600,
-                  height: 75,
-                },
-              }),
-            ],
-          }),
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: "PRE-CONSTRUCTION ATT CONTRACT",
-                bold: true,
-                size: 30,
-              }),
-            ],
-            alignment: AlignmentType.CENTER,
-            spacing: { before: 200, after: 200 },
-          }),
-          // First Table - Contractee Information
-          new Table({
-            rows: [
-              new TableRow({
-                children: [
-                  new TableCell({
-                    children: [
-                      new Paragraph({
-                        children: [
-                          new TextRun({
-                            text: "CONTRACTEE INFORMATION",
-                            bold: true,
-                            size: 20,
-                          }),
-                        ],
-                        alignment: AlignmentType.LEFT,
-                      }),
-                      new Paragraph({ text: "" }),
-                      new Paragraph({
-                        children: [
-                          new TextRun({
-                            text: `${billToAddress.prefix} ${billToAddress.name}`,
-                            bold: true,
-                          }),
-                        ],
-                      }),
-                      new Paragraph({
-                        children: [
-                          new TextRun({
-                            text: `${billToAddress.a2}, ${billToAddress.a1}`,
-                          }),
-                        ],
-                      }),
-                      new Paragraph({
-                        children: [
-                          new TextRun({
-                            text: `${billToAddress.a3}, ${billToAddress.a4}, ${billToAddress.a5}`,
-                          }),
-                        ],
-                      }),
-                      new Paragraph({
-                        children: [
-                          new TextRun({
-                            text: `${billToAddress.city} - ${billToAddress.pincode}`,
-                          }),
-                        ],
-                      }),
-                      new Paragraph({ text: "" }),
-                      new Paragraph({
-                        children: [
-                          new TextRun({
-                            text: `Work Order No: ${workOrderNo}`,
-                            bold: true,
-                          }),
-                        ],
-                      }),
-                      new Paragraph({
-                        children: [
-                          new TextRun({
-                            text: `Work Order Date: ${formatDate(
-                              workOrderDate
-                            )}`,
-                            bold: true,
-                          }),
-                        ],
-                      }),
-                    ],
-                  }),
-                  new TableCell({
-                    children: [
-                      new Paragraph({
-                        alignment: AlignmentType.CENTER,
-                        children: [
-                          new TextRun({
-                            text: `Service Contract no.     :`,
-                            bold: true,
-                          }),
-                          new TextRun({
-                            text: `${contractNo}`,
-                            bold: true,
-                            size: 28,
-                          }),
-                        ],
-                      }),
-                      new Paragraph({ text: "" }),
-                      new Paragraph({
-                        alignment: AlignmentType.CENTER,
-                        children: [
-                          new TextRun({
-                            text: `Contract Date     :${formatDate(createdAt)}`,
-                          }),
-                        ],
-                      }),
-                    ],
-                    verticalAlign: VerticalAlign.CENTER,
-                  }),
-                ],
-              }),
-            ],
-            width: { size: 10000, type: WidthType.DXA },
-          }),
-          // Middle Paragraph
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: `To be paid by `,
-              }),
-              new TextRun({
-                text: `${billToAddress.prefix} ${billToAddress.name} `,
-                bold: true,
-              }),
-              new TextRun({
-                text: `(Hereinafter called 'The Contractee') on the commencement of services and submission of report to`,
-              }),
-              new TextRun({
-                text: " Messrs. EXPRESS PESTICIDES PVT. LTD.",
-                bold: true,
-              }),
-              new TextRun({
-                text: "(Hereinafter called 'The Contractor'). The Contractor shall undertake to render the Pre Construction Anti Termite Treatment to the premises of the Contractee as per the particulars given below and additional terms and conditions printed overleaf.",
-              }),
-            ],
-            spacing: { before: 200, after: 200 },
-          }),
-          // Second Table - Service Charges and Payment Terms
-          new Table({
-            rows: [
-              new TableRow({
-                children: [
-                  new TableCell({
-                    children: [
-                      new Paragraph({
-                        children: [
-                          new TextRun({
-                            text: "SERVICE CHARGES",
-                          }),
-                          new TextRun({
-                            text: `\t: Rs. ${data.quoteInfo[0].serviceRate} ${data.quoteInfo[0].serviceRateUnit} (+) GST @ 18% as applicable`,
-                            bold: true,
-                            size: 24,
-                          }),
-                        ],
-                        tabStops: [
-                          {
-                            type: AlignmentType.LEFT,
-                            position: 3000,
-                          },
-                        ],
-                      }),
-                      new Paragraph({
-                        children: [
-                          new TextRun({
-                            text: "PAYMENT TERMS",
-                          }),
-                          new TextRun({
-                            text: `\t: ${paymentTerms}`,
-                          }),
-                        ],
-                        tabStops: [
-                          {
-                            type: AlignmentType.LEFT,
-                            position: 3000,
-                          },
-                        ],
-                      }),
-                      new Paragraph({
-                        children: [
-                          new TextRun({
-                            text: "PROJECT AREA",
-                          }),
-                          new TextRun({
-                            text: `\t: ${data.quoteInfo[0].workArea} ${data.quoteInfo[0].workAreaUnit}`,
-                            bold: true,
-                          }),
-                        ],
-                        tabStops: [
-                          {
-                            type: AlignmentType.LEFT,
-                            position: 3000,
-                          },
-                        ],
-                      }),
-                      new Paragraph({
-                        children: [
-                          new TextRun({
-                            text: "Guarantee",
-                          }),
-                          new TextRun({
-                            text: "\t: 10 Years",
-                            bold: true,
-                          }),
-                        ],
-                        tabStops: [
-                          {
-                            type: AlignmentType.LEFT,
-                            position: 3000,
-                          },
-                        ],
-                      }),
-                      new Paragraph({
-                        children: [
-                          new TextRun({
-                            text: "In case of subterranean or ground dwelling of termite infestation during the guarantee period, we undertake to treat the same and eradicate the termite infestation without any extra cost to you. This guarantee will be forwarded on stamp paper.",
-                          }),
-                        ],
-
-                        indent: {
-                          start: 3000, // Adjust this value to control indentation
-                        },
-                      }),
-                    ],
-                  }),
-                ],
-              }),
-            ],
-            width: { size: 10000, type: WidthType.DXA },
-          }),
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: "",
-              }),
-            ],
-          }),
-          // Third Table - Project Name & Address
-          new Table({
-            width: {
-              size: 10000,
-              type: WidthType.DXA,
-            },
-            rows: [
-              new TableRow({
-                children: [
-                  new TableCell({
-                    children: [
-                      new Paragraph({
-                        children: [
-                          new TextRun({
-                            text: "Project Name & Address",
-                            bold: true,
-                          }),
-                        ],
-                        alignment: AlignmentType.CENTER, // Apply alignment to Paragraph
-                      }),
-                    ],
-                  }),
-                  new TableCell({
-                    children: [
-                      new Paragraph({
-                        children: [
-                          new TextRun({
-                            text: "Type of Treatment",
-                            bold: true,
-                          }),
-                        ],
-                        alignment: AlignmentType.CENTER, // Apply alignment to Paragraph
-                      }),
-                    ],
-                  }),
-                  new TableCell({
-                    children: [
-                      new Paragraph({
-                        children: [
-                          new TextRun({
-                            text: "Chemical",
-                            bold: true,
-                          }),
-                        ],
-                        alignment: AlignmentType.CENTER, // Apply alignment to Paragraph
-                      }),
-                    ],
-                  }),
-                ],
-              }),
-              new TableRow({
-                children: [
-                  new TableCell({
-                    children: [
-                      new Paragraph({
-                        children: [
-                          new TextRun({
-                            text: `${shipToAddress.projectName}`,
-                            bold: true,
-                          }),
-                        ],
-                        alignment: AlignmentType.LEFT,
-                      }),
-                      new Paragraph({
-                        children: [
-                          new TextRun({
-                            text: `${shipToAddress.a2} ${shipToAddress.a1}`,
-                          }),
-                        ],
-                        alignment: AlignmentType.LEFT,
-                      }),
-                      new Paragraph({
-                        children: [
-                          new TextRun({
-                            text: `${shipToAddress.a3}, ${shipToAddress.a4}`,
-                          }),
-                        ],
-                        alignment: AlignmentType.LEFT,
-                      }),
-                      new Paragraph({
-                        children: [
-                          new TextRun({
-                            text: `${billToAddress.a5}`,
-                          }),
-                        ],
-                        alignment: AlignmentType.LEFT,
-                      }),
-                      new Paragraph({
-                        children: [
-                          new TextRun({
-                            text: `${shipToAddress.city} - ${shipToAddress.pincode}`,
-                          }),
-                        ],
-                        alignment: AlignmentType.LEFT,
-                      }),
-                      new Paragraph({ children: [new TextRun("")] }), // Ensure TextRun for empty content
-                      new Paragraph({
-                        children: [
-                          new TextRun({
-                            text: "Site Contact Person :-",
-                            bold: true,
-                          }),
-                        ],
-                      }),
-                      new Table({
-                        rows: [
-                          new TableRow({
-                            children: [
-                              new TableCell({
-                                children: [
-                                  new Paragraph({
-                                    children: [new TextRun("CONTACT PERSON")],
-                                  }),
-                                ],
-                              }),
-                              new TableCell({
-                                children: [
-                                  new Paragraph({
-                                    children: [new TextRun("TELEPHONE")],
-                                  }),
-                                ],
-                              }),
-                              new TableCell({
-                                children: [
-                                  new Paragraph({
-                                    children: [new TextRun("EMAIL")],
-                                  }),
-                                ],
-                              }),
-                            ],
-                          }),
-                          ...shipToAddress.kci.map(
-                            (contact) =>
-                              new TableRow({
-                                children: [
-                                  new TableCell({
-                                    children: [
-                                      new Paragraph({
-                                        children: [
-                                          new TextRun({
-                                            text: `${contact.name}`,
-                                          }),
-                                        ],
-                                      }),
-                                    ],
-                                  }),
-                                  new TableCell({
-                                    children: [
-                                      new Paragraph({
-                                        children: [
-                                          new TextRun({
-                                            text: `${contact.contact}`,
-                                          }),
-                                        ],
-                                      }),
-                                    ],
-                                  }),
-                                  new TableCell({
-                                    children: [
-                                      new Paragraph({
-                                        children: [
-                                          new TextRun({
-                                            text: `${contact.email}`,
-                                          }),
-                                        ],
-                                      }),
-                                    ],
-                                  }),
-                                ],
-                              })
-                          ),
-                        ],
-                        width: { size: 100, type: WidthType.PERCENT }, // Set table width to 100%
-                        borders: {
-                          top: { style: "single", size: 4 },
-                          bottom: { style: "single", size: 4 },
-                          left: { style: "single", size: 4 },
-                          right: { style: "single", size: 4 },
-                          insideVertical: { style: "single", size: 4 },
-                          insideHorizontal: { style: "single", size: 4 },
-                        },
-                      }),
-                    ],
-                    // The alignment property should be applied to Paragraphs, not TableCell
-                  }),
-                  new TableCell({
-                    children: [
-                      new Paragraph({
-                        children: [
-                          new TextRun({
-                            text: "Anti Termite Treatment",
-                          }),
-                        ],
-                        alignment: AlignmentType.CENTER,
-                      }),
-                    ],
-                    verticalAlign: VerticalAlign.CENTER,
-                  }),
-                  new TableCell({
-                    children: [
-                      new Paragraph({
-                        children: [
-                          new TextRun({
-                            text: data.quoteInfo[0].chemical, // Ensure data.quoteInfo[0].chemical is defined
-                          }),
-                        ],
-                        alignment: AlignmentType.CENTER,
-                      }),
-                    ],
-                    verticalAlign: VerticalAlign.CENTER,
-                  }),
-                ],
-              }),
-            ],
-          }),
-          // Signature Section
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: "",
-              }),
-            ],
-          }),
-          new Table({
-            rows: [
-              new TableRow({
-                children: [
-                  new TableCell({
-                    width: { size: 5000, type: WidthType.DXA }, // Fixed width for left cell
-                    children: [
-                      new Paragraph({
-                        children: [
-                          new TextRun({
-                            text: "For EXPRESS PESTICIDES PVT. LTD.",
-                            bold: true,
-                          }),
-                        ],
-                        alignment: AlignmentType.LEFT,
-                        spacing: { before: 200, after: 200 },
-                      }),
-                    ],
-                  }),
-                  new TableCell({
-                    width: { size: 5000, type: WidthType.DXA }, // Fixed width for right cell
-                    children: [
-                      new Paragraph({
-                        children: [
-                          new TextRun({
-                            text: "We hereby confirm",
-                          }),
-                        ],
-                        alignment: AlignmentType.RIGHT,
-                        spacing: { before: 200, after: 200 },
-                      }),
-                    ],
-                  }),
-                ],
-              }),
-            ],
-            width: { size: 10000, type: WidthType.DXA }, // Full page width
-          }),
-          new Table({
-            rows: [
-              new TableRow({
-                borders: {
-                  top: { size: 0 },
-                  bottom: { size: 0 },
-                  left: { size: 0 },
-                  right: { size: 0 },
-                },
-                children: [
-                  new TableCell({
-                    width: { size: 5000, type: WidthType.DXA },
-                    borders: {
-                      top: { size: 0 },
-                      bottom: { size: 0 },
-                      left: { size: 0 },
-                      right: { size: 0 },
-                    },
-                    children: [
-                      new Paragraph({
-                        children: [
-                          new TextRun({
-                            text: "Authorized Signatory",
-                            bold: true,
-                          }),
-                          new TextRun({
-                            text: `${data.createdBy.initials}/${data.salesPerson.initials}`,
-                            break: 1, // Insert a line break between TextRuns
-                          }),
-                        ],
-                        alignment: AlignmentType.LEFT,
-                        spacing: { before: 200, after: 200 },
-                      }),
-                    ],
-                  }),
-                  new TableCell({
-                    width: { size: 5000, type: WidthType.DXA }, // Fixed width for right cell
-                    children: [
-                      new Paragraph({
-                        children: [
-                          new TextRun({
-                            text: "(CONTRACTEE)",
-                          }),
-                        ],
-                        alignment: AlignmentType.RIGHT,
-                        spacing: { before: 200, after: 200 },
-                      }),
-                    ],
-                  }),
-                ],
-              }),
-            ],
-            width: { size: 10000, type: WidthType.DXA }, // Full page width
-          }),
-        ],
-      },
-    ],
-  });
-
-  const blob = await Packer.toBlob(doc);
-  saveAs(blob, "standard_contract.docx");
-};
 const generateStandardContractAdv = async (data, annexure) => {
   const {
     contractNo,
@@ -1401,6 +798,7 @@ const generateStandardContractAdv = async (data, annexure) => {
     workOrderDate,
     createdAt,
     gstNo,
+    taxation,
   } = data;
   console.log(data);
   const formatDate = (dateStr) => {
@@ -1457,7 +855,7 @@ const generateStandardContractAdv = async (data, annexure) => {
           new Paragraph({
             children: [
               new TextRun({
-                text: "PRE-CONSTRUCTION ATT CONTRACT",
+                text: "PRE CONSTRUCTION ATT CONTRACT",
                 bold: true,
                 size: 30,
               }),
@@ -1513,37 +911,49 @@ const generateStandardContractAdv = async (data, annexure) => {
                         ],
                       }),
                       new Paragraph({ text: "" }),
-                      new Paragraph({
-                        children: [
-                          new TextRun({
-                            text: `Work Order No: ${workOrderNo}`,
-                            bold: true,
-                          }),
-                        ],
-                      }),
-                      new Paragraph({
-                        children: [
-                          new TextRun({
-                            text: `Work Order Date: ${formatDate(
-                              workOrderDate
-                            )}`,
-                            bold: true,
-                          }),
-                        ],
-                      }),
+                      ...(workOrderNo
+                        ? [
+                            new Paragraph({
+                              children: [
+                                new TextRun({
+                                  text: `Work Order No: ${workOrderNo}`,
+                                  bold: true,
+                                }),
+                              ],
+                            }),
+                          ]
+                        : []),
+                      ...(workOrderDate
+                        ? [
+                            new Paragraph({
+                              children: [
+                                new TextRun({
+                                  text: `Work Order Date: ${formatDate(
+                                    workOrderDate
+                                  )}`,
+                                  bold: true,
+                                }),
+                              ],
+                            }),
+                          ]
+                        : []),
                     ],
                   }),
                   new TableCell({
                     children: [
                       new Paragraph({
-                        alignment: AlignmentType.CENTER,
+                        alignment: AlignmentType.LEFT,
                         children: [
                           new TextRun({
                             text: `Service Contract no.     :`,
                             bold: true,
                           }),
                           new TextRun({
-                            text: `${contractNo}`,
+                            text: `${
+                              contractNo
+                                ? contractNo
+                                : String(data._id).slice(11)
+                            }`,
                             bold: true,
                             size: 28,
                           }),
@@ -1551,15 +961,111 @@ const generateStandardContractAdv = async (data, annexure) => {
                       }),
                       new Paragraph({ text: "" }),
                       new Paragraph({
-                        alignment: AlignmentType.CENTER,
+                        alignment: AlignmentType.LEFT,
                         children: [
                           new TextRun({
                             text: `Contract Date     :${formatDate(createdAt)}`,
                           }),
                         ],
                       }),
+                      new Paragraph({ text: "" }),
+                      new Paragraph({ text: "" }),
+                      ...(billToAddress.kci.length > 0
+                        ? [
+                            new Table({
+                              rows: [
+                                new TableRow({
+                                  children: [
+                                    new TableCell({
+                                      children: [
+                                        new Paragraph({
+                                          children: [
+                                            new TextRun({
+                                              text: "CONTACT PERSON",
+                                              bold: true,
+                                            }),
+                                          ],
+                                          alignment: AlignmentType.CENTER,
+                                        }),
+                                      ],
+                                      shading: { fill: "D3D3D3" },
+                                    }),
+                                    new TableCell({
+                                      children: [
+                                        new Paragraph({
+                                          children: [
+                                            new TextRun({
+                                              text: "TELEPHONE",
+                                              bold: true,
+                                            }),
+                                          ],
+                                          alignment: AlignmentType.CENTER,
+                                        }),
+                                      ],
+                                      shading: { fill: "D3D3D3" },
+                                    }),
+                                    new TableCell({
+                                      children: [
+                                        new Paragraph({
+                                          children: [
+                                            new TextRun({
+                                              text: "EMAIL",
+                                              bold: true,
+                                            }),
+                                          ],
+                                          alignment: AlignmentType.CENTER,
+                                        }),
+                                      ],
+                                      shading: { fill: "D3D3D3" },
+                                    }),
+                                  ],
+                                }),
+                                ...billToAddress.kci.map(
+                                  (contact) =>
+                                    new TableRow({
+                                      children: [
+                                        new TableCell({
+                                          children: [
+                                            new Paragraph({
+                                              children: [
+                                                new TextRun({
+                                                  text: `${contact.name}`,
+                                                }),
+                                              ],
+                                            }),
+                                          ],
+                                        }),
+                                        new TableCell({
+                                          children: [
+                                            new Paragraph({
+                                              children: [
+                                                new TextRun({
+                                                  text: `${contact.contact}`,
+                                                }),
+                                              ],
+                                            }),
+                                          ],
+                                        }),
+                                        new TableCell({
+                                          children: [
+                                            new Paragraph({
+                                              children: [
+                                                new TextRun({
+                                                  text: `${contact.email}`,
+                                                }),
+                                              ],
+                                            }),
+                                          ],
+                                        }),
+                                      ],
+                                    })
+                                ),
+                              ],
+                              width: { size: 100, type: WidthType.PERCENTAGE },
+                            }),
+                          ]
+                        : []),
                     ],
-                    verticalAlign: VerticalAlign.CENTER,
                   }),
                 ],
               }),
@@ -1577,14 +1083,14 @@ const generateStandardContractAdv = async (data, annexure) => {
                 bold: true,
               }),
               new TextRun({
-                text: `(Hereinafter called 'The Contractee') on the commencement of services and submission of report to`,
+                text: `(Hereinafter called 'The Contractee') on the commencement of services to`,
               }),
               new TextRun({
                 text: " Messrs. EXPRESS PESTICIDES PVT. LTD.",
                 bold: true,
               }),
               new TextRun({
-                text: "(Hereinafter called 'The Contractor'). The Contractor shall undertake to render the Pre Construction Anti Termite Treatment to the premises of the Contractee as per the particulars given below and additional terms and conditions printed overleaf.",
+                text: "(Hereinafter called 'The Contractor') or their assigness, Administrators, representatives and Authorised agents. The Contractor shall undertake to render the Pre Construction Anti Termite Treatment to the premises of the Contractee as per the particulars given below and additional terms printed overleaf.",
               }),
             ],
             spacing: { before: 200, after: 200 },
@@ -1604,6 +1110,7 @@ const generateStandardContractAdv = async (data, annexure) => {
                         children: [
                           new TextRun({
                             text: "PAYMENT TERMS",
+                            bold: true,
                           }),
                           new TextRun({
                             text: `\t: ${paymentTerms}`,
@@ -1619,7 +1126,25 @@ const generateStandardContractAdv = async (data, annexure) => {
                       new Paragraph({
                         children: [
                           new TextRun({
+                            text: "Taxation",
+                            bold: true,
+                          }),
+                          new TextRun({
+                            text: `\t: ${taxation}`,
+                          }),
+                        ],
+                        tabStops: [
+                          {
+                            type: AlignmentType.LEFT,
+                            position: 3000,
+                          },
+                        ],
+                      }),
+                      new Paragraph({
+                        children: [
+                          new TextRun({
                             text: "Guarantee",
+                            bold: true,
                           }),
                           new TextRun({
                             text: "\t: 10 Years",
@@ -1647,7 +1172,7 @@ const generateStandardContractAdv = async (data, annexure) => {
                       new Paragraph({
                         children: [
                           new TextRun({
-                            text: "Quote Measure",
+                            text: "Measure",
                             bold: true,
                             alignment: AlignmentType.LEFT,
                           }),
@@ -1753,105 +1278,113 @@ const generateStandardContractAdv = async (data, annexure) => {
                         ],
                         alignment: AlignmentType.LEFT,
                       }),
-                      new Paragraph({
-                        children: [
-                          new TextRun({
-                            text: "Site Contact Person :-",
-                            bold: true,
-                          }),
-                        ],
-                      }),
-                      new Table({
-                        rows: [
-                          new TableRow({
-                            children: [
-                              new TableCell({
-                                children: [
-                                  new Paragraph({
-                                    children: [
-                                      new TextRun({
-                                        text: "CONTACT PERSON",
-                                        bold: true,
-                                      }),
-                                    ],
-                                    alignment: AlignmentType.CENTER,
-                                  }),
-                                ],
-                                shading: { fill: "D3D3D3" },
-                              }),
-                              new TableCell({
-                                children: [
-                                  new Paragraph({
-                                    children: [
-                                      new TextRun({
-                                        text: "TELEPHONE",
-                                        bold: true,
-                                      }),
-                                    ],
-                                    alignment: AlignmentType.CENTER,
-                                  }),
-                                ],
-                                shading: { fill: "D3D3D3" },
-                              }),
-                              new TableCell({
-                                children: [
-                                  new Paragraph({
-                                    children: [
-                                      new TextRun({
-                                        text: "EMAIL",
-                                        bold: true,
-                                      }),
-                                    ],
-                                    alignment: AlignmentType.CENTER,
-                                  }),
-                                ],
-                                shading: { fill: "D3D3D3" },
-                              }),
-                            ],
-                          }),
-                          ...shipToAddress.kci.map(
-                            (contact) =>
-                              new TableRow({
-                                children: [
-                                  new TableCell({
-                                    children: [
-                                      new Paragraph({
-                                        children: [
-                                          new TextRun({
-                                            text: `${contact.name}`,
-                                          }),
-                                        ],
-                                      }),
-                                    ],
-                                  }),
-                                  new TableCell({
-                                    children: [
-                                      new Paragraph({
-                                        children: [
-                                          new TextRun({
-                                            text: `${contact.contact}`,
-                                          }),
-                                        ],
-                                      }),
-                                    ],
-                                  }),
-                                  new TableCell({
-                                    children: [
-                                      new Paragraph({
-                                        children: [
-                                          new TextRun({
-                                            text: `${contact.email}`,
-                                          }),
-                                        ],
-                                      }),
-                                    ],
-                                  }),
-                                ],
-                              })
-                          ),
-                        ],
-                        width: { size: 100, type: WidthType.PERCENTAGE },
-                      }),
+                      ...(shipToAddress.kci.length > 0
+                        ? [
+                            new Paragraph({
+                              children: [
+                                new TextRun({
+                                  text: "Site Contact Person :-",
+                                  bold: true,
+                                }),
+                              ],
+                            }),
+                          ]
+                        : []),
+                      ...(shipToAddress.kci.length > 0
+                        ? [
+                            new Table({
+                              rows: [
+                                new TableRow({
+                                  children: [
+                                    new TableCell({
+                                      children: [
+                                        new Paragraph({
+                                          children: [
+                                            new TextRun({
+                                              text: "CONTACT PERSON",
+                                              bold: true,
+                                            }),
+                                          ],
+                                          alignment: AlignmentType.CENTER,
+                                        }),
+                                      ],
+                                      shading: { fill: "D3D3D3" },
+                                    }),
+                                    new TableCell({
+                                      children: [
+                                        new Paragraph({
+                                          children: [
+                                            new TextRun({
+                                              text: "TELEPHONE",
+                                              bold: true,
+                                            }),
+                                          ],
+                                          alignment: AlignmentType.CENTER,
+                                        }),
+                                      ],
+                                      shading: { fill: "D3D3D3" },
+                                    }),
+                                    new TableCell({
+                                      children: [
+                                        new Paragraph({
+                                          children: [
+                                            new TextRun({
+                                              text: "EMAIL",
+                                              bold: true,
+                                            }),
+                                          ],
+                                          alignment: AlignmentType.CENTER,
+                                        }),
+                                      ],
+                                      shading: { fill: "D3D3D3" },
+                                    }),
+                                  ],
+                                }),
+                                ...shipToAddress.kci.map(
+                                  (contact) =>
+                                    new TableRow({
+                                      children: [
+                                        new TableCell({
+                                          children: [
+                                            new Paragraph({
+                                              children: [
+                                                new TextRun({
+                                                  text: `${contact.name}`,
+                                                }),
+                                              ],
+                                            }),
+                                          ],
+                                        }),
+                                        new TableCell({
+                                          children: [
+                                            new Paragraph({
+                                              children: [
+                                                new TextRun({
+                                                  text: `${contact.contact}`,
+                                                }),
+                                              ],
+                                            }),
+                                          ],
+                                        }),
+                                        new TableCell({
+                                          children: [
+                                            new Paragraph({
+                                              children: [
+                                                new TextRun({
+                                                  text: `${contact.email}`,
+                                                }),
+                                              ],
+                                            }),
+                                          ],
+                                        }),
+                                      ],
+                                    })
+                                ),
+                              ],
+                              width: { size: 100, type: WidthType.PERCENTAGE },
+                            }),
+                          ]
+                        : []),
                     ],
                   }),
                   new TableCell({
@@ -2000,21 +1533,25 @@ const generateStandardContractAdv = async (data, annexure) => {
               insideHorizontal: { style: "none" }, // Ensure no horizontal lines inside the table
             },
           }),
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: "GST No.",
-                bold: true,
-                size: 24,
-              }),
-              new TextRun({
-                text: gstNo,
-                bold: true,
-                size: 24,
-              }),
-            ],
-            alignment: AlignmentType.CENTER,
-          }),
+          ...(gstNo && gstNo.trim() !== ""
+            ? [
+                new Paragraph({
+                  children: [
+                    new TextRun({
+                      text: "GST No.",
+                      bold: true,
+                      size: 24,
+                    }),
+                    new TextRun({
+                      text: gstNo,
+                      bold: true,
+                      size: 24,
+                    }),
+                  ],
+                  alignment: AlignmentType.CENTER,
+                }),
+              ]
+            : []),
         ],
       },
       ...(annexure
@@ -2054,7 +1591,6 @@ export {
   generateStandardDoc,
   generateSupplyDoc,
   generateSupplyApplyDoc,
-  generateStandardContract,
   generateStandardContractAdv,
   createQuoteInfoTableApplySupply,
   createQuoteInfoTableStandard,
