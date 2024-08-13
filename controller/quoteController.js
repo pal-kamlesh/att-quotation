@@ -1,4 +1,4 @@
-import { Quotation, QuoteInfo } from "../models/index.js";
+import { Quotation, QuoteArchive, QuoteInfo } from "../models/index.js";
 import {
   Document,
   Packer,
@@ -224,12 +224,7 @@ const update = async (req, res, next) => {
         .populate({ path: "createdBy", select: "-password" })
         .lean({ virtuals: ["subject"] });
       const author = req.user.id;
-      const archive = await createQuoteArchiveEntry(
-        quotationId,
-        state,
-        author,
-        message
-      );
+      await createQuoteArchiveEntry(quotationId, state, author, message);
     }
 
     // Fetch the existing quotation document
@@ -251,7 +246,6 @@ const update = async (req, res, next) => {
     const updatedQuoteInfoIds = [];
     for (const info of quoteInfo) {
       let quoteInfoDoc;
-      console.log(info);
       if (info._id && isValidObjectId(info._id) && info._id.length !== 21) {
         quoteInfoDoc = await QuoteInfo.findByIdAndUpdate(info._id, info, {
           new: true,
@@ -408,6 +402,12 @@ const approve = async (req, res, next) => {
     const data = await Quotation.findByIdAndUpdate(id)
       .populate("quoteInfo")
       .populate("createdBy");
+    if (data.approved) {
+      res.status(404).json({ message: "Quotation Already approved" });
+      return;
+    }
+    const author = req.user.id;
+    await createQuoteArchiveEntry(id, data, author, "Approved");
     await data.approve();
     res.status(200).json({
       message: "Quotation Approved.",
@@ -481,7 +481,6 @@ const similarProjects = async (req, res, next) => {
         });
       });
     }
-    console.log(quotations.length);
     res.status(200).json(quotations);
   } catch (error) {
     console.log(error);
@@ -489,6 +488,19 @@ const similarProjects = async (req, res, next) => {
   }
 };
 
+async function createQuoteArchiveEntry(quoteId, state, author, message) {
+  const theArchive = await QuoteArchive.findOne({ quotationId: quoteId });
+  if (theArchive) {
+    theArchive.revisions.push({ state, author, message });
+    await theArchive.save();
+  } else {
+    const newArchive = new QuoteArchive({
+      quotationId: quoteId,
+      revisions: [{ state, author, message }],
+    });
+    await newArchive.save();
+  }
+}
 function generateQuotation(data) {
   const doc = new Document({
     sections: [

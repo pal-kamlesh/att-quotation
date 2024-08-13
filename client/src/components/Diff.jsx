@@ -4,8 +4,7 @@ import { archiveData } from "../redux/quote/quoteSlice";
 import { useEffect, useState } from "react";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { diff } from "deep-object-diff";
-import RevisionHistoryCard from "./RevisionHistoryCard";
-import Loading from "./Loading";
+import { Loading, RevisionHistoryCard } from "./index.js";
 
 function Diff({ quoteId }) {
   const dispatch = useDispatch();

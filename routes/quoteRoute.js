@@ -23,5 +23,5 @@ router.get("/:id", verifyToken, singleQuote);
 router.post("/:id", verifyToken, update);
 router.get("/docx/:id", verifyToken, docData);
 router.get("/approve/:id", verifyToken, approve);
-router.get("/archive/:id", getArchive);
+router.get("/archive/:id", verifyToken, getArchive);
 export default router;

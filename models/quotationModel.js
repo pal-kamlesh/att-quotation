@@ -171,6 +171,7 @@ quotationSchema.pre("remove", async function (next) {
 });
 quotationSchema.methods.approve = async function () {
   this.approved = true;
+  this.quotationDate = new Date();
   this.quotationNo = await this.constructor.generateQuotationNo();
   return this.save();
 };
