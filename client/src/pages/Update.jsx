@@ -11,6 +11,7 @@ import {
 } from "../components";
 import { Button, Label, Select, Textarea, TextInput } from "flowbite-react";
 import { toast } from "react-toastify";
+import { duplicateBillToShipTo } from "../funtions/funtion";
 
 // eslint-disable-next-line react/prop-types
 function Update({ quoteId, onClose }) {
@@ -158,6 +159,15 @@ function Update({ quoteId, onClose }) {
             value={quote.emailTo}
           />
         </div>
+      </div>
+      <div className="flex items-center justify-center w-full">
+        <Button
+          outline
+          gradientMonochrome="cyan"
+          onClick={() => duplicateBillToShipTo({ quote, setQuote })}
+        >
+          Copy BillTo/ShipTo
+        </Button>
       </div>
       <div className="grid grid-cols-8 gap-4 border mb-4 rounded-md">
         <div className=" p-4 col-span-4">

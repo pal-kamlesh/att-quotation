@@ -64,7 +64,7 @@ export default function Create() {
   ]);
 
   async function handleClick(id) {
-    if (!currentUser.rights.admin) {
+    if (!currentUser.rights.admin && !currentUser.rights.approve) {
       toast.error("Contact VNT to approve the Quotation.");
       return;
     }

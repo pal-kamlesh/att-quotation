@@ -6,7 +6,7 @@ function Refresh({ loading, onRefresh }) {
     <button
       onClick={onRefresh}
       className={`relative  bg-gradient-to-r from-teal-400 to-blue-500 p-2 rounded-full ${
-        loading ? "animate-spin" : "hover:animate-spin"
+        loading ? "animate-spin" : ""
       }`}
     >
       <FaSync className="h-5 w-5 text-white" />

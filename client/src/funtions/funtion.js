@@ -25,4 +25,25 @@ const fetchImage = async (imagePath) => {
   return await blob.arrayBuffer();
 };
 
-export { saprateQuoteInfo, getDotColor, fetchImage };
+function duplicateBillToShipTo({ quote, setQuote }) {
+  const { billToAddress } = quote;
+  const { shipToAddress } = quote;
+
+  // Create an object to hold the duplicated fields
+  const updatedShipToAddress = {};
+
+  // Loop through billToAddress keys and copy only those present in shipToAddress
+  Object.keys(billToAddress).forEach((key) => {
+    if (Object.prototype.hasOwnProperty.call(shipToAddress, key)) {
+      updatedShipToAddress[key] = billToAddress[key];
+    }
+  });
+
+  // Update the shipToAddress in the state
+  setQuote({
+    ...quote,
+    shipToAddress: { ...shipToAddress, ...updatedShipToAddress },
+  });
+}
+
+export { saprateQuoteInfo, getDotColor, fetchImage, duplicateBillToShipTo };

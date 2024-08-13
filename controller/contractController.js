@@ -20,6 +20,7 @@ const create = async (req, res, next) => {
       workOrderNo,
       workOrderDate,
       gstNo,
+      paymentTerms,
     } = contract;
     let quoteInfoIds = [];
     for (let i = 0; i < quoteInfo.length; i++) {
@@ -38,6 +39,7 @@ const create = async (req, res, next) => {
       workOrderDate,
       workOrderNo,
       gstNo,
+      paymentTerms,
       quoteInfo: quoteInfoIds,
       createdBy: req.user.id,
     });

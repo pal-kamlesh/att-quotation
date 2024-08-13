@@ -8,15 +8,17 @@ import {
   Textarea,
 } from "flowbite-react";
 import { useEffect, useState } from "react";
-import CustomModal from "./CustomModal";
 import { useDispatch, useSelector } from "react-redux";
 import { unwrapResult } from "@reduxjs/toolkit";
-import Loading from "./Loading";
 import { toast } from "react-toastify";
-import KCI from "./KCI";
-import InputStandardAdv from "./InputStandardAdv";
-import InputSupplyAdv from "./InputSupplyAdv";
-import InputSupplyApplyAdv from "./InputSupplyApplyAdv";
+import {
+  KCI,
+  Loading,
+  InputStandardAdv,
+  InputSupplyAdv,
+  InputSupplyApplyAdv,
+  CustomModal,
+} from "./index.js";
 import {
   getSingleContract,
   updateContract,
@@ -58,6 +60,7 @@ function UpdateContract({ onClose, activeId = null }) {
     workOrderNo: "",
     workOrderDate: new Date().toISOString().split("T")[0],
     gstNo: "",
+    paymentTerms: "",
   });
   const [doc, setDoc] = useState(contract?.docType);
   const [disableRadio, setDisableRadio] = useState(false);
@@ -608,6 +611,18 @@ function UpdateContract({ onClose, activeId = null }) {
                   </div>
                 </fieldset>
               </div>
+            </div>
+          </div>
+          <div className="col-span-4 gap-4 mb-4">
+            <div className="max-w-full">
+              <div className="mb-2 block">
+                <Label htmlFor="paymentTerms" value="Payment Terms" />
+              </div>
+              <TextInput
+                name="paymentTerms"
+                value={contract.paymentTerms}
+                onChange={handleContractChange}
+              />
             </div>
           </div>
         </div>

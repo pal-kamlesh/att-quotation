@@ -8,16 +8,20 @@ import {
   Textarea,
 } from "flowbite-react";
 import { useEffect, useMemo, useState } from "react";
-import CustomModal from "./CustomModal";
 import { useDispatch, useSelector } from "react-redux";
 import { unwrapResult } from "@reduxjs/toolkit";
-import Loading from "./Loading";
 import { toast } from "react-toastify";
-import KCI from "./KCI";
-import InputStandardAdv from "./InputStandardAdv";
-import InputSupplyAdv from "./InputSupplyAdv";
-import InputSupplyApplyAdv from "./InputSupplyApplyAdv";
 import { createContract } from "../redux/contract/contractSlice";
+import { duplicateBillToShipTo } from "../funtions/funtion";
+import {
+  KCI,
+  Loading,
+  InputStandardAdv,
+  InputSupplyAdv,
+  InputSupplyApplyAdv,
+  CustomModal,
+} from "./index.js";
+
 const getInitialContractState = () => {
   const savedData = localStorage.getItem("newContract");
   if (savedData) {
@@ -57,6 +61,7 @@ const getInitialContractState = () => {
     workOrderNo: "",
     workOrderDate: new Date().toISOString().split("T")[0],
     gstNo: "",
+    paymentTerms: "Within 15 days from the date of submission of bill.",
   };
 };
 // eslint-disable-next-line react/prop-types
@@ -122,26 +127,7 @@ function NewContract({ onClose }) {
       }));
     }
   }
-  function duplicateBillToShipTo() {
-    const { billToAddress } = contract;
-    const { shipToAddress } = contract;
 
-    // Create an object to hold the duplicated fields
-    const updatedShipToAddress = {};
-
-    // Loop through billToAddress keys and copy only those present in shipToAddress
-    Object.keys(billToAddress).forEach((key) => {
-      if (Object.prototype.hasOwnProperty.call(shipToAddress, key)) {
-        updatedShipToAddress[key] = billToAddress[key];
-      }
-    });
-
-    // Update the shipToAddress in the state
-    setContract({
-      ...contract,
-      shipToAddress: { ...shipToAddress, ...updatedShipToAddress },
-    });
-  }
   function dummyQuote() {
     const data = {
       contract: {
@@ -178,7 +164,6 @@ function NewContract({ onClose }) {
     };
     setContract(data.contract);
   }
-  console.log(contract);
   async function handleSubmit(e) {
     e.preventDefault();
     if (
@@ -295,7 +280,9 @@ function NewContract({ onClose }) {
           <Button
             outline
             gradientMonochrome="cyan"
-            onClick={duplicateBillToShipTo}
+            onClick={() =>
+              duplicateBillToShipTo({ quote: contract, setQuote: setContract })
+            }
           >
             Copy BillTo/ShipTo
           </Button>
@@ -577,7 +564,6 @@ function NewContract({ onClose }) {
               </div>
               <TextInput
                 name="gstNo"
-                type="number"
                 value={contract.gstNo}
                 onChange={handleQuoteChange}
               />
@@ -630,6 +616,18 @@ function NewContract({ onClose }) {
                   </div>
                 </fieldset>
               </div>
+            </div>
+          </div>
+          <div className="col-span-4 gap-4 mb-4">
+            <div className="max-w-full">
+              <div className="mb-2 block">
+                <Label htmlFor="paymentTerms" value="Payment Terms" />
+              </div>
+              <TextInput
+                name="paymentTerms"
+                value={contract.paymentTerms}
+                onChange={handleQuoteChange}
+              />
             </div>
           </div>
         </div>
