@@ -13,6 +13,7 @@ import {
   showMoreCard,
 } from "../redux/card/cardSlice";
 import { useNavigate } from "react-router-dom";
+import { createContractCard } from "../components/AnnexureTable";
 
 function Cards() {
   const { cards = [], showMore, loading } = useSelector((state) => state.card);
@@ -131,9 +132,10 @@ function Cards() {
                           ></div>
                           <Button
                             color="gray"
-                            onClick={() =>
-                              dispatch(incPrintCount(contract._id))
-                            }
+                            onClick={() => [
+                              dispatch(incPrintCount(contract._id)),
+                              createContractCard(),
+                            ]}
                           >
                             <FcPrint className="h-6 w-6" />
                             <div className="cursor-pointer text-gray-800 font-semibold hover:text-gray-600">

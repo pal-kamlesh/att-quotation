@@ -166,7 +166,7 @@ function Contracts() {
                           {contract.approved ? (
                             <span>Revise</span>
                           ) : (
-                            <span>Edit</span>
+                            <span>Update</span>
                           )}
                         </Button>
                       </Table.Cell>

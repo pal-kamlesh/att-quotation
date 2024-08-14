@@ -12,6 +12,7 @@ import {
   Packer,
   Document,
   VerticalAlign,
+  BorderStyle,
 } from "docx";
 import { saveAs } from "file-saver";
 import { fetchImage } from "../funtions/funtion";
@@ -800,7 +801,6 @@ const generateStandardContractAdv = async (data, annexure) => {
     gstNo,
     taxation,
   } = data;
-  console.log(data);
   const formatDate = (dateStr) => {
     const date = new Date(dateStr);
     const day = date.getDate().toString().padStart(2, "0");
@@ -911,65 +911,6 @@ const generateStandardContractAdv = async (data, annexure) => {
                         ],
                       }),
                       new Paragraph({ text: "" }),
-                      ...(workOrderNo
-                        ? [
-                            new Paragraph({
-                              children: [
-                                new TextRun({
-                                  text: `Work Order No: ${workOrderNo}`,
-                                  bold: true,
-                                }),
-                              ],
-                            }),
-                          ]
-                        : []),
-                      ...(workOrderDate
-                        ? [
-                            new Paragraph({
-                              children: [
-                                new TextRun({
-                                  text: `Work Order Date: ${formatDate(
-                                    workOrderDate
-                                  )}`,
-                                  bold: true,
-                                }),
-                              ],
-                            }),
-                          ]
-                        : []),
-                    ],
-                  }),
-                  new TableCell({
-                    children: [
-                      new Paragraph({
-                        alignment: AlignmentType.LEFT,
-                        children: [
-                          new TextRun({
-                            text: `Service Contract no.     :`,
-                            bold: true,
-                          }),
-                          new TextRun({
-                            text: `${
-                              contractNo
-                                ? contractNo
-                                : String(data._id).slice(11)
-                            }`,
-                            bold: true,
-                            size: 28,
-                          }),
-                        ],
-                      }),
-                      new Paragraph({ text: "" }),
-                      new Paragraph({
-                        alignment: AlignmentType.LEFT,
-                        children: [
-                          new TextRun({
-                            text: `Contract Date     :${formatDate(createdAt)}`,
-                          }),
-                        ],
-                      }),
-                      new Paragraph({ text: "" }),
-                      new Paragraph({ text: "" }),
                       ...(billToAddress.kci.length > 0
                         ? [
                             new Table({
@@ -1062,6 +1003,64 @@ const generateStandardContractAdv = async (data, annexure) => {
                                 ),
                               ],
                               width: { size: 100, type: WidthType.PERCENTAGE },
+                            }),
+                          ]
+                        : []),
+                    ],
+                  }),
+                  new TableCell({
+                    children: [
+                      new Paragraph({
+                        alignment: AlignmentType.LEFT,
+                        children: [
+                          new TextRun({
+                            text: `Service Contract no.     :`,
+                            bold: true,
+                          }),
+                          new TextRun({
+                            text: `${
+                              contractNo
+                                ? contractNo
+                                : String(data._id).slice(11)
+                            }`,
+                            bold: true,
+                            size: 28,
+                          }),
+                        ],
+                      }),
+                      new Paragraph({ text: "" }),
+                      new Paragraph({
+                        alignment: AlignmentType.LEFT,
+                        children: [
+                          new TextRun({
+                            text: `Contract Date     :${formatDate(createdAt)}`,
+                          }),
+                        ],
+                      }),
+                      new Paragraph({ text: "" }),
+                      ...(workOrderNo
+                        ? [
+                            new Paragraph({
+                              children: [
+                                new TextRun({
+                                  text: `Work Order No: ${workOrderNo}`,
+                                  bold: true,
+                                }),
+                              ],
+                            }),
+                          ]
+                        : []),
+                      ...(workOrderDate
+                        ? [
+                            new Paragraph({
+                              children: [
+                                new TextRun({
+                                  text: `Work Order Date: ${formatDate(
+                                    workOrderDate
+                                  )}`,
+                                  bold: true,
+                                }),
+                              ],
                             }),
                           ]
                         : []),
@@ -1172,7 +1171,7 @@ const generateStandardContractAdv = async (data, annexure) => {
                       new Paragraph({
                         children: [
                           new TextRun({
-                            text: "Measure",
+                            text: "Work Data",
                             bold: true,
                             alignment: AlignmentType.LEFT,
                           }),
@@ -1418,7 +1417,7 @@ const generateStandardContractAdv = async (data, annexure) => {
               new TableRow({
                 children: [
                   new TableCell({
-                    width: { size: 5000, type: WidthType.DXA }, // Fixed width for left cell
+                    width: { size: 5000, type: WidthType.DXA },
                     children: [
                       new Paragraph({
                         children: [
@@ -1426,6 +1425,24 @@ const generateStandardContractAdv = async (data, annexure) => {
                             text: "For EXPRESS PESTICIDES PVT. LTD.",
                             bold: true,
                           }),
+                          ...(gstNo && gstNo.trim() !== ""
+                            ? [
+                                new Paragraph({
+                                  children: [
+                                    new TextRun({
+                                      text: "[GST No.",
+                                      size: 18,
+                                      break: 1,
+                                    }),
+                                    new TextRun({
+                                      text: `${gstNo}]`,
+                                      size: 18,
+                                    }),
+                                  ],
+                                  alignment: AlignmentType.LEFT,
+                                }),
+                              ]
+                            : []),
                         ],
                         alignment: AlignmentType.LEFT,
                         spacing: { before: 200, after: 200 },
@@ -1451,7 +1468,7 @@ const generateStandardContractAdv = async (data, annexure) => {
                           }),
                           new TextRun({
                             text: `${data.createdBy.initials}/${data.salesPerson.initials}`,
-                            break: 1, // Insert a line break between TextRuns
+                            break: 1,
                           }),
                         ],
                         alignment: AlignmentType.LEFT,
@@ -1472,8 +1489,19 @@ const generateStandardContractAdv = async (data, annexure) => {
                     },
                   }),
                   new TableCell({
-                    width: { size: 5000, type: WidthType.DXA }, // Fixed width for right cell
+                    width: { size: 5000, type: WidthType.DXA },
                     children: [
+                      ...(gstNo && gstNo.trim() !== ""
+                        ? [
+                            new Paragraph({
+                              children: [
+                                new TextRun({
+                                  text: "",
+                                }),
+                              ],
+                            }),
+                          ]
+                        : []),
                       new Paragraph({
                         children: [
                           new TextRun({
@@ -1489,6 +1517,38 @@ const generateStandardContractAdv = async (data, annexure) => {
                           right: { style: "none" },
                         },
                       }),
+                      new Paragraph({
+                        children: [
+                          new TextRun({
+                            text: "",
+                          }),
+                        ],
+                      }),
+                      new Paragraph({
+                        children: [
+                          new TextRun({
+                            text: "",
+                          }),
+                        ],
+                      }),
+                      new Paragraph({
+                        children: [
+                          new TextRun({
+                            text: "",
+                          }),
+                        ],
+                      }),
+                      ...(gstNo && gstNo.trim() !== ""
+                        ? [
+                            new Paragraph({
+                              children: [
+                                new TextRun({
+                                  text: "",
+                                }),
+                              ],
+                            }),
+                          ]
+                        : []),
                       new Paragraph({
                         children: [
                           new TextRun({
@@ -1533,25 +1593,6 @@ const generateStandardContractAdv = async (data, annexure) => {
               insideHorizontal: { style: "none" }, // Ensure no horizontal lines inside the table
             },
           }),
-          ...(gstNo && gstNo.trim() !== ""
-            ? [
-                new Paragraph({
-                  children: [
-                    new TextRun({
-                      text: "GST No.",
-                      bold: true,
-                      size: 24,
-                    }),
-                    new TextRun({
-                      text: gstNo,
-                      bold: true,
-                      size: 24,
-                    }),
-                  ],
-                  alignment: AlignmentType.CENTER,
-                }),
-              ]
-            : []),
         ],
       },
       ...(annexure
@@ -1577,6 +1618,451 @@ const generateStandardContractAdv = async (data, annexure) => {
   const blob = await Packer.toBlob(doc);
   saveAs(blob, "standard_contract.docx");
 };
+
+// Function to create the Contract Card
+const createContractCard = async () => {
+  const doc = new Document({
+    sections: [
+      {
+        properties: {
+          page: {
+            margin: {
+              top: 170, // 0.3 cm
+              bottom: 500,
+              left: 567, // 1 cm in twips
+              right: 3969, // 1 cm in twips
+            },
+          },
+          borders: {
+            pageBorderTop: {
+              style: BorderStyle.SINGLE,
+              size: 6,
+              color: "000000",
+              space: 24, // Adjusts the space between the border and the page content
+            },
+            pageBorderBottom: {
+              style: BorderStyle.SINGLE,
+              size: 6,
+              color: "000000",
+              space: 24,
+            },
+            pageBorderLeft: {
+              style: BorderStyle.SINGLE,
+              size: 6,
+              color: "000000",
+              space: 24,
+            },
+            pageBorderRight: {
+              style: BorderStyle.SINGLE,
+              size: 6,
+              color: "000000",
+              space: 24,
+            },
+          },
+        },
+        children: [
+          new Table({
+            rows: [
+              new TableRow({
+                children: [
+                  new TableCell({
+                    width: { size: 3753, type: WidthType.DXA },
+                    children: [
+                      new Paragraph({
+                        children: [
+                          new TextRun({
+                            text: `Date: 14.08.2024`,
+                            bold: true,
+                            size: 18,
+                          }),
+                          new TextRun({
+                            text: `Service Card No :PRE/513/2022`,
+                            bold: true,
+                            size: 18,
+                            break: 1,
+                          }),
+                        ],
+                      }),
+                    ],
+                  }),
+                  new TableCell({
+                    width: { size: 3753, type: WidthType.DXA },
+                    children: [
+                      ...emptyParagraph(1),
+                      new Paragraph({
+                        children: [
+                          new TextRun({
+                            text: "IMIDACHLOPRID 30.5% SC",
+                            bold: true,
+                          }),
+                        ],
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+            ],
+            width: { size: 7507, type: WidthType.DXA },
+            borders: {
+              top: { style: "none" },
+              bottom: { style: "none" },
+              left: { style: "none" },
+              right: { style: "none" },
+              insideVertical: { style: "none" }, // Ensure no vertical lines inside the table
+              insideHorizontal: { style: "none" }, // Ensure no horizontal lines inside the table
+            },
+          }),
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: "PRE CONTRUCTION-ANTI TERMITE TREATMENT",
+                bold: true,
+                size: 18,
+              }),
+            ],
+            alignment: AlignmentType.CENTER,
+            spacing: {
+              after: 200,
+            },
+          }),
+          // Client, Project, and Address Details
+          ...emptyParagraph(6),
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: "CLIENT   ",
+                bold: true,
+                size: 24,
+              }),
+              new TextRun({
+                text: "\t: M/s. L & T Constructions,",
+                bold: true,
+                size: 24,
+              }),
+            ],
+            tabStops: [
+              {
+                type: AlignmentType.LEFT,
+                position: 2000,
+              },
+            ],
+          }),
+          ...emptyParagraph(1),
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: "PROJECT   ",
+                size: 24,
+                bold: true,
+              }),
+              new TextRun({
+                text: "\t: Navi Mumbai International Airport Project (NMIAL),",
+                bold: true,
+              }),
+            ],
+            tabStops: [
+              {
+                type: AlignmentType.LEFT,
+                position: 2000,
+              },
+            ],
+          }),
+          ...emptyParagraph(1),
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: "ADDRESS   ",
+                bold: true,
+                size: 24,
+              }),
+              new TextRun({
+                text: "\t: Blue Ridge Approach Raod,",
+                size: 20,
+              }),
+              new TextRun({
+                text: "\t Sector 5, Phase I, Hinjewadi,",
+                size: 20,
+                break: 1,
+              }),
+              new TextRun({
+                text: "\t Rajiv Gandhi Infotech Park,",
+                size: 20,
+                break: 1,
+              }),
+              new TextRun({
+                text: "\t Pune - 411 028",
+                size: 20,
+                break: 1,
+              }),
+              new TextRun({
+                text: "\t Near Blue Ridge Public School",
+                size: 20,
+                break: 1,
+              }),
+            ],
+            tabStops: [
+              {
+                type: AlignmentType.LEFT,
+                position: 2000,
+              },
+            ],
+            spacing: {
+              after: 300,
+            },
+          }),
+          ...emptyParagraph(6),
+          // Site Contact Details Table
+          new Paragraph({
+            text: "Site Contact Details",
+            bold: true,
+            alignment: AlignmentType.LEFT,
+          }),
+          new Table({
+            width: {
+              size: 7000,
+              type: WidthType.DXA,
+            },
+            rows: [
+              new TableRow({
+                children: [
+                  new TableCell({
+                    children: [
+                      new Paragraph({ text: "CONTACT PERSON", bold: true }),
+                    ],
+                    width: {
+                      size: 33.33,
+                      type: WidthType.PERCENTAGE,
+                    },
+                  }),
+                  new TableCell({
+                    children: [
+                      new Paragraph({ text: "TELEPHONE", bold: true }),
+                    ],
+                    width: {
+                      size: 33.33,
+                      type: WidthType.PERCENTAGE,
+                    },
+                  }),
+                  new TableCell({
+                    children: [new Paragraph({ text: "EMAIL", bold: true })],
+                    width: {
+                      size: 33.33,
+                      type: WidthType.PERCENTAGE,
+                    },
+                  }),
+                ],
+              }),
+              new TableRow({
+                children: [
+                  new TableCell({
+                    children: [
+                      new Paragraph({ text: "Mr. Shree Prakash Sharma" }),
+                    ],
+                  }),
+                  new TableCell({
+                    children: [new Paragraph({ text: "97277 55846 (M)" })],
+                  }),
+                  new TableCell({
+                    children: [new Paragraph({ text: "" })],
+                  }),
+                ],
+              }),
+              new TableRow({
+                children: [
+                  new TableCell({
+                    children: [new Paragraph({ text: "" })],
+                  }),
+                  new TableCell({
+                    children: [new Paragraph({ text: "" })],
+                  }),
+                  new TableCell({
+                    children: [new Paragraph({ text: "" })],
+                  }),
+                ],
+              }),
+            ],
+            borders: {
+              top: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
+              bottom: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
+              left: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
+              right: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
+              insideHorizontal: {
+                style: BorderStyle.SINGLE,
+                size: 1,
+                color: "000000",
+              },
+              insideVertical: {
+                style: BorderStyle.SINGLE,
+                size: 1,
+                color: "000000",
+              },
+            },
+            alignment: AlignmentType.LEFT,
+          }),
+
+          // Customer Contact Details Table
+          new Paragraph({
+            text: "Customer Contact Details",
+            bold: true,
+            alignment: AlignmentType.LEFT,
+            spacing: {
+              before: 300,
+              after: 100,
+            },
+          }),
+          new Table({
+            width: {
+              size: 7000,
+              type: WidthType.DXA,
+            },
+            rows: [
+              new TableRow({
+                children: [
+                  new TableCell({
+                    children: [
+                      new Paragraph({ text: "CONTACT PERSON", bold: true }),
+                    ],
+                  }),
+                  new TableCell({
+                    children: [
+                      new Paragraph({ text: "TELEPHONE", bold: true }),
+                    ],
+                  }),
+                  new TableCell({
+                    children: [new Paragraph({ text: "EMAIL", bold: true })],
+                  }),
+                ],
+              }),
+              new TableRow({
+                children: [
+                  new TableCell({
+                    children: [new Paragraph({ text: "" })],
+                  }),
+                  new TableCell({
+                    children: [new Paragraph({ text: "" })],
+                  }),
+                  new TableCell({
+                    children: [new Paragraph({ text: "" })],
+                  }),
+                ],
+              }),
+            ],
+            borders: {
+              top: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
+              bottom: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
+              left: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
+              right: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
+              insideHorizontal: {
+                style: BorderStyle.SINGLE,
+                size: 1,
+                color: "000000",
+              },
+              insideVertical: {
+                style: BorderStyle.SINGLE,
+                size: 1,
+                color: "000000",
+              },
+            },
+            alignment: AlignmentType.LEFT,
+          }),
+
+          // Final Small Table
+          new Paragraph({
+            spacing: {
+              before: 300,
+              after: 100,
+            },
+          }),
+          new Table({
+            rows: [
+              new TableRow({
+                children: [
+                  new TableCell({
+                    children: [new Paragraph({ text: "PL" })],
+                  }),
+                  new TableCell({
+                    children: [new Paragraph({ text: "" })],
+                  }),
+                  new TableCell({
+                    children: [new Paragraph({ text: "" })],
+                  }),
+                  new TableCell({
+                    children: [new Paragraph({ text: "" })],
+                  }),
+                ],
+              }),
+              new TableRow({
+                children: [
+                  new TableCell({
+                    children: [new Paragraph({ text: "BF" })],
+                  }),
+                  new TableCell({
+                    children: [new Paragraph({ text: "" })],
+                  }),
+                  new TableCell({
+                    children: [new Paragraph({ text: "" })],
+                  }),
+                  new TableCell({
+                    children: [new Paragraph({ text: "" })],
+                  }),
+                ],
+              }),
+              new TableRow({
+                children: [
+                  new TableCell({
+                    children: [new Paragraph({ text: "DWG" })],
+                  }),
+                  new TableCell({
+                    children: [new Paragraph({ text: "Recd. / Not Recd." })],
+                  }),
+                  new TableCell({
+                    children: [new Paragraph({ text: "IMD" })],
+                    verticalAlign: "center",
+                  }),
+                  new TableCell({
+                    children: [new Paragraph({ text: "1 : 499" })],
+                    verticalAlign: "center",
+                  }),
+                ],
+              }),
+            ],
+            borders: {
+              top: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
+              bottom: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
+              left: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
+              right: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
+              insideHorizontal: {
+                style: BorderStyle.SINGLE,
+                size: 1,
+                color: "000000",
+              },
+              insideVertical: {
+                style: BorderStyle.SINGLE,
+                size: 1,
+                color: "000000",
+              },
+            },
+            width: {
+              size: 5000,
+              type: WidthType.DXA,
+            },
+            alignment: AlignmentType.CENTER,
+          }),
+        ],
+      },
+    ],
+  });
+
+  Packer.toBlob(doc).then((blob) => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "contract.docx";
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+};
+
 function getQuoteInfoTable(docType, quoteInfo) {
   switch (docType) {
     case "standard":
@@ -1587,6 +2073,21 @@ function getQuoteInfoTable(docType, quoteInfo) {
       return createQuoteInfoTableApplySupply(quoteInfo);
   }
 }
+function emptyParagraph(num) {
+  let paraArray = [];
+  for (let i = 1; i <= num; i++) {
+    paraArray.push(
+      new Paragraph({
+        children: [
+          new TextRun({
+            text: "",
+          }),
+        ],
+      })
+    );
+  }
+  return paraArray;
+}
 export {
   generateStandardDoc,
   generateSupplyDoc,
@@ -1595,4 +2096,5 @@ export {
   createQuoteInfoTableApplySupply,
   createQuoteInfoTableStandard,
   createQuoteInfoTableSupply,
+  createContractCard,
 };

@@ -61,7 +61,7 @@ const getInitialContractState = () => {
     workOrderNo: "",
     workOrderDate: new Date().toISOString().split("T")[0],
     gstNo: "",
-    paymentTerms: "Within 15 days from the date of submission of bill.",
+    paymentTerms: "",
   };
 };
 // eslint-disable-next-line react/prop-types
@@ -72,6 +72,7 @@ function NewContract({ onClose }) {
   const [doc, setDoc] = useState(contract.docType);
   const [disableRadio, setDisableRadio] = useState(false);
   const [areaTypeModel, setAreaTypeModel] = useState(false);
+  const [subPaymentTerm, setSubPaymentTerm] = useState("");
   const dispatch = useDispatch();
   const { initials } = useSelector((state) => state.user);
 
@@ -86,6 +87,9 @@ function NewContract({ onClose }) {
       setDoc(value);
     }
   }
+  useEffect(() => {
+    setContract((prev) => ({ ...prev, paymentTerms: subPaymentTerm }));
+  }, [subPaymentTerm]);
   useEffect(() => {
     if (contract.quoteInfo.length <= 0) {
       setDisableRadio(false);
@@ -560,7 +564,7 @@ function NewContract({ onClose }) {
           <div className="col-span-4 gap-4 mb-4">
             <div className="max-w-full">
               <div className="mb-2 block">
-                <Label htmlFor="gstNo" value="GST No" />
+                <Label htmlFor="gstNo" value="(Client) GST No:" />
               </div>
               <TextInput
                 name="gstNo"
@@ -618,10 +622,25 @@ function NewContract({ onClose }) {
               </div>
             </div>
           </div>
-          <div className="col-span-4 gap-4 mb-4">
+          <div className="col-span-4 gap-4 mb-4 border-1 border-gray-200 rounded-md">
             <div className="max-w-full">
               <div className="mb-2 block">
-                <Label htmlFor="paymentTerms" value="Payment Terms" />
+                <Label htmlFor="paymentTerms" className="grid grid-cols-12">
+                  <span className=" col-span-2">
+                    Payment Terms: <span className="text-red-500">*</span>
+                  </span>
+                  <Select
+                    name="paymentTerms"
+                    onChange={(e) => setSubPaymentTerm(e.target.value)}
+                    className="col-span-10"
+                    value={subPaymentTerm}
+                  >
+                    <option></option>
+                    <option>
+                      Within 15 days from the date of submission of bill.
+                    </option>
+                  </Select>
+                </Label>
               </div>
               <TextInput
                 name="paymentTerms"

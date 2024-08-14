@@ -83,6 +83,10 @@ function Update({ quoteId, onClose }) {
       toast.error("Please provide resion for Revision.");
       return;
     }
+    if (quote.quoteInfo.length <= 0) {
+      toast.error("Please fill the number details.");
+      return;
+    }
     const data = { id: quoteId, quote, message };
     const actionResult = await dispatch(updateQuote(data));
     // eslint-disable-next-line no-unused-vars
@@ -91,6 +95,10 @@ function Update({ quoteId, onClose }) {
   }
   async function handleSubmitNotApproved() {
     const data = { id: quoteId, quote, message };
+    if (quote.quoteInfo.length <= 0) {
+      toast.error("Please fill the number details.");
+      return;
+    }
     const actionResult = await dispatch(updateQuote(data));
     // eslint-disable-next-line no-unused-vars
     const result = unwrapResult(actionResult);

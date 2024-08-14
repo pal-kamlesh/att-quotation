@@ -51,7 +51,11 @@ export default function Create() {
     }
   }, [dispatch, quotations.length]);
   useEffect(() => {
-    if (currentUser.rights.createQuote || currentUser.rights.admin) {
+    if (
+      currentUser.rights.createQuote ||
+      currentUser.rights.admin ||
+      currentUser.rights.createContract
+    ) {
       return;
     } else {
       navigate("/");
@@ -59,6 +63,7 @@ export default function Create() {
   }, [
     currentUser.rights.admin,
     currentUser.rights.createQuote,
+    currentUser.rights.createContract,
     dispatch,
     navigate,
   ]);
@@ -87,6 +92,10 @@ export default function Create() {
   }
   async function handleContractify(id) {
     try {
+      if (!currentUser.rights.createContract) {
+        toast.error("Not allowed!");
+        return;
+      }
       dispatch(makeContract(id));
     } catch (error) {
       console.log(error);
@@ -115,6 +124,11 @@ export default function Create() {
               <button
                 className="bg-[#FFFDB5] hover:bg-yellow-200 font-medium py-2 px-4 rounded-tl-lg rounded-br-lg mr-2"
                 onClick={() => setCreateModel(true)}
+                disabled={
+                  currentUser.rights.createQuote || currentUser.rights.admin
+                    ? false
+                    : true
+                }
               >
                 Create Quotation
               </button>
@@ -171,6 +185,12 @@ export default function Create() {
                           <Button
                             outline
                             gradientDuoTone="redToYellow"
+                            disabled={
+                              currentUser.rights.createQuote ||
+                              currentUser.rights.admin
+                                ? false
+                                : true
+                            }
                             onClick={() => [
                               setQuoteId(ticket._id),
                               setQuoteNo(ticket.quotationNo),
@@ -210,8 +230,14 @@ export default function Create() {
                             <Button
                               gradientMonochrome="purple"
                               onClick={() => handleContractify(ticket._id)}
+                              disabled={
+                                currentUser.rights.createContract ||
+                                currentUser.rights.admin
+                                  ? false
+                                  : true
+                              }
                             >
-                              Make Contract
+                              Initiate Contract
                             </Button>
                           ) : null}
 

@@ -77,7 +77,9 @@ export default function Header() {
         <Navbar.Link as="div" active={location.pathname === "/" ? true : false}>
           <Link to="/">Dashboard</Link>
         </Navbar.Link>
-        {(currentUser?.rights.createQuote || currentUser?.rights.admin) && (
+        {(currentUser?.rights.createQuote ||
+          currentUser?.rights.admin ||
+          currentUser?.rights.createContract) && (
           <Navbar.Link
             as="div"
             active={location.pathname === "/quotes" ? true : false}

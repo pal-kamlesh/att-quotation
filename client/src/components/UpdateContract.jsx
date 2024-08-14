@@ -555,7 +555,7 @@ function UpdateContract({ onClose, activeId = null }) {
           <div className="col-span-4 gap-4 mb-4">
             <div className="max-w-full">
               <div className="mb-2 block">
-                <Label htmlFor="gstNo" value="GST No" />
+                <Label htmlFor="gstNo" value="(Client) GST No:" />
               </div>
               <TextInput
                 name="gstNo"
