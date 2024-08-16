@@ -21,6 +21,7 @@ import {
   removeIdFromDocuments,
   remove_IdFromObj,
   differenceBetweenArrays,
+  createQuoteArchiveEntry,
 } from "../utils/functions.js";
 
 const convertAsync = promisify(libre.convert);
@@ -228,6 +229,8 @@ const update = async (req, res, next) => {
         .populate({ path: "createdBy", select: "-password" })
         .lean({ virtuals: ["subject"] });
       const author = req.user.id;
+      rest.createdBy = req.user.id;
+      rest.quotationDate = new Date();
       await createQuoteArchiveEntry(quotationId, state, author, message);
     }
 
@@ -493,19 +496,6 @@ const similarProjects = async (req, res, next) => {
   }
 };
 
-async function createQuoteArchiveEntry(quoteId, state, author, message) {
-  const theArchive = await QuoteArchive.findOne({ quotationId: quoteId });
-  if (theArchive) {
-    theArchive.revisions.push({ state, author, message });
-    await theArchive.save();
-  } else {
-    const newArchive = new QuoteArchive({
-      quotationId: quoteId,
-      revisions: [{ state, author, message }],
-    });
-    await newArchive.save();
-  }
-}
 function generateQuotation(data) {
   const doc = new Document({
     sections: [
