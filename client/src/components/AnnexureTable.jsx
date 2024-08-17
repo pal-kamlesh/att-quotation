@@ -1620,17 +1620,85 @@ const generateStandardContractAdv = async (data, annexure) => {
 };
 
 // Function to create the Contract Card
-const createContractCard = async () => {
+const createContractCard = async (data) => {
+  const { contractNo, billToAddress, shipToAddress, quoteInfo, _id } = data;
+  // Create Table 1
+  const table1 = new Table({
+    rows: [
+      new TableRow({
+        children: [
+          new TableCell({
+            children: [new Paragraph(new TextRun("Content for Table 1"))],
+          }),
+        ],
+      }),
+    ],
+    width: { size: 100, type: WidthType.PERCENTAGE },
+  });
+
+  // Create Table 2
+  const table2 = new Table({
+    rows: [
+      new TableRow({
+        children: [
+          new TableCell({
+            children: [new Paragraph(new TextRun("Content for Table 2"))],
+          }),
+        ],
+      }),
+    ],
+    width: { size: 100, type: WidthType.PERCENTAGE },
+  });
+
+  // Create Parent Table to hold Table 1 and Table 2 side by side
+  const parentTable = new Table({
+    rows: [
+      new TableRow({
+        children: [
+          // Cell for Table 1
+          new TableCell({
+            children: [table1],
+            borders: {
+              top: { style: BorderStyle.NONE },
+              bottom: { style: BorderStyle.NONE },
+              left: { style: BorderStyle.NONE },
+              right: { style: BorderStyle.NONE },
+            },
+            width: { size: 50, type: WidthType.PERCENTAGE },
+          }),
+          // Cell for Table 2
+          new TableCell({
+            children: [table2],
+            borders: {
+              top: { style: BorderStyle.NONE },
+              bottom: { style: BorderStyle.NONE },
+              left: { style: BorderStyle.NONE },
+              right: { style: BorderStyle.NONE },
+            },
+            width: { size: 50, type: WidthType.PERCENTAGE },
+          }),
+        ],
+      }),
+    ],
+    borders: {
+      top: { style: BorderStyle.NONE },
+      bottom: { style: BorderStyle.NONE },
+      left: { style: BorderStyle.NONE },
+      right: { style: BorderStyle.NONE },
+    },
+    width: { size: 100, type: WidthType.PERCENTAGE },
+  });
+
   const doc = new Document({
     sections: [
       {
         properties: {
           page: {
             margin: {
-              top: 170, // 0.3 cm
+              top: 230, // 0.3 cm
               bottom: 500,
               left: 567, // 1 cm in twips
-              right: 3969, // 1 cm in twips
+              right: 3569, // 1 cm in twips
             },
           },
           borders: {
@@ -1671,28 +1739,9 @@ const createContractCard = async () => {
                       new Paragraph({
                         children: [
                           new TextRun({
-                            text: `Date: 14.08.2024`,
-                            bold: true,
-                            size: 18,
-                          }),
-                          new TextRun({
-                            text: `Service Card No :PRE/513/2022`,
-                            bold: true,
-                            size: 18,
-                            break: 1,
-                          }),
-                        ],
-                      }),
-                    ],
-                  }),
-                  new TableCell({
-                    width: { size: 3753, type: WidthType.DXA },
-                    children: [
-                      ...emptyParagraph(1),
-                      new Paragraph({
-                        children: [
-                          new TextRun({
-                            text: "IMIDACHLOPRID 30.5% SC",
+                            text: `Service Card No ${
+                              contractNo ? contractNo : _id.slice(15)
+                            }`,
                             bold: true,
                           }),
                         ],
@@ -1701,8 +1750,31 @@ const createContractCard = async () => {
                   }),
                 ],
               }),
+              new TableRow({
+                children: [
+                  new TableCell({
+                    children: [
+                      new Paragraph({
+                        children: [
+                          new TextRun({
+                            text: "Chemical:- ",
+                            bold: true,
+                          }),
+                          ...quoteInfo.map(
+                            (obj) =>
+                              new TextRun({
+                                text: `${obj.chemical} `,
+                                bold: true,
+                              })
+                          ),
+                        ],
+                      }),
+                    ],
+                  }),
+                ],
+              }),
             ],
-            width: { size: 7507, type: WidthType.DXA },
+            width: { size: 100, type: WidthType.PERCENTAGE },
             borders: {
               top: { style: "none" },
               bottom: { style: "none" },
@@ -1732,12 +1804,12 @@ const createContractCard = async () => {
               new TextRun({
                 text: "CLIENT   ",
                 bold: true,
-                size: 24,
+                size: 18,
               }),
               new TextRun({
-                text: "\t: M/s. L & T Constructions,",
+                text: `\t: ${billToAddress.prefix} ${billToAddress.name},`,
                 bold: true,
-                size: 24,
+                size: 18,
               }),
             ],
             tabStops: [
@@ -1752,11 +1824,11 @@ const createContractCard = async () => {
             children: [
               new TextRun({
                 text: "PROJECT   ",
-                size: 24,
+                size: 18,
                 bold: true,
               }),
               new TextRun({
-                text: "\t: Navi Mumbai International Airport Project (NMIAL),",
+                text: `\t: ${shipToAddress.projectName},`,
                 bold: true,
               }),
             ],
@@ -1771,33 +1843,43 @@ const createContractCard = async () => {
           new Paragraph({
             children: [
               new TextRun({
-                text: "ADDRESS   ",
+                text: "Ship TO",
                 bold: true,
-                size: 24,
-              }),
-              new TextRun({
-                text: "\t: Blue Ridge Approach Raod,",
                 size: 20,
               }),
               new TextRun({
-                text: "\t Sector 5, Phase I, Hinjewadi,",
+                text: "Address ",
+                bold: true,
                 size: 20,
                 break: 1,
               }),
               new TextRun({
-                text: "\t Rajiv Gandhi Infotech Park,",
-                size: 20,
+                text: `\t: ${shipToAddress.a1},`,
+                size: 18,
+              }),
+              new TextRun({
+                text: `\t ${shipToAddress.a2},`,
+                size: 18,
                 break: 1,
               }),
               new TextRun({
-                text: "\t Pune - 411 028",
-                size: 20,
+                text: `\t ${shipToAddress.a3},`,
+                size: 18,
                 break: 1,
               }),
               new TextRun({
-                text: "\t Near Blue Ridge Public School",
-                size: 20,
+                text: `\t ${shipToAddress.a4},`,
+                size: 18,
                 break: 1,
+              }),
+              new TextRun({
+                text: `\t ${shipToAddress.city} - ${shipToAddress.pincode}`,
+                size: 18,
+                break: 1,
+              }),
+              new TextRun({
+                text: `\t ${shipToAddress.a5}`,
+                size: 18,
               }),
             ],
             tabStops: [
@@ -1813,14 +1895,18 @@ const createContractCard = async () => {
           ...emptyParagraph(6),
           // Site Contact Details Table
           new Paragraph({
-            text: "Site Contact Details",
-            bold: true,
+            children: [
+              new TextRun({
+                text: "ShipTo Contact Details",
+                bold: true,
+              }),
+            ],
             alignment: AlignmentType.LEFT,
           }),
           new Table({
             width: {
-              size: 7000,
-              type: WidthType.DXA,
+              size: 100,
+              type: WidthType.PERCENTAGE,
             },
             rows: [
               new TableRow({
@@ -1829,57 +1915,33 @@ const createContractCard = async () => {
                     children: [
                       new Paragraph({ text: "CONTACT PERSON", bold: true }),
                     ],
-                    width: {
-                      size: 33.33,
-                      type: WidthType.PERCENTAGE,
-                    },
                   }),
                   new TableCell({
                     children: [
                       new Paragraph({ text: "TELEPHONE", bold: true }),
                     ],
-                    width: {
-                      size: 33.33,
-                      type: WidthType.PERCENTAGE,
-                    },
                   }),
                   new TableCell({
                     children: [new Paragraph({ text: "EMAIL", bold: true })],
-                    width: {
-                      size: 33.33,
-                      type: WidthType.PERCENTAGE,
-                    },
                   }),
                 ],
               }),
-              new TableRow({
-                children: [
-                  new TableCell({
+              ...shipToAddress.kci.map(
+                (info) =>
+                  new TableRow({
                     children: [
-                      new Paragraph({ text: "Mr. Shree Prakash Sharma" }),
+                      new TableCell({
+                        children: [new Paragraph({ text: `${info.name}` })],
+                      }),
+                      new TableCell({
+                        children: [new Paragraph({ text: `${info.contact}` })],
+                      }),
+                      new TableCell({
+                        children: [new Paragraph({ text: `${info.email}` })],
+                      }),
                     ],
-                  }),
-                  new TableCell({
-                    children: [new Paragraph({ text: "97277 55846 (M)" })],
-                  }),
-                  new TableCell({
-                    children: [new Paragraph({ text: "" })],
-                  }),
-                ],
-              }),
-              new TableRow({
-                children: [
-                  new TableCell({
-                    children: [new Paragraph({ text: "" })],
-                  }),
-                  new TableCell({
-                    children: [new Paragraph({ text: "" })],
-                  }),
-                  new TableCell({
-                    children: [new Paragraph({ text: "" })],
-                  }),
-                ],
-              }),
+                  })
+              ),
             ],
             borders: {
               top: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
@@ -1899,155 +1961,230 @@ const createContractCard = async () => {
             },
             alignment: AlignmentType.LEFT,
           }),
-
-          // Customer Contact Details Table
           new Paragraph({
-            text: "Customer Contact Details",
-            bold: true,
-            alignment: AlignmentType.LEFT,
-            spacing: {
-              before: 300,
-              after: 100,
-            },
+            text: "",
           }),
-          new Table({
-            width: {
-              size: 7000,
-              type: WidthType.DXA,
-            },
-            rows: [
-              new TableRow({
-                children: [
-                  new TableCell({
-                    children: [
-                      new Paragraph({ text: "CONTACT PERSON", bold: true }),
-                    ],
-                  }),
-                  new TableCell({
-                    children: [
-                      new Paragraph({ text: "TELEPHONE", bold: true }),
-                    ],
-                  }),
-                  new TableCell({
-                    children: [new Paragraph({ text: "EMAIL", bold: true })],
-                  }),
-                ],
-              }),
-              new TableRow({
-                children: [
-                  new TableCell({
-                    children: [new Paragraph({ text: "" })],
-                  }),
-                  new TableCell({
-                    children: [new Paragraph({ text: "" })],
-                  }),
-                  new TableCell({
-                    children: [new Paragraph({ text: "" })],
-                  }),
-                ],
-              }),
-            ],
-            borders: {
-              top: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
-              bottom: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
-              left: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
-              right: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
-              insideHorizontal: {
-                style: BorderStyle.SINGLE,
-                size: 1,
-                color: "000000",
-              },
-              insideVertical: {
-                style: BorderStyle.SINGLE,
-                size: 1,
-                color: "000000",
-              },
-            },
-            alignment: AlignmentType.LEFT,
-          }),
-
           // Final Small Table
-          new Paragraph({
-            spacing: {
-              before: 300,
-              after: 100,
-            },
-          }),
           new Table({
             rows: [
               new TableRow({
                 children: [
+                  // Cell C1 (75% width)
                   new TableCell({
-                    children: [new Paragraph({ text: "PL" })],
+                    children: [
+                      new Table({
+                        width: {
+                          size: 100,
+                          type: WidthType.PERCENTAGE,
+                        },
+                        rows: [
+                          ...quoteInfo.map(
+                            (info) =>
+                              new TableRow({
+                                children: [
+                                  new TableCell({
+                                    children: [
+                                      new Paragraph({
+                                        children: [
+                                          new TextRun({
+                                            text: info.workAreaType,
+                                          }),
+                                        ],
+                                      }),
+                                    ],
+                                  }),
+                                  new TableCell({
+                                    children: [
+                                      new Paragraph({
+                                        children: [
+                                          new TextRun({
+                                            text: "",
+                                          }),
+                                        ],
+                                      }),
+                                    ],
+                                  }),
+                                  new TableCell({
+                                    children: [
+                                      new Paragraph({
+                                        children: [
+                                          new TextRun({
+                                            text: `${info.workArea} ${info.workAreaUnit}`,
+                                          }),
+                                        ],
+                                      }),
+                                    ],
+                                  }),
+                                ],
+                              })
+                          ),
+                        ],
+                      }),
+                    ],
+                    borders: {
+                      top: { style: BorderStyle.NONE },
+                      bottom: { style: BorderStyle.NONE },
+                      left: { style: BorderStyle.NONE },
+                      right: { style: BorderStyle.NONE },
+                    },
+                    width: { size: 75, type: WidthType.PERCENTAGE },
                   }),
+
+                  // Cell C2 (25% width) with nested table
                   new TableCell({
-                    children: [new Paragraph({ text: "" })],
-                  }),
-                  new TableCell({
-                    children: [new Paragraph({ text: "" })],
-                  }),
-                  new TableCell({
-                    children: [new Paragraph({ text: "" })],
+                    children: [
+                      // Define nested table inside C2
+                      new Table({
+                        width: { size: 100, type: WidthType.PERCENTAGE },
+                        rows: [
+                          // Row R1
+                          new TableRow({
+                            children: [
+                              new TableCell({
+                                children: [
+                                  new Table({
+                                    rows: [
+                                      new TableRow({
+                                        children: [
+                                          new TableCell({
+                                            children: [
+                                              new Paragraph({
+                                                children: [
+                                                  new TextRun({
+                                                    text: "IMIDA",
+                                                  }),
+                                                ],
+                                              }),
+                                            ],
+                                          }),
+                                          new TableCell({
+                                            children: [
+                                              new Paragraph({
+                                                children: [
+                                                  new TextRun({
+                                                    text: "1:475",
+                                                  }),
+                                                ],
+                                              }),
+                                            ],
+                                          }),
+                                        ],
+                                      }),
+                                      new TableRow({
+                                        children: [
+                                          new TableCell({
+                                            children: [
+                                              new Paragraph({
+                                                children: [
+                                                  new TextRun({
+                                                    text: "CPP",
+                                                  }),
+                                                ],
+                                              }),
+                                            ],
+                                          }),
+                                          new TableCell({
+                                            children: [
+                                              new Paragraph({
+                                                children: [
+                                                  new TextRun({
+                                                    text: "1:19",
+                                                  }),
+                                                ],
+                                              }),
+                                            ],
+                                          }),
+                                        ],
+                                      }),
+                                    ],
+                                  }),
+                                ],
+                                verticalAlign: VerticalAlign.CENTER,
+                              }),
+                            ],
+                          }),
+
+                          // Row R2
+                          new TableRow({
+                            children: [
+                              new TableCell({
+                                children: [
+                                  new Table({
+                                    rows: [
+                                      new TableRow({
+                                        children: [
+                                          new TableCell({
+                                            children: [
+                                              new Paragraph({
+                                                children: [
+                                                  new TextRun({
+                                                    text: "Drawing",
+                                                    bold: true,
+                                                    break: 1,
+                                                  }),
+                                                ],
+                                                alignment: AlignmentType.CENTER,
+                                              }),
+                                            ],
+                                          }),
+                                        ],
+                                      }),
+                                      new TableRow({
+                                        children: [
+                                          new TableCell({
+                                            children: [
+                                              new Paragraph({
+                                                children: [new TextRun("Recd")],
+                                                alignment: AlignmentType.CENTER,
+                                              }),
+                                            ],
+                                          }),
+                                          new TableCell({
+                                            children: [
+                                              new Paragraph({
+                                                children: [
+                                                  new TextRun("Not Recd"),
+                                                ],
+                                                alignment: AlignmentType.CENTER,
+                                              }),
+                                            ],
+                                          }),
+                                        ],
+                                      }),
+                                    ],
+                                  }),
+                                ],
+                                verticalAlign: VerticalAlign.CENTER,
+                              }),
+                            ],
+                          }),
+                        ],
+                      }),
+                    ],
+                    width: { size: 100, type: WidthType.PERCENTAGE },
+                    verticalAlign: VerticalAlign.CENTER,
                   }),
                 ],
-              }),
-              new TableRow({
-                children: [
-                  new TableCell({
-                    children: [new Paragraph({ text: "BF" })],
-                  }),
-                  new TableCell({
-                    children: [new Paragraph({ text: "" })],
-                  }),
-                  new TableCell({
-                    children: [new Paragraph({ text: "" })],
-                  }),
-                  new TableCell({
-                    children: [new Paragraph({ text: "" })],
-                  }),
-                ],
-              }),
-              new TableRow({
-                children: [
-                  new TableCell({
-                    children: [new Paragraph({ text: "DWG" })],
-                  }),
-                  new TableCell({
-                    children: [new Paragraph({ text: "Recd. / Not Recd." })],
-                  }),
-                  new TableCell({
-                    children: [new Paragraph({ text: "IMD" })],
-                    verticalAlign: "center",
-                  }),
-                  new TableCell({
-                    children: [new Paragraph({ text: "1 : 499" })],
-                    verticalAlign: "center",
-                  }),
-                ],
+
+                height: { value: 1000, rule: "auto" },
               }),
             ],
             borders: {
-              top: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
-              bottom: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
-              left: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
-              right: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
-              insideHorizontal: {
-                style: BorderStyle.SINGLE,
-                size: 1,
-                color: "000000",
-              },
-              insideVertical: {
-                style: BorderStyle.SINGLE,
-                size: 1,
-                color: "000000",
-              },
+              top: { style: BorderStyle.NONE },
+              bottom: { style: BorderStyle.NONE },
+              left: { style: BorderStyle.NONE },
+              right: { style: BorderStyle.NONE },
             },
-            width: {
-              size: 5000,
-              type: WidthType.DXA,
-            },
-            alignment: AlignmentType.CENTER,
+            width: { size: 100, type: WidthType.PERCENTAGE },
           }),
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: "",
+              }),
+            ],
+          }),
+          parentTable,
         ],
       },
     ],
@@ -2062,6 +2199,71 @@ const createContractCard = async () => {
     URL.revokeObjectURL(url);
   });
 };
+
+function generateDocument() {
+  // Define the parent table (T1)
+  const parentTable = new Table({
+    rows: [
+      new TableRow({
+        children: [
+          // Cell C1
+          new TableCell({
+            children: [new Paragraph("C1 Content")],
+            verticalAlign: VerticalAlign.CENTER,
+          }),
+          // Cell C2 with nested table
+          new TableCell({
+            children: [
+              // Define nested table inside C2
+              new Table({
+                rows: [
+                  // Row R1
+                  new TableRow({
+                    children: [
+                      new TableCell({
+                        children: [new Paragraph("T2 Content (R1)")],
+                        verticalAlign: VerticalAlign.CENTER,
+                      }),
+                    ],
+                  }),
+                  // Row R2
+                  new TableRow({
+                    children: [
+                      new TableCell({
+                        children: [new Paragraph("T3 Content (R2)")],
+                        verticalAlign: VerticalAlign.CENTER,
+                      }),
+                    ],
+                  }),
+                ],
+                width: { size: 100, type: WidthType.PERCENTAGE },
+              }),
+            ],
+            verticalAlign: VerticalAlign.CENTER,
+          }),
+        ],
+        height: { value: 1000, rule: "auto" },
+      }),
+    ],
+    width: { size: 100, type: WidthType.PERCENTAGE },
+  });
+  const doc = new Document({
+    sections: [
+      {
+        children: [parentTable],
+      },
+    ],
+  });
+
+  Packer.toBlob(doc).then((blob) => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "contract.docx";
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+}
 
 function getQuoteInfoTable(docType, quoteInfo) {
   switch (docType) {
@@ -2097,4 +2299,5 @@ export {
   createQuoteInfoTableStandard,
   createQuoteInfoTableSupply,
   createContractCard,
+  generateDocument,
 };

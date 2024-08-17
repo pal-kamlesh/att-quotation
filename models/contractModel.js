@@ -40,7 +40,6 @@ const contractSchema = mongoose.Schema(
       a3: String,
       a4: String,
       a5: String,
-      a6: String,
       city: String,
       pincode: String,
       kci: [

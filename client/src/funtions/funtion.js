@@ -46,4 +46,18 @@ function duplicateBillToShipTo({ quote, setQuote }) {
   });
 }
 
-export { saprateQuoteInfo, getDotColor, fetchImage, duplicateBillToShipTo };
+function getChemicalRatio(chemical) {
+  if (chemical === "Chloropyriphos 20% EC") {
+    return "1:475";
+  } else {
+    return "1:19";
+  }
+}
+
+export {
+  saprateQuoteInfo,
+  getDotColor,
+  fetchImage,
+  duplicateBillToShipTo,
+  getChemicalRatio,
+};

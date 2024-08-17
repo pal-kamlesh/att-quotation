@@ -3,6 +3,7 @@ import { Contract, Quotation, QuoteInfo } from "../models/index.js";
 import {
   differenceBetweenArrays,
   remove_IdFromObj,
+  createQuoteArchiveEntry,
 } from "../utils/functions.js";
 
 const create = async (req, res, next) => {

@@ -14,6 +14,7 @@ import {
 } from "../redux/card/cardSlice";
 import { useNavigate } from "react-router-dom";
 import { createContractCard } from "../components/AnnexureTable";
+import { unwrapResult } from "@reduxjs/toolkit";
 
 function Cards() {
   const { cards = [], showMore, loading } = useSelector((state) => state.card);
@@ -59,6 +60,15 @@ function Cards() {
     } else {
       dispatch(showMoreCard({ startIndex, extraQuery }));
       setExtraQuery("&approved=true");
+    }
+  }
+  async function handlePrint(id) {
+    try {
+      const actionResult = await dispatch(incPrintCount(id));
+      const result = unwrapResult(actionResult);
+      createContractCard(result.result);
+    } catch (error) {
+      console.log(error);
     }
   }
   return (
@@ -132,10 +142,7 @@ function Cards() {
                           ></div>
                           <Button
                             color="gray"
-                            onClick={() => [
-                              dispatch(incPrintCount(contract._id)),
-                              createContractCard(),
-                            ]}
+                            onClick={() => handlePrint(contract._id)}
                           >
                             <FcPrint className="h-6 w-6" />
                             <div className="cursor-pointer text-gray-800 font-semibold hover:text-gray-600">
