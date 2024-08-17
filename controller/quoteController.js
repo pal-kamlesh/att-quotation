@@ -436,7 +436,6 @@ const getArchive = async (req, res, next) => {
         populate: { path: "revisions.author", model: "User" },
       })
       .lean({ virtuals: ["subject"] });
-    console.log(data);
     res.status(200).json({
       message: "Nothing to say for now.",
       result: data,
