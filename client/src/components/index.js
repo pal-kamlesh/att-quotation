@@ -21,6 +21,8 @@ import UpdateContract from "./UpdateContract";
 import Refresh from "./Refresh";
 import PopUp from "./PopUp";
 import PopUpContract from "./PopUpContract";
+import WorklogForm from "./WorklogForm";
+import DCForm from "./DCForm";
 export {
   CustomModal,
   NewQuote,
@@ -45,4 +47,6 @@ export {
   Refresh,
   PopUp,
   PopUpContract,
+  WorklogForm,
+  DCForm,
 };

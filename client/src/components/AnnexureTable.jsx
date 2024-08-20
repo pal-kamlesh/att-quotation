@@ -15,6 +15,7 @@ import {
   BorderStyle,
 } from "docx";
 import { saveAs } from "file-saver";
+import QRCode from "qrcode";
 import { fetchImage } from "../funtions/funtion";
 import headerImage from "../images/header.png";
 
@@ -1616,80 +1617,45 @@ const generateStandardContractAdv = async (data, annexure) => {
   });
 
   const blob = await Packer.toBlob(doc);
-  saveAs(blob, "standard_contract.docx");
+  saveAs(blob, `Contract_${data.contractNo ? data.contractNo : data._id}.docx`);
 };
 
 // Function to create the Contract Card
 const createContractCard = async (data) => {
   const { contractNo, billToAddress, shipToAddress, quoteInfo, _id } = data;
-  // Create Table 1
-  const table1 = new Table({
-    rows: [
-      new TableRow({
-        children: [
-          new TableCell({
-            children: [new Paragraph(new TextRun("Content for Table 1"))],
-          }),
-        ],
-      }),
-    ],
-    width: { size: 100, type: WidthType.PERCENTAGE },
-  });
+  const noBorders = {
+    top: { style: BorderStyle.NONE },
+    bottom: { style: BorderStyle.NONE },
+    left: { style: BorderStyle.NONE },
+    right: { style: BorderStyle.NONE },
+    insideHorizontal: { style: BorderStyle.NONE },
+    insideVertical: { style: BorderStyle.NONE },
+  };
+  const createParagraph = (text, alignment, isBold = false, size = 18) => {
+    return new Paragraph({
+      children: [new TextRun({ text, bold: isBold, size })],
+      alignment: alignment,
+    });
+  };
 
-  // Create Table 2
-  const table2 = new Table({
-    rows: [
-      new TableRow({
-        children: [
-          new TableCell({
-            children: [new Paragraph(new TextRun("Content for Table 2"))],
-          }),
-        ],
-      }),
-    ],
-    width: { size: 100, type: WidthType.PERCENTAGE },
-  });
+  // Generate QR Code as Base64
+  const qrCodeUrl = await QRCode.toDataURL(
+    `http://localhost:3000/workLog/${_id}`
+  );
 
-  // Create Parent Table to hold Table 1 and Table 2 side by side
-  const parentTable = new Table({
-    rows: [
-      new TableRow({
-        children: [
-          // Cell for Table 1
-          new TableCell({
-            children: [table1],
-            borders: {
-              top: { style: BorderStyle.NONE },
-              bottom: { style: BorderStyle.NONE },
-              left: { style: BorderStyle.NONE },
-              right: { style: BorderStyle.NONE },
-            },
-            width: { size: 50, type: WidthType.PERCENTAGE },
-          }),
-          // Cell for Table 2
-          new TableCell({
-            children: [table2],
-            borders: {
-              top: { style: BorderStyle.NONE },
-              bottom: { style: BorderStyle.NONE },
-              left: { style: BorderStyle.NONE },
-              right: { style: BorderStyle.NONE },
-            },
-            width: { size: 50, type: WidthType.PERCENTAGE },
-          }),
-        ],
-      }),
-    ],
-    borders: {
-      top: { style: BorderStyle.NONE },
-      bottom: { style: BorderStyle.NONE },
-      left: { style: BorderStyle.NONE },
-      right: { style: BorderStyle.NONE },
-    },
-    width: { size: 100, type: WidthType.PERCENTAGE },
-  });
+  // Convert Base64 to Uint8Array
+  const qrCodeUint8Array = base64ToUint8Array(qrCodeUrl);
 
   const doc = new Document({
+    styles: {
+      default: {
+        document: {
+          run: {
+            font: "Arial",
+          },
+        },
+      },
+    },
     sections: [
       {
         properties: {
@@ -1699,32 +1665,6 @@ const createContractCard = async (data) => {
               bottom: 500,
               left: 567, // 1 cm in twips
               right: 3569, // 1 cm in twips
-            },
-          },
-          borders: {
-            pageBorderTop: {
-              style: BorderStyle.SINGLE,
-              size: 6,
-              color: "000000",
-              space: 24, // Adjusts the space between the border and the page content
-            },
-            pageBorderBottom: {
-              style: BorderStyle.SINGLE,
-              size: 6,
-              color: "000000",
-              space: 24,
-            },
-            pageBorderLeft: {
-              style: BorderStyle.SINGLE,
-              size: 6,
-              color: "000000",
-              space: 24,
-            },
-            pageBorderRight: {
-              style: BorderStyle.SINGLE,
-              size: 6,
-              color: "000000",
-              space: 24,
             },
           },
         },
@@ -1775,14 +1715,7 @@ const createContractCard = async (data) => {
               }),
             ],
             width: { size: 100, type: WidthType.PERCENTAGE },
-            borders: {
-              top: { style: "none" },
-              bottom: { style: "none" },
-              left: { style: "none" },
-              right: { style: "none" },
-              insideVertical: { style: "none" }, // Ensure no vertical lines inside the table
-              insideHorizontal: { style: "none" }, // Ensure no horizontal lines inside the table
-            },
+            borders: noBorders,
           }),
           new Paragraph({
             children: [
@@ -1796,6 +1729,17 @@ const createContractCard = async (data) => {
             spacing: {
               after: 200,
             },
+          }),
+          new Paragraph({
+            children: [
+              new ImageRun({
+                data: qrCodeUint8Array,
+                transformation: {
+                  width: 100, // Set the desired width
+                  height: 100, // Set the desired height
+                },
+              }),
+            ],
           }),
           // Client, Project, and Address Details
           ...emptyParagraph(6),
@@ -1894,15 +1838,7 @@ const createContractCard = async (data) => {
           }),
           ...emptyParagraph(6),
           // Site Contact Details Table
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: "ShipTo Contact Details",
-                bold: true,
-              }),
-            ],
-            alignment: AlignmentType.LEFT,
-          }),
+          createParagraph("ShipTo Contact Details", true, AlignmentType.LEFT),
           new Table({
             width: {
               size: 100,
@@ -1948,22 +1884,10 @@ const createContractCard = async (data) => {
               bottom: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
               left: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
               right: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
-              insideHorizontal: {
-                style: BorderStyle.SINGLE,
-                size: 1,
-                color: "000000",
-              },
-              insideVertical: {
-                style: BorderStyle.SINGLE,
-                size: 1,
-                color: "000000",
-              },
             },
             alignment: AlignmentType.LEFT,
           }),
-          new Paragraph({
-            text: "",
-          }),
+          ...emptyParagraph(1),
           // Final Small Table
           new Table({
             rows: [
@@ -1984,36 +1908,30 @@ const createContractCard = async (data) => {
                                 children: [
                                   new TableCell({
                                     children: [
-                                      new Paragraph({
-                                        children: [
-                                          new TextRun({
-                                            text: info.workAreaType,
-                                          }),
-                                        ],
-                                      }),
+                                      createParagraph(info.workAreaType),
                                     ],
+                                    width: {
+                                      size: 40,
+                                      type: WidthType.PERCENTAGE,
+                                    },
+                                  }),
+                                  new TableCell({
+                                    children: [...emptyParagraph(1)],
+                                    width: {
+                                      size: 20,
+                                      type: WidthType.PERCENTAGE,
+                                    },
                                   }),
                                   new TableCell({
                                     children: [
-                                      new Paragraph({
-                                        children: [
-                                          new TextRun({
-                                            text: "",
-                                          }),
-                                        ],
-                                      }),
+                                      createParagraph(
+                                        `${info.workArea} ${info.workAreaUnit}`
+                                      ),
                                     ],
-                                  }),
-                                  new TableCell({
-                                    children: [
-                                      new Paragraph({
-                                        children: [
-                                          new TextRun({
-                                            text: `${info.workArea} ${info.workAreaUnit}`,
-                                          }),
-                                        ],
-                                      }),
-                                    ],
+                                    width: {
+                                      size: 40,
+                                      type: WidthType.PERCENTAGE,
+                                    },
                                   }),
                                 ],
                               })
@@ -2021,13 +1939,8 @@ const createContractCard = async (data) => {
                         ],
                       }),
                     ],
-                    borders: {
-                      top: { style: BorderStyle.NONE },
-                      bottom: { style: BorderStyle.NONE },
-                      left: { style: BorderStyle.NONE },
-                      right: { style: BorderStyle.NONE },
-                    },
-                    width: { size: 75, type: WidthType.PERCENTAGE },
+                    borders: noBorders,
+                    width: { size: 70, type: WidthType.PERCENTAGE },
                   }),
 
                   // Cell C2 (25% width) with nested table
@@ -2048,24 +1961,12 @@ const createContractCard = async (data) => {
                                         children: [
                                           new TableCell({
                                             children: [
-                                              new Paragraph({
-                                                children: [
-                                                  new TextRun({
-                                                    text: "IMIDA",
-                                                  }),
-                                                ],
-                                              }),
+                                              createParagraph("IMIDA"),
                                             ],
                                           }),
                                           new TableCell({
                                             children: [
-                                              new Paragraph({
-                                                children: [
-                                                  new TextRun({
-                                                    text: "1:475",
-                                                  }),
-                                                ],
-                                              }),
+                                              createParagraph("1:475"),
                                             ],
                                           }),
                                         ],
@@ -2073,35 +1974,21 @@ const createContractCard = async (data) => {
                                       new TableRow({
                                         children: [
                                           new TableCell({
-                                            children: [
-                                              new Paragraph({
-                                                children: [
-                                                  new TextRun({
-                                                    text: "CPP",
-                                                  }),
-                                                ],
-                                              }),
-                                            ],
+                                            children: [createParagraph("CPP")],
                                           }),
                                           new TableCell({
-                                            children: [
-                                              new Paragraph({
-                                                children: [
-                                                  new TextRun({
-                                                    text: "1:19",
-                                                  }),
-                                                ],
-                                              }),
-                                            ],
+                                            children: [createParagraph("1:19")],
                                           }),
                                         ],
                                       }),
                                     ],
                                   }),
                                 ],
+                                borders: noBorders,
                                 verticalAlign: VerticalAlign.CENTER,
                               }),
                             ],
+                            borders: noBorders,
                           }),
 
                           // Row R2
@@ -2126,6 +2013,7 @@ const createContractCard = async (data) => {
                                                 alignment: AlignmentType.CENTER,
                                               }),
                                             ],
+                                            columnSpan: 2,
                                           }),
                                         ],
                                       }),
@@ -2133,20 +2021,18 @@ const createContractCard = async (data) => {
                                         children: [
                                           new TableCell({
                                             children: [
-                                              new Paragraph({
-                                                children: [new TextRun("Recd")],
-                                                alignment: AlignmentType.CENTER,
-                                              }),
+                                              createParagraph(
+                                                "Recd",
+                                                AlignmentType.CENTER
+                                              ),
                                             ],
                                           }),
                                           new TableCell({
                                             children: [
-                                              new Paragraph({
-                                                children: [
-                                                  new TextRun("Not Recd"),
-                                                ],
-                                                alignment: AlignmentType.CENTER,
-                                              }),
+                                              createParagraph(
+                                                "Not Recd",
+                                                AlignmentType.CENTER
+                                              ),
                                             ],
                                           }),
                                         ],
@@ -2154,116 +2040,34 @@ const createContractCard = async (data) => {
                                     ],
                                   }),
                                 ],
+                                borders: noBorders,
                                 verticalAlign: VerticalAlign.CENTER,
                               }),
                             ],
+                            borders: noBorders,
                           }),
                         ],
+                        borders: noBorders,
                       }),
                     ],
-                    width: { size: 100, type: WidthType.PERCENTAGE },
+                    borders: noBorders,
+                    width: { size: 25, type: WidthType.PERCENTAGE },
                     verticalAlign: VerticalAlign.CENTER,
                   }),
                 ],
-
-                height: { value: 1000, rule: "auto" },
               }),
             ],
-            borders: {
-              top: { style: BorderStyle.NONE },
-              bottom: { style: BorderStyle.NONE },
-              left: { style: BorderStyle.NONE },
-              right: { style: BorderStyle.NONE },
-            },
+            borders: noBorders,
             width: { size: 100, type: WidthType.PERCENTAGE },
           }),
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: "",
-              }),
-            ],
-          }),
-          parentTable,
+          ...emptyParagraph(1),
         ],
       },
     ],
   });
-
-  Packer.toBlob(doc).then((blob) => {
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "contract.docx";
-    a.click();
-    URL.revokeObjectURL(url);
-  });
+  const blob = await Packer.toBlob(doc);
+  saveAs(blob, `Card_${data.contractNo ? data.contractNo : data._id}.docx`);
 };
-
-function generateDocument() {
-  // Define the parent table (T1)
-  const parentTable = new Table({
-    rows: [
-      new TableRow({
-        children: [
-          // Cell C1
-          new TableCell({
-            children: [new Paragraph("C1 Content")],
-            verticalAlign: VerticalAlign.CENTER,
-          }),
-          // Cell C2 with nested table
-          new TableCell({
-            children: [
-              // Define nested table inside C2
-              new Table({
-                rows: [
-                  // Row R1
-                  new TableRow({
-                    children: [
-                      new TableCell({
-                        children: [new Paragraph("T2 Content (R1)")],
-                        verticalAlign: VerticalAlign.CENTER,
-                      }),
-                    ],
-                  }),
-                  // Row R2
-                  new TableRow({
-                    children: [
-                      new TableCell({
-                        children: [new Paragraph("T3 Content (R2)")],
-                        verticalAlign: VerticalAlign.CENTER,
-                      }),
-                    ],
-                  }),
-                ],
-                width: { size: 100, type: WidthType.PERCENTAGE },
-              }),
-            ],
-            verticalAlign: VerticalAlign.CENTER,
-          }),
-        ],
-        height: { value: 1000, rule: "auto" },
-      }),
-    ],
-    width: { size: 100, type: WidthType.PERCENTAGE },
-  });
-  const doc = new Document({
-    sections: [
-      {
-        children: [parentTable],
-      },
-    ],
-  });
-
-  Packer.toBlob(doc).then((blob) => {
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "contract.docx";
-    a.click();
-    URL.revokeObjectURL(url);
-  });
-}
 
 function getQuoteInfoTable(docType, quoteInfo) {
   switch (docType) {
@@ -2290,6 +2094,16 @@ function emptyParagraph(num) {
   }
   return paraArray;
 }
+// Function to convert a base64 image to a Uint8Array
+const base64ToUint8Array = (base64) => {
+  const binaryString = atob(base64.split(",")[1]);
+  const length = binaryString.length;
+  const bytes = new Uint8Array(length);
+  for (let i = 0; i < length; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
+  return bytes;
+};
 export {
   generateStandardDoc,
   generateSupplyDoc,
@@ -2299,5 +2113,4 @@ export {
   createQuoteInfoTableStandard,
   createQuoteInfoTableSupply,
   createContractCard,
-  generateDocument,
 };

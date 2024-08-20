@@ -49,7 +49,7 @@ export default function Create() {
       dispatch(getInitials());
       dispatch(getQuotes());
     }
-  }, [dispatch, quotations.length]);
+  }, [dispatch]);
   useEffect(() => {
     if (
       currentUser.rights.createQuote ||

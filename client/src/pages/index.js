@@ -8,6 +8,7 @@ import Dashboard from "./Dashboard";
 import Contracts from "./Contracts";
 import Cards from "./Cards";
 import Reports from "./Reports";
+import WorkLog from "./WorkLog";
 
 export {
   User,
@@ -20,4 +21,5 @@ export {
   Contracts,
   Cards,
   Reports,
+  WorkLog,
 };
