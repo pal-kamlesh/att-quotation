@@ -1640,7 +1640,7 @@ const createContractCard = async (data) => {
 
   // Generate QR Code as Base64
   const qrCodeUrl = await QRCode.toDataURL(
-    `http://localhost:3000/workLog/${_id}`
+    `https://att-quotation.onrender.com/workLog/${_id}`
   );
 
   // Convert Base64 to Uint8Array
