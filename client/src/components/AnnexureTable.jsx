@@ -911,99 +911,18 @@ const generateStandardContractAdv = async (data, annexure) => {
                           }),
                         ],
                       }),
-                      new Paragraph({ text: "" }),
-                      ...(billToAddress.kci.length > 0
+                      ...(gstNo && gstNo.trim() !== ""
                         ? [
-                            new Table({
-                              rows: [
-                                new TableRow({
-                                  children: [
-                                    new TableCell({
-                                      children: [
-                                        new Paragraph({
-                                          children: [
-                                            new TextRun({
-                                              text: "CONTACT PERSON",
-                                              bold: true,
-                                            }),
-                                          ],
-                                          alignment: AlignmentType.CENTER,
-                                        }),
-                                      ],
-                                      shading: { fill: "D3D3D3" },
-                                    }),
-                                    new TableCell({
-                                      children: [
-                                        new Paragraph({
-                                          children: [
-                                            new TextRun({
-                                              text: "TELEPHONE",
-                                              bold: true,
-                                            }),
-                                          ],
-                                          alignment: AlignmentType.CENTER,
-                                        }),
-                                      ],
-                                      shading: { fill: "D3D3D3" },
-                                    }),
-                                    new TableCell({
-                                      children: [
-                                        new Paragraph({
-                                          children: [
-                                            new TextRun({
-                                              text: "EMAIL",
-                                              bold: true,
-                                            }),
-                                          ],
-                                          alignment: AlignmentType.CENTER,
-                                        }),
-                                      ],
-                                      shading: { fill: "D3D3D3" },
-                                    }),
-                                  ],
+                            new Paragraph({
+                              children: [
+                                new TextRun({
+                                  text: "[GST No.",
                                 }),
-                                ...billToAddress.kci.map(
-                                  (contact) =>
-                                    new TableRow({
-                                      children: [
-                                        new TableCell({
-                                          children: [
-                                            new Paragraph({
-                                              children: [
-                                                new TextRun({
-                                                  text: `${contact.name}`,
-                                                }),
-                                              ],
-                                            }),
-                                          ],
-                                        }),
-                                        new TableCell({
-                                          children: [
-                                            new Paragraph({
-                                              children: [
-                                                new TextRun({
-                                                  text: `${contact.contact}`,
-                                                }),
-                                              ],
-                                            }),
-                                          ],
-                                        }),
-                                        new TableCell({
-                                          children: [
-                                            new Paragraph({
-                                              children: [
-                                                new TextRun({
-                                                  text: `${contact.email}`,
-                                                }),
-                                              ],
-                                            }),
-                                          ],
-                                        }),
-                                      ],
-                                    })
-                                ),
+                                new TextRun({
+                                  text: `${gstNo}]`,
+                                }),
                               ],
-                              width: { size: 100, type: WidthType.PERCENTAGE },
+                              alignment: AlignmentType.LEFT,
                             }),
                           ]
                         : []),
@@ -1070,8 +989,114 @@ const generateStandardContractAdv = async (data, annexure) => {
                 ],
               }),
             ],
-            width: { size: 10000, type: WidthType.DXA },
+            width: { size: 100, type: WidthType.PERCENTAGE },
           }),
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: "⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯",
+                size: 0, // Very small font size
+                color: "CCCCCC", // Light gray color
+              }),
+            ],
+            spacing: { before: 12, after: 0 }, // Minimal spacing
+            alignment: AlignmentType.CENTER,
+          }),
+          ...(billToAddress.kci.length > 0
+            ? [
+                new Table({
+                  rows: [
+                    new TableRow({
+                      children: [
+                        new TableCell({
+                          children: [
+                            new Paragraph({
+                              children: [
+                                new TextRun({
+                                  text: "CONTACT PERSON",
+                                  bold: true,
+                                }),
+                              ],
+                              alignment: AlignmentType.CENTER,
+                            }),
+                          ],
+                          shading: { fill: "D3D3D3" },
+                        }),
+                        new TableCell({
+                          children: [
+                            new Paragraph({
+                              children: [
+                                new TextRun({
+                                  text: "TELEPHONE",
+                                  bold: true,
+                                }),
+                              ],
+                              alignment: AlignmentType.CENTER,
+                            }),
+                          ],
+                          shading: { fill: "D3D3D3" },
+                        }),
+                        new TableCell({
+                          children: [
+                            new Paragraph({
+                              children: [
+                                new TextRun({
+                                  text: "EMAIL",
+                                  bold: true,
+                                }),
+                              ],
+                              alignment: AlignmentType.CENTER,
+                            }),
+                          ],
+                          shading: { fill: "D3D3D3" },
+                        }),
+                      ],
+                    }),
+                    ...billToAddress.kci.map(
+                      (contact) =>
+                        new TableRow({
+                          children: [
+                            new TableCell({
+                              children: [
+                                new Paragraph({
+                                  children: [
+                                    new TextRun({
+                                      text: `${contact.name}`,
+                                    }),
+                                  ],
+                                }),
+                              ],
+                            }),
+                            new TableCell({
+                              children: [
+                                new Paragraph({
+                                  children: [
+                                    new TextRun({
+                                      text: `${contact.contact}`,
+                                    }),
+                                  ],
+                                }),
+                              ],
+                            }),
+                            new TableCell({
+                              children: [
+                                new Paragraph({
+                                  children: [
+                                    new TextRun({
+                                      text: `${contact.email}`,
+                                    }),
+                                  ],
+                                }),
+                              ],
+                            }),
+                          ],
+                        })
+                    ),
+                  ],
+                  width: { size: 100, type: WidthType.PERCENTAGE },
+                }),
+              ]
+            : []),
           // Middle Paragraph
           new Paragraph({
             children: [
@@ -1191,7 +1216,7 @@ const generateStandardContractAdv = async (data, annexure) => {
                 ],
               }),
             ],
-            width: { size: 10000, type: WidthType.DXA },
+            width: { size: 100, type: WidthType.PERCENTAGE },
           }),
           new Paragraph({
             children: [
@@ -1278,113 +1303,6 @@ const generateStandardContractAdv = async (data, annexure) => {
                         ],
                         alignment: AlignmentType.LEFT,
                       }),
-                      ...(shipToAddress.kci.length > 0
-                        ? [
-                            new Paragraph({
-                              children: [
-                                new TextRun({
-                                  text: "Site Contact Person :-",
-                                  bold: true,
-                                }),
-                              ],
-                            }),
-                          ]
-                        : []),
-                      ...(shipToAddress.kci.length > 0
-                        ? [
-                            new Table({
-                              rows: [
-                                new TableRow({
-                                  children: [
-                                    new TableCell({
-                                      children: [
-                                        new Paragraph({
-                                          children: [
-                                            new TextRun({
-                                              text: "CONTACT PERSON",
-                                              bold: true,
-                                            }),
-                                          ],
-                                          alignment: AlignmentType.CENTER,
-                                        }),
-                                      ],
-                                      shading: { fill: "D3D3D3" },
-                                    }),
-                                    new TableCell({
-                                      children: [
-                                        new Paragraph({
-                                          children: [
-                                            new TextRun({
-                                              text: "TELEPHONE",
-                                              bold: true,
-                                            }),
-                                          ],
-                                          alignment: AlignmentType.CENTER,
-                                        }),
-                                      ],
-                                      shading: { fill: "D3D3D3" },
-                                    }),
-                                    new TableCell({
-                                      children: [
-                                        new Paragraph({
-                                          children: [
-                                            new TextRun({
-                                              text: "EMAIL",
-                                              bold: true,
-                                            }),
-                                          ],
-                                          alignment: AlignmentType.CENTER,
-                                        }),
-                                      ],
-                                      shading: { fill: "D3D3D3" },
-                                    }),
-                                  ],
-                                }),
-                                ...shipToAddress.kci.map(
-                                  (contact) =>
-                                    new TableRow({
-                                      children: [
-                                        new TableCell({
-                                          children: [
-                                            new Paragraph({
-                                              children: [
-                                                new TextRun({
-                                                  text: `${contact.name}`,
-                                                }),
-                                              ],
-                                            }),
-                                          ],
-                                        }),
-                                        new TableCell({
-                                          children: [
-                                            new Paragraph({
-                                              children: [
-                                                new TextRun({
-                                                  text: `${contact.contact}`,
-                                                }),
-                                              ],
-                                            }),
-                                          ],
-                                        }),
-                                        new TableCell({
-                                          children: [
-                                            new Paragraph({
-                                              children: [
-                                                new TextRun({
-                                                  text: `${contact.email}`,
-                                                }),
-                                              ],
-                                            }),
-                                          ],
-                                        }),
-                                      ],
-                                    })
-                                ),
-                              ],
-                              width: { size: 100, type: WidthType.PERCENTAGE },
-                            }),
-                          ]
-                        : []),
                     ],
                   }),
                   new TableCell({
@@ -1403,8 +1321,114 @@ const generateStandardContractAdv = async (data, annexure) => {
                 ],
               }),
             ],
-            width: { size: 10000, type: WidthType.DXA },
+            width: { size: 100, type: WidthType.PERCENTAGE },
           }),
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: "⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯",
+                size: 0, // Very small font size
+                color: "CCCCCC", // Light gray color
+              }),
+            ],
+            spacing: { before: 12, after: 0 }, // Minimal spacing
+            alignment: AlignmentType.CENTER,
+          }),
+          ...(shipToAddress.kci.length > 0
+            ? [
+                new Table({
+                  rows: [
+                    new TableRow({
+                      children: [
+                        new TableCell({
+                          children: [
+                            new Paragraph({
+                              children: [
+                                new TextRun({
+                                  text: "CONTACT PERSON",
+                                  bold: true,
+                                }),
+                              ],
+                              alignment: AlignmentType.CENTER,
+                            }),
+                          ],
+                          shading: { fill: "D3D3D3" },
+                        }),
+                        new TableCell({
+                          children: [
+                            new Paragraph({
+                              children: [
+                                new TextRun({
+                                  text: "TELEPHONE",
+                                  bold: true,
+                                }),
+                              ],
+                              alignment: AlignmentType.CENTER,
+                            }),
+                          ],
+                          shading: { fill: "D3D3D3" },
+                        }),
+                        new TableCell({
+                          children: [
+                            new Paragraph({
+                              children: [
+                                new TextRun({
+                                  text: "EMAIL",
+                                  bold: true,
+                                }),
+                              ],
+                              alignment: AlignmentType.CENTER,
+                            }),
+                          ],
+                          shading: { fill: "D3D3D3" },
+                        }),
+                      ],
+                    }),
+                    ...shipToAddress.kci.map(
+                      (contact) =>
+                        new TableRow({
+                          children: [
+                            new TableCell({
+                              children: [
+                                new Paragraph({
+                                  children: [
+                                    new TextRun({
+                                      text: `${contact.name}`,
+                                    }),
+                                  ],
+                                }),
+                              ],
+                            }),
+                            new TableCell({
+                              children: [
+                                new Paragraph({
+                                  children: [
+                                    new TextRun({
+                                      text: `${contact.contact}`,
+                                    }),
+                                  ],
+                                }),
+                              ],
+                            }),
+                            new TableCell({
+                              children: [
+                                new Paragraph({
+                                  children: [
+                                    new TextRun({
+                                      text: `${contact.email}`,
+                                    }),
+                                  ],
+                                }),
+                              ],
+                            }),
+                          ],
+                        })
+                    ),
+                  ],
+                  width: { size: 100, type: WidthType.PERCENTAGE },
+                }),
+              ]
+            : []),
           // Signature Section
           new Paragraph({
             children: [
@@ -1426,24 +1450,6 @@ const generateStandardContractAdv = async (data, annexure) => {
                             text: "For EXPRESS PESTICIDES PVT. LTD.",
                             bold: true,
                           }),
-                          ...(gstNo && gstNo.trim() !== ""
-                            ? [
-                                new Paragraph({
-                                  children: [
-                                    new TextRun({
-                                      text: "[GST No.",
-                                      size: 18,
-                                      break: 1,
-                                    }),
-                                    new TextRun({
-                                      text: `${gstNo}]`,
-                                      size: 18,
-                                    }),
-                                  ],
-                                  alignment: AlignmentType.LEFT,
-                                }),
-                              ]
-                            : []),
                         ],
                         alignment: AlignmentType.LEFT,
                         spacing: { before: 200, after: 200 },
@@ -1454,13 +1460,7 @@ const generateStandardContractAdv = async (data, annexure) => {
                           right: { style: "none" },
                         },
                       }),
-                      new Paragraph({
-                        children: [
-                          new TextRun({
-                            text: "",
-                          }),
-                        ],
-                      }),
+                      ...emptyParagraph(2),
                       new Paragraph({
                         children: [
                           new TextRun({
@@ -1482,27 +1482,10 @@ const generateStandardContractAdv = async (data, annexure) => {
                         },
                       }),
                     ],
-                    borders: {
-                      top: { style: "none" },
-                      bottom: { style: "none" },
-                      left: { style: "none" },
-                      right: { style: "none" },
-                    },
                   }),
                   new TableCell({
                     width: { size: 5000, type: WidthType.DXA },
                     children: [
-                      ...(gstNo && gstNo.trim() !== ""
-                        ? [
-                            new Paragraph({
-                              children: [
-                                new TextRun({
-                                  text: "",
-                                }),
-                              ],
-                            }),
-                          ]
-                        : []),
                       new Paragraph({
                         children: [
                           new TextRun({
@@ -1518,38 +1501,7 @@ const generateStandardContractAdv = async (data, annexure) => {
                           right: { style: "none" },
                         },
                       }),
-                      new Paragraph({
-                        children: [
-                          new TextRun({
-                            text: "",
-                          }),
-                        ],
-                      }),
-                      new Paragraph({
-                        children: [
-                          new TextRun({
-                            text: "",
-                          }),
-                        ],
-                      }),
-                      new Paragraph({
-                        children: [
-                          new TextRun({
-                            text: "",
-                          }),
-                        ],
-                      }),
-                      ...(gstNo && gstNo.trim() !== ""
-                        ? [
-                            new Paragraph({
-                              children: [
-                                new TextRun({
-                                  text: "",
-                                }),
-                              ],
-                            }),
-                          ]
-                        : []),
+                      ...emptyParagraph(3),
                       new Paragraph({
                         children: [
                           new TextRun({
@@ -1558,12 +1510,6 @@ const generateStandardContractAdv = async (data, annexure) => {
                         ],
                         alignment: AlignmentType.RIGHT,
                         spacing: { before: 200, after: 200 },
-                        borders: {
-                          top: { style: "none" },
-                          bottom: { style: "none" },
-                          left: { style: "none" },
-                          right: { style: "none" },
-                        },
                       }),
                     ],
                     borders: {
@@ -1584,7 +1530,7 @@ const generateStandardContractAdv = async (data, annexure) => {
                 },
               }),
             ],
-            width: { size: 10000, type: WidthType.DXA },
+            width: { size: 100, type: WidthType.PERCENTAGE },
             borders: {
               top: { style: "none" },
               bottom: { style: "none" },
@@ -1730,17 +1676,6 @@ const createContractCard = async (data) => {
               after: 200,
             },
           }),
-          new Paragraph({
-            children: [
-              new ImageRun({
-                data: qrCodeUint8Array,
-                transformation: {
-                  width: 100, // Set the desired width
-                  height: 100, // Set the desired height
-                },
-              }),
-            ],
-          }),
           // Client, Project, and Address Details
           ...emptyParagraph(6),
           new Paragraph({
@@ -1784,57 +1719,88 @@ const createContractCard = async (data) => {
             ],
           }),
           ...emptyParagraph(1),
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: "Ship TO",
-                bold: true,
-                size: 20,
-              }),
-              new TextRun({
-                text: "Address ",
-                bold: true,
-                size: 20,
-                break: 1,
-              }),
-              new TextRun({
-                text: `\t: ${shipToAddress.a1},`,
-                size: 18,
-              }),
-              new TextRun({
-                text: `\t ${shipToAddress.a2},`,
-                size: 18,
-                break: 1,
-              }),
-              new TextRun({
-                text: `\t ${shipToAddress.a3},`,
-                size: 18,
-                break: 1,
-              }),
-              new TextRun({
-                text: `\t ${shipToAddress.a4},`,
-                size: 18,
-                break: 1,
-              }),
-              new TextRun({
-                text: `\t ${shipToAddress.city} - ${shipToAddress.pincode}`,
-                size: 18,
-                break: 1,
-              }),
-              new TextRun({
-                text: `\t ${shipToAddress.a5}`,
-                size: 18,
+          new Table({
+            rows: [
+              new TableRow({
+                children: [
+                  new TableCell({
+                    width: { size: 90, type: WidthType.PERCENTAGE }, // Adjust to fit your needs
+                    children: [
+                      new Paragraph({
+                        children: [
+                          new TextRun({
+                            text: "Ship TO",
+                            bold: true,
+                            size: 20,
+                          }),
+                          new TextRun({
+                            text: "Address ",
+                            bold: true,
+                            size: 20,
+                            break: 1,
+                          }),
+                          new TextRun({
+                            text: `\t: ${shipToAddress.a1},`,
+                            size: 18,
+                          }),
+                          new TextRun({
+                            text: `\t ${shipToAddress.a2},`,
+                            size: 18,
+                            break: 1,
+                          }),
+                          new TextRun({
+                            text: `\t ${shipToAddress.a3},`,
+                            size: 18,
+                            break: 1,
+                          }),
+                          new TextRun({
+                            text: `\t ${shipToAddress.a4},`,
+                            size: 18,
+                            break: 1,
+                          }),
+                          new TextRun({
+                            text: `\t ${shipToAddress.city} - ${shipToAddress.pincode}`,
+                            size: 18,
+                            break: 1,
+                          }),
+                          new TextRun({
+                            text: `\t ${shipToAddress.a5}`,
+                            size: 18,
+                          }),
+                        ],
+                        tabStops: [
+                          {
+                            type: AlignmentType.LEFT,
+                            position: 2000,
+                          },
+                        ],
+                        spacing: {
+                          after: 300,
+                        },
+                      }),
+                    ],
+                  }),
+                  new TableCell({
+                    width: { size: 10, type: WidthType.PERCENTAGE }, // Width in centimeters for the image column
+                    children: [
+                      new Paragraph({
+                        children: [
+                          new ImageRun({
+                            data: qrCodeUint8Array,
+                            transformation: {
+                              width: 76, // Width in pixels for 2 cm
+                              height: 76, // Height in pixels for 2 cm
+                            },
+                          }),
+                        ],
+                      }),
+                    ],
+                  }),
+                ],
               }),
             ],
-            tabStops: [
-              {
-                type: AlignmentType.LEFT,
-                position: 2000,
-              },
-            ],
-            spacing: {
-              after: 300,
-            },
+            width: { size: 100, type: WidthType.PERCENTAGE }, // Table width 100%
+            borders: noBorders,
           }),
           ...emptyParagraph(6),
           // Site Contact Details Table

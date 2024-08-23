@@ -133,6 +133,7 @@ function Contracts() {
                         <div className="flex items-center justify-start w-full gap-1 ">
                           <PopUp
                             id={contract._id}
+                            cNo={contract.contractNo}
                             approved={contract.approved}
                             click={handleClick}
                           />

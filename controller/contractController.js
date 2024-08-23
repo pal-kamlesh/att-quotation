@@ -1,5 +1,11 @@
 import { isValidObjectId } from "mongoose";
-import { Contract, Quotation, QuoteInfo } from "../models/index.js";
+import {
+  Contract,
+  DC,
+  Quotation,
+  QuoteInfo,
+  WorkLogs,
+} from "../models/index.js";
 import {
   differenceBetweenArrays,
   remove_IdFromObj,
@@ -142,7 +148,6 @@ const contracts = async (req, res, next) => {
     next(error);
   }
 };
-
 const contractify = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -194,10 +199,9 @@ const contractify = async (req, res, next) => {
       quoteInfo: quoteInfoIds,
       createdBy: req.user.id,
     });
-
+    await newContract.generateContractNo();
     quote.contractified = true;
     await quote.save();
-    console.log(quote);
     res.status(200).json({ message: "Contract Created!", result: quote });
   } catch (error) {
     console.log(error);
@@ -221,7 +225,6 @@ const singleContract = async (req, res, next) => {
     next(error);
   }
 };
-
 const update = async (req, res, next) => {
   try {
     const contractId = req.params.id;
@@ -358,6 +361,45 @@ const printCount = async (req, res, next) => {
     next(error);
   }
 };
+const createDC = async (req, res, next) => {
+  try {
+    const { chemical, batchNo, chemicalqty, packaging } = req.body;
+    await DC.create({
+      chemical,
+      batchNumber: batchNo,
+      chemicalqty,
+      packaging,
+      entryBy: req.user.id,
+    });
+    res.status(200).json({ message: "DC Created" });
+  } catch (error) {
+    next(error);
+  }
+};
+const createWorklog = async (req, res, next) => {
+  try {
+    const {
+      workAreaType,
+      chemical,
+      chemicalUsed,
+      remark,
+      areaTreated,
+      areaTreatedUnit,
+    } = req.body;
+    await WorkLogs.create({
+      workAreaType,
+      chemical,
+      chemicalUsed,
+      remark,
+      areaTreated,
+      areaTreatedUnit,
+      entryBy: req.user.id,
+    });
+    res.status(200).json({ message: "Worklog Created" });
+  } catch (error) {
+    next(error);
+  }
+};
 
 export {
   create,
@@ -368,4 +410,6 @@ export {
   approve,
   printCount,
   docData,
+  createDC,
+  createWorklog,
 };

@@ -444,6 +444,12 @@ const getArchive = async (req, res, next) => {
     next(error);
   }
 };
+const quoteStats = async (req, res, next) => {
+  try {
+  } catch (error) {
+    next(error);
+  }
+};
 
 const similarProjects = async (req, res, next) => {
   try {

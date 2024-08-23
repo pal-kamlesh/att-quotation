@@ -1,13 +1,19 @@
 /* eslint-disable react/prop-types */
 import { Button, TextInput, Label, Card, Select } from "flowbite-react";
 import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { createDC } from "../redux/contract/contractSlice";
+import { unwrapResult } from "@reduxjs/toolkit";
+import { toast } from "react-toastify";
 
 function DCForm({ quoteInfo }) {
+  const dispatch = useDispatch();
   const [validInput, setValidInput] = useState(false);
   const [dcObj, setDcObj] = useState({
     chemical: "",
-    BatchNo: "",
+    batchNo: "",
     chemicalqty: "",
+    packaging: "",
   });
 
   function handleInputChange(e) {
@@ -17,7 +23,7 @@ function DCForm({ quoteInfo }) {
   useEffect(() => {
     if (
       dcObj.chemical !== "" &&
-      dcObj.BatchNo !== "" &&
+      dcObj.batchNo !== "" &&
       dcObj.chemicalqty !== ""
     ) {
       setValidInput(true);
@@ -26,10 +32,17 @@ function DCForm({ quoteInfo }) {
     }
   }, [dcObj]);
 
-  function handleSubmit() {
+  async function handleSubmit() {
     if (validInput) {
-      // Submit the form or handle the data
-      console.log("Form Submitted:", dcObj);
+      const dispatchAction = await dispatch(createDC(dcObj));
+      const result = unwrapResult(dispatchAction);
+      toast.info(result.message);
+      setDcObj({
+        chemical: "",
+        batchNo: "",
+        chemicalqty: "",
+        packaging: "",
+      });
     } else {
       console.log("Invalid input, please fill all fields.");
     }
@@ -56,12 +69,12 @@ function DCForm({ quoteInfo }) {
           </Select>
         </div>
         <div>
-          <Label htmlFor="BatchNo" value="Batch Number" />
+          <Label htmlFor="batchNo" value="Batch Number" />
           <TextInput
-            id="BatchNo"
-            name="BatchNo"
+            id="batchNo"
+            name="batchNo"
             placeholder="Enter batch number"
-            value={dcObj.BatchNo}
+            value={dcObj.batchNo}
             onChange={handleInputChange}
             required
           />
@@ -76,6 +89,24 @@ function DCForm({ quoteInfo }) {
             onChange={handleInputChange}
             required
           />
+        </div>
+        <div>
+          <Label htmlFor="packaging" value="Packaging" />
+          <Select
+            id="packaging"
+            name="packaging"
+            placeholder="Enter packaging name"
+            value={dcObj.packaging}
+            onChange={handleInputChange}
+            required
+          >
+            <option></option>
+            <option>250 ml</option>
+            <option>500 ml</option>
+            <option>1 Liter</option>
+            <option>5 Liters</option>
+            <option>20 Liters</option>
+          </Select>
         </div>
         <Button
           type="button"

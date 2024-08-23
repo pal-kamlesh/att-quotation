@@ -28,7 +28,7 @@ function WorkLog() {
       </header>
       <div className="flex justify-center mb-6">
         <Button onClick={() => setActiveForm("dc")} className="mx-2">
-          Add DC
+          Make DC
         </Button>
         <Button onClick={() => setActiveForm("worklog")} className="mx-2">
           Add Worklog

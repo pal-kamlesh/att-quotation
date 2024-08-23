@@ -40,7 +40,7 @@ function PopUp({ click, approved, id }) {
               &#128529;
             </span>
             <h3 className="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
-              Are you sure? One will not be able to edit this quotation.
+              Are you sure? One will not be able to edit this.
             </h3>
             <div className="flex justify-center gap-4">
               <Button

@@ -222,14 +222,12 @@ quotationSchema.statics.generateQuotationNo = async function () {
 
     // Generate the new quotation number using the counter
     const newQuoteNo = `EPPL/ATT/QTN/${counter.seq}`;
-
     // Optionally, you can add a check to ensure the generated number is unique
     const existingQuote = await this.findOne({ quotationNo: newQuoteNo });
     if (existingQuote) {
       // If by any chance the number already exists, recursively try again
       return this.generateQuotationNo();
     }
-
     return newQuoteNo;
   } catch (error) {
     console.error("Error generating quotation number:", error);

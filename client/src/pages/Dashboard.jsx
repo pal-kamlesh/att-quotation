@@ -42,7 +42,7 @@ export default function Dashboard() {
       </div>
 
       {/* Recent Quotations Section */}
-      {/* <div className="mt-8 bg-white p-6 rounded-lg shadow-md">
+      <div className="mt-8 bg-white p-6 rounded-lg shadow-md">
         <h2 className="text-2xl font-semibold mb-4">Recent Quotations</h2>
         <div className="overflow-x-auto">
           <table className="min-w-full bg-white">
@@ -67,11 +67,10 @@ export default function Dashboard() {
                 <td className="border px-4 py-2">2024-07-09</td>
                 <td className="border px-4 py-2">Approved</td>
               </tr>
-             
             </tbody>
           </table>
         </div>
-      </div> */}
+      </div>
     </div>
   );
 }

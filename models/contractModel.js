@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { Counter } from "./index.js";
 
 const contractSchema = mongoose.Schema(
   {
@@ -89,6 +90,8 @@ const contractSchema = mongoose.Schema(
     workOrderDate: { type: Date },
     gstNo: { type: String },
     quoteInfo: [{ type: mongoose.Schema.Types.ObjectId, ref: "QuoteInfo" }],
+    dcs: [{ type: mongoose.Schema.Types.ObjectId, ref: "DC" }],
+    worklogs: [{ type: mongoose.Schema.Types.ObjectId, ref: "WorkLogs" }],
   },
   { timestamps: true }
 );
@@ -115,6 +118,43 @@ contractSchema.methods.approve = async function () {
   this.approved = true;
   return this.save();
 };
+contractSchema.methods.generateContractNo = async function () {
+  try {
+    // Find the counter document for contract numbers
+    let counter = await Counter.findById("contractCounter");
+
+    // If the counter document does not exist, create it
+    if (!counter) {
+      counter = await new Counter({ _id: "contractCounter", seq: 1 }).save();
+    }
+
+    // Increment the counter and get the new sequence number
+    counter = await Counter.findByIdAndUpdate(
+      "contractCounter",
+      { $inc: { seq: 1 } },
+      { new: true }
+    );
+
+    // Get the current year
+    const currentYear = new Date().getFullYear();
+
+    // Generate the new contract number using the counter
+    const newContractNo = `PRE/${counter.seq}/${currentYear}`;
+
+    // Set the generated contract number on the current document
+    this.contractNo = newContractNo;
+
+    // Optionally, you can add a check to ensure the generated number is unique
+
+    // Save the current document with the new contract number
+    return this.save();
+  } catch (error) {
+    // Log the error and rethrow it
+    console.error("Error generating contract number:", error);
+    throw error;
+  }
+};
+
 contractSchema.methods.incPrintCount = async function () {
   this.printCount = this.printCount + 1;
   return this.save();

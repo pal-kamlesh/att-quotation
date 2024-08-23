@@ -9,21 +9,19 @@ import {
 } from "flowbite-react";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { customAlphabet } from "nanoid";
-
-const nanoid = customAlphabet(
-  "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
-  21
-);
+import { unwrapResult } from "@reduxjs/toolkit";
+import { useDispatch } from "react-redux";
+import { createWorklog } from "../redux/contract/contractSlice";
 
 function WorklogForm({ quoteInfo }) {
+  const dispatch = useDispatch();
   const [validInput, setValidInput] = useState(false);
-  const [worklogArray, setWorklogArray] = useState([]);
   const [worklogObj, setWorklogObj] = useState({
-    _id: nanoid(),
     workAreaType: "",
     chemical: "",
     chemicalUsed: "",
+    areaTreated: "",
+    areaTreatedUnit: "",
     remark: "",
   });
 
@@ -31,7 +29,9 @@ function WorklogForm({ quoteInfo }) {
     if (
       worklogObj.workAreaType !== "" &&
       worklogObj.chemical !== "" &&
-      worklogObj.chemicalUsed !== ""
+      worklogObj.chemicalUsed !== "" &&
+      worklogObj.areaTreated !== "" &&
+      worklogObj.areaTreatedUnit !== ""
     ) {
       setValidInput(true);
     } else {
@@ -39,41 +39,40 @@ function WorklogForm({ quoteInfo }) {
     }
   }, [worklogObj]);
 
+  useEffect(() => {
+    setWorklogObj((prev) => ({
+      ...prev,
+      areaTreatedUnit: quoteInfo[0].workAreaUnit,
+    }));
+  }, [quoteInfo]);
+
   function handleWorklogChange(e) {
     const { name, value } = e.target;
     setWorklogObj((prev) => ({ ...prev, [name]: value }));
   }
 
-  function deleteWorklog(id) {
-    setWorklogArray((prev) => prev.filter((info) => info._id !== id));
-  }
-
-  function editWorklog(id) {
-    const info = worklogArray.find((el) => el._id === id);
-    setWorklogObj(info);
-    deleteWorklog(id);
-  }
-
-  function moreWorklog() {
+  async function handleSubmit() {
     if (validInput) {
-      setWorklogArray((prev) => [...prev, worklogObj]);
+      const dispatchAction = await dispatch(createWorklog(worklogObj));
+      const result = unwrapResult(dispatchAction);
+      toast.info(result.message);
       setWorklogObj({
-        _id: nanoid(),
         workAreaType: "",
         chemical: "",
         chemicalUsed: "",
+        areaTreated: "",
+        areaTreatedUnit: quoteInfo[0].workAreaUnit,
         remark: "",
       });
-      toast.success("Worklog added successfully!");
     } else {
-      toast.error("Please fill in all required fields.");
+      console.log("Invalid input, please fill all fields.");
     }
   }
 
   return (
     <Card className="max-w-md mx-auto p-6">
       <h3 className="text-xl font-semibold text-center mb-4">Worklog Form</h3>
-      <form className="space-y-4">
+      <div className="space-y-4">
         <div>
           <Label htmlFor="workAreaType" value="Work Area Type" />
           <Select
@@ -111,11 +110,33 @@ function WorklogForm({ quoteInfo }) {
           <TextInput
             id="chemicalUsed"
             name="chemicalUsed"
-            placeholder="Enter quantity used"
+            placeholder="Enter Chemical used quantity (in ml)"
             value={worklogObj.chemicalUsed}
             onChange={handleWorklogChange}
             required
           />
+        </div>
+        <div>
+          <Label htmlFor="areaTreated" value="Area Treated" />
+          <div className="grid grid-cols-12 gap-1">
+            <TextInput
+              id="areaTreated"
+              name="areaTreated"
+              placeholder="Enter work area treated"
+              value={worklogObj.areaTreated}
+              onChange={handleWorklogChange}
+              required
+              className=" col-span-10 "
+            />
+            <TextInput
+              id="areaTreatedUnit"
+              name="areaTreatedUnit"
+              value={quoteInfo[0].workAreaUnit}
+              onChange={handleWorklogChange}
+              required
+              className="col-span-2"
+            />
+          </div>
         </div>
         <div>
           <Label htmlFor="remark" value="Remark" />
@@ -130,46 +151,13 @@ function WorklogForm({ quoteInfo }) {
         </div>
         <Button
           type="button"
-          onClick={moreWorklog}
+          onClick={handleSubmit}
           fullSized
           disabled={!validInput}
         >
           Add Worklog
         </Button>
-      </form>
-
-      {worklogArray.length > 0 && (
-        <div className="mt-6">
-          <h4 className="text-lg font-semibold mb-2">Worklogs</h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {worklogArray.map((log) => (
-              <div
-                key={log._id}
-                className="flex flex-col p-4 bg-gray-100 rounded-lg"
-              >
-                <div className="mb-2">
-                  <p className="font-semibold">{log.workAreaType}</p>
-                  <p>Chemical: {log.chemical}</p>
-                  <p>Quantity: {log.chemicalUsed}</p>
-                  {log.remark && <p>Remark: {log.remark}</p>}
-                </div>
-                <div className="flex justify-between">
-                  <Button size="sm" onClick={() => editWorklog(log._id)}>
-                    Edit
-                  </Button>
-                  <Button
-                    size="sm"
-                    color="failure"
-                    onClick={() => deleteWorklog(log._id)}
-                  >
-                    Delete
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      </div>
     </Card>
   );
 }

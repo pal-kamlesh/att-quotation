@@ -10,7 +10,6 @@ const initialState = {
   loading: false,
   showMore: true,
 };
-
 export const uploadFiles = createAsyncThunk(
   "upload/files",
   async (data, { rejectWithValue }) => {
@@ -44,6 +43,48 @@ export const createContract = createAsyncThunk(
   async (data, { rejectWithValue }) => {
     try {
       const response = await fetch("/api/v1/contract/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        return rejectWithValue(errorData);
+      }
+      const result = await response.json();
+      return result;
+    } catch (error) {
+      console.log(error);
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+export const createDC = createAsyncThunk(
+  "create/DC",
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await fetch("/api/v1/contract/create/dc", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        return rejectWithValue(errorData);
+      }
+      const result = await response.json();
+      return result;
+    } catch (error) {
+      console.log(error);
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+export const createWorklog = createAsyncThunk(
+  "create/DC",
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await fetch("/api/v1/contract/create/worklog", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -162,7 +203,6 @@ export const docxData = createAsyncThunk(
     }
   }
 );
-
 export const archiveData = createAsyncThunk(
   "get/archivedata",
   async (data, { rejectWithValue }) => {
@@ -180,7 +220,6 @@ export const archiveData = createAsyncThunk(
     }
   }
 );
-
 export const updateContract = createAsyncThunk(
   "update/contract",
   async (data, { rejectWithValue }) => {
@@ -203,7 +242,6 @@ export const updateContract = createAsyncThunk(
     }
   }
 );
-
 export const contractSlice = createSlice({
   name: "contract",
   initialState,

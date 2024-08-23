@@ -65,6 +65,7 @@ function UpdateContract({ onClose, activeId = null }) {
   const [doc, setDoc] = useState(contract?.docType);
   const [disableRadio, setDisableRadio] = useState(false);
   const [areaTypeModel, setAreaTypeModel] = useState(false);
+  const [docType, setDocType] = useState("");
   const dispatch = useDispatch();
   const { initials } = useSelector((state) => state.user);
 
@@ -90,6 +91,9 @@ function UpdateContract({ onClose, activeId = null }) {
 
           setContract({ ...result.result, workOrderDate: formattedDate });
           setDoc(result.result.docType);
+          const conNo = result.result.contractNo;
+          const prefix = conNo.split("/")[0];
+          setDocType(prefix);
         } catch (error) {
           console.error("Failed to fetch contract:", error);
         }
@@ -166,6 +170,17 @@ function UpdateContract({ onClose, activeId = null }) {
       shipToAddress: { ...shipToAddress, ...updatedShipToAddress },
     });
   }
+  function handleDoctype(e) {
+    console.log(e.target.value);
+    setDocType(e.target.value);
+  }
+  useEffect(() => {
+    const conNo = contract.contractNo;
+    const parts = conNo.split("/");
+    parts[0] = docType;
+    setContract((prev) => ({ ...prev, contractNo: parts.join("/") }));
+  }, [docType]);
+  console.log(docType);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -209,16 +224,48 @@ function UpdateContract({ onClose, activeId = null }) {
       {loading ? <Loading /> : null}
       <form className="">
         <div className="flex items-center justify-evenly gap-4 mb-4 flex-wrap">
-          <div className="max-w-full">
-            <div className="mb-2 block">
+          <div className="max-w-full p-4">
+            <div className="mb-2">
               <Label htmlFor="contractNo" value="Contract No" />
+              <TextInput
+                id="contractNo"
+                name="contractNo"
+                value={contract?.contractNo}
+                onChange={handleContractChange}
+                className="mt-1"
+                disabled
+              />
             </div>
-            <TextInput
-              name="contractNo"
-              value={contract?.contractNo}
-              onChange={handleContractChange}
-            />
+            <div className="w-full border border-gray-300 p-1 rounded-lg">
+              <div className="flex gap-4 mt-1 w-full">
+                <div className="flex items-center">
+                  <Radio
+                    id="os"
+                    name="notype"
+                    value="OS"
+                    checked={docType === "OS"}
+                    onChange={(e) => handleDoctype(e)}
+                  />
+                  <label htmlFor="os" className="ml-2">
+                    OS
+                  </label>
+                </div>
+                <div className="flex items-center">
+                  <Radio
+                    id="pre"
+                    name="notype"
+                    value="PRE"
+                    checked={docType === "PRE"}
+                    onChange={(e) => handleDoctype(e)}
+                  />
+                  <label htmlFor="pre" className="ml-2">
+                    PRE
+                  </label>
+                </div>
+              </div>
+            </div>
           </div>
+
           <div className="max-w-full">
             <div className="mb-2 block">
               <Label htmlFor="workOrderNo" value="Work Order No" />
