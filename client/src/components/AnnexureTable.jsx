@@ -1121,8 +1121,9 @@ const generateStandardContractAdv = async (data, annexure) => {
             spacing: { before: 200, after: 200 },
             indent: {
               left: 0, // Adjust these values for left and right margins
-              right: 300,
+              right: 100,
             },
+            alignment: AlignmentType.JUSTIFIED,
           }),
           // Second Table - Service Charges and Payment Terms
           new Table({
@@ -1134,7 +1135,7 @@ const generateStandardContractAdv = async (data, annexure) => {
                       new Paragraph({
                         children: [
                           new TextRun({
-                            text: "PAYMENT TERMS",
+                            text: "Payment terms",
                             bold: true,
                           }),
                           new TextRun({
@@ -1168,7 +1169,7 @@ const generateStandardContractAdv = async (data, annexure) => {
                       new Paragraph({
                         children: [
                           new TextRun({
-                            text: "Guarantee",
+                            text: "Service Warranty",
                             bold: true,
                           }),
                           new TextRun({
@@ -1190,14 +1191,14 @@ const generateStandardContractAdv = async (data, annexure) => {
                           }),
                         ],
                         indent: {
-                          start: 3000, // Adjust this value to control indentation
+                          start: 3150, // Adjust this value to control indentation
                         },
                       }),
                       new Paragraph({ text: "" }),
                       new Paragraph({
                         children: [
                           new TextRun({
-                            text: "Work Data",
+                            text: "Area & Service Charges",
                             bold: true,
                             alignment: AlignmentType.LEFT,
                           }),
@@ -1591,6 +1592,7 @@ const createContractCard = async (data) => {
 
   // Convert Base64 to Uint8Array
   const qrCodeUint8Array = base64ToUint8Array(qrCodeUrl);
+  const elementWidth = 13 * 566.9;
 
   const doc = new Document({
     styles: {
@@ -1609,7 +1611,7 @@ const createContractCard = async (data) => {
             margin: {
               top: 230, // 0.3 cm
               bottom: 500,
-              left: 567, // 1 cm in twips
+              left: 230, // 1 cm in twips
               right: 3569, // 1 cm in twips
             },
           },
@@ -1630,18 +1632,9 @@ const createContractCard = async (data) => {
                             }`,
                             bold: true,
                           }),
-                        ],
-                      }),
-                    ],
-                  }),
-                ],
-              }),
-              new TableRow({
-                children: [
-                  new TableCell({
-                    children: [
-                      new Paragraph({
-                        children: [
+                          new TextRun({
+                            text: "                     ",
+                          }),
                           new TextRun({
                             text: "Chemical:- ",
                             bold: true,
@@ -1654,13 +1647,14 @@ const createContractCard = async (data) => {
                               })
                           ),
                         ],
+                        alignment: AlignmentType.LEFT,
                       }),
                     ],
                   }),
                 ],
               }),
             ],
-            width: { size: 100, type: WidthType.PERCENTAGE },
+            width: { size: elementWidth, type: WidthType.DXA },
             borders: noBorders,
           }),
           new Paragraph({
@@ -1675,6 +1669,7 @@ const createContractCard = async (data) => {
             spacing: {
               after: 200,
             },
+            width: { size: elementWidth, type: WidthType.DXA },
           }),
           // Client, Project, and Address Details
           ...emptyParagraph(6),
@@ -1694,7 +1689,7 @@ const createContractCard = async (data) => {
             tabStops: [
               {
                 type: AlignmentType.LEFT,
-                position: 2000,
+                position: 1500,
               },
             ],
           }),
@@ -1714,7 +1709,7 @@ const createContractCard = async (data) => {
             tabStops: [
               {
                 type: AlignmentType.LEFT,
-                position: 2000,
+                position: 1500,
               },
             ],
           }),
@@ -1724,7 +1719,7 @@ const createContractCard = async (data) => {
               new TableRow({
                 children: [
                   new TableCell({
-                    width: { size: 90, type: WidthType.PERCENTAGE }, // Adjust to fit your needs
+                    width: { size: 70, type: WidthType.PERCENTAGE }, // Adjust to fit your needs
                     children: [
                       new Paragraph({
                         children: [
@@ -1766,12 +1761,13 @@ const createContractCard = async (data) => {
                           new TextRun({
                             text: `\t ${shipToAddress.a5}`,
                             size: 18,
+                            break: 1,
                           }),
                         ],
                         tabStops: [
                           {
                             type: AlignmentType.LEFT,
-                            position: 2000,
+                            position: 1500,
                           },
                         ],
                         spacing: {
@@ -1781,7 +1777,7 @@ const createContractCard = async (data) => {
                     ],
                   }),
                   new TableCell({
-                    width: { size: 10, type: WidthType.PERCENTAGE }, // Width in centimeters for the image column
+                    width: { size: 30, type: WidthType.PERCENTAGE }, // Width in centimeters for the image column
                     children: [
                       new Paragraph({
                         children: [
@@ -1795,21 +1791,18 @@ const createContractCard = async (data) => {
                         ],
                       }),
                     ],
+                    alignment: AlignmentType.CENTER,
                   }),
                 ],
               }),
             ],
-            width: { size: 100, type: WidthType.PERCENTAGE }, // Table width 100%
+            width: { size: elementWidth, type: WidthType.DXA },
             borders: noBorders,
           }),
           ...emptyParagraph(6),
           // Site Contact Details Table
           createParagraph("ShipTo Contact Details", true, AlignmentType.LEFT),
           new Table({
-            width: {
-              size: 100,
-              type: WidthType.PERCENTAGE,
-            },
             rows: [
               new TableRow({
                 children: [
@@ -1851,6 +1844,7 @@ const createContractCard = async (data) => {
               left: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
               right: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
             },
+            width: { size: elementWidth, type: WidthType.DXA },
             alignment: AlignmentType.LEFT,
           }),
           ...emptyParagraph(1),
@@ -1902,11 +1896,20 @@ const createContractCard = async (data) => {
                                 ],
                               })
                           ),
+                          ...emptyRows(
+                            quoteInfo.length === 2
+                              ? 1
+                              : quoteInfo.length === 1
+                              ? 2
+                              : quoteInfo.length === 3
+                              ? 0
+                              : 0
+                          ),
                         ],
                       }),
                     ],
                     borders: noBorders,
-                    width: { size: 70, type: WidthType.PERCENTAGE },
+                    width: { size: 5527, type: WidthType.DXA },
                   }),
 
                   // Cell C2 (25% width) with nested table
@@ -1914,7 +1917,6 @@ const createContractCard = async (data) => {
                     children: [
                       // Define nested table inside C2
                       new Table({
-                        width: { size: 100, type: WidthType.PERCENTAGE },
                         rows: [
                           // Row R1
                           new TableRow({
@@ -1947,42 +1949,6 @@ const createContractCard = async (data) => {
                                           }),
                                         ],
                                       }),
-                                    ],
-                                  }),
-                                ],
-                                borders: noBorders,
-                                verticalAlign: VerticalAlign.CENTER,
-                              }),
-                            ],
-                            borders: noBorders,
-                          }),
-
-                          // Row R2
-                          new TableRow({
-                            children: [
-                              new TableCell({
-                                children: [
-                                  new Table({
-                                    rows: [
-                                      new TableRow({
-                                        children: [
-                                          new TableCell({
-                                            children: [
-                                              new Paragraph({
-                                                children: [
-                                                  new TextRun({
-                                                    text: "Drawing",
-                                                    bold: true,
-                                                    break: 1,
-                                                  }),
-                                                ],
-                                                alignment: AlignmentType.CENTER,
-                                              }),
-                                            ],
-                                            columnSpan: 2,
-                                          }),
-                                        ],
-                                      }),
                                       new TableRow({
                                         children: [
                                           new TableCell({
@@ -2004,6 +1970,10 @@ const createContractCard = async (data) => {
                                         ],
                                       }),
                                     ],
+                                    width: {
+                                      size: 100,
+                                      type: WidthType.PERCENTAGE,
+                                    },
                                   }),
                                 ],
                                 borders: noBorders,
@@ -2014,17 +1984,18 @@ const createContractCard = async (data) => {
                           }),
                         ],
                         borders: noBorders,
+                        width: { size: 100, type: WidthType.PERCENTAGE },
                       }),
                     ],
                     borders: noBorders,
-                    width: { size: 25, type: WidthType.PERCENTAGE },
+                    width: { size: 1842, type: WidthType.DXA },
                     verticalAlign: VerticalAlign.CENTER,
                   }),
                 ],
               }),
             ],
             borders: noBorders,
-            width: { size: 100, type: WidthType.PERCENTAGE },
+            width: { size: elementWidth, type: WidthType.DXA },
           }),
           ...emptyParagraph(1),
         ],
@@ -2059,6 +2030,39 @@ function emptyParagraph(num) {
     );
   }
   return paraArray;
+}
+function emptyRows(num) {
+  let paramArray = [];
+  for (let i = 1; i <= num; i++) {
+    paramArray.push(
+      new TableRow({
+        children: [
+          new TableCell({
+            children: [...emptyParagraph(1)],
+            width: {
+              size: 40,
+              type: WidthType.PERCENTAGE,
+            },
+          }),
+          new TableCell({
+            children: [...emptyParagraph(1)],
+            width: {
+              size: 20,
+              type: WidthType.PERCENTAGE,
+            },
+          }),
+          new TableCell({
+            children: [...emptyParagraph(1)],
+            width: {
+              size: 40,
+              type: WidthType.PERCENTAGE,
+            },
+          }),
+        ],
+      })
+    );
+  }
+  return paramArray;
 }
 // Function to convert a base64 image to a Uint8Array
 const base64ToUint8Array = (base64) => {

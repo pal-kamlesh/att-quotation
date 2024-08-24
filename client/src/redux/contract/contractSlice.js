@@ -81,14 +81,31 @@ export const createDC = createAsyncThunk(
   }
 );
 export const createWorklog = createAsyncThunk(
-  "create/DC",
+  "create/worklog",
   async (data, { rejectWithValue }) => {
     try {
-      const response = await fetch("/api/v1/contract/create/worklog", {
+      const response = await fetch("/api/v1/contract/worklog/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
+      if (!response.ok) {
+        const errorData = await response.json();
+        return rejectWithValue(errorData);
+      }
+      const result = await response.json();
+      return result;
+    } catch (error) {
+      console.log(error);
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+export const getWorklogs = createAsyncThunk(
+  "get/worklogs",
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await fetch(`/api/v1/contract/worklog/${data}`);
       if (!response.ok) {
         const errorData = await response.json();
         return rejectWithValue(errorData);

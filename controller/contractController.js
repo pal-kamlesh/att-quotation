@@ -1,4 +1,4 @@
-import { isValidObjectId } from "mongoose";
+import { isValidObjectId, model } from "mongoose";
 import {
   Contract,
   DC,
@@ -11,6 +11,7 @@ import {
   remove_IdFromObj,
   createQuoteArchiveEntry,
 } from "../utils/functions.js";
+import { populate } from "dotenv";
 
 const create = async (req, res, next) => {
   try {
@@ -400,6 +401,28 @@ const createWorklog = async (req, res, next) => {
     next(error);
   }
 };
+const getWorklogs = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const data = await Contract.findById(id).populate({
+      path: "worklogs",
+      populate: { path: "entryBy", model: "User" },
+    });
+    res.status(200).json({
+      message: "",
+      result: data,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+const getDCs = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+  } catch (error) {
+    next(error);
+  }
+};
 
 export {
   create,
@@ -412,4 +435,5 @@ export {
   docData,
   createDC,
   createWorklog,
+  getWorklogs,
 };

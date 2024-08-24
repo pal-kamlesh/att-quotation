@@ -4,7 +4,8 @@ import { useParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { getSingleContract } from "../redux/contract/contractSlice";
 import { unwrapResult } from "@reduxjs/toolkit";
-import { WorklogForm, DCForm } from "../components";
+import { DCForm } from "../components";
+import PrintWorkLogs from "../components/PrintWorkLogs";
 
 function WorkLog() {
   const [contract, setContract] = useState();
@@ -37,7 +38,7 @@ function WorkLog() {
 
       {activeForm === "dc" && <DCForm quoteInfo={contract?.quoteInfo} />}
       {activeForm === "worklog" && (
-        <WorklogForm quoteInfo={contract?.quoteInfo} />
+        <PrintWorkLogs id={contract?._id} quoteInfo={contract?.quoteInfo} />
       )}
     </div>
   );
