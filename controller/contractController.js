@@ -1,4 +1,4 @@
-import { isValidObjectId, model } from "mongoose";
+import { isValidObjectId } from "mongoose";
 import {
   Contract,
   DC,
@@ -11,7 +11,6 @@ import {
   remove_IdFromObj,
   createQuoteArchiveEntry,
 } from "../utils/functions.js";
-import { populate } from "dotenv";
 
 const create = async (req, res, next) => {
   try {
@@ -60,7 +59,6 @@ const create = async (req, res, next) => {
     next(error);
   }
 };
-
 const contracts = async (req, res, next) => {
   try {
     // Parse and set start and end of the day for fromDate and toDate
@@ -379,6 +377,13 @@ const createDC = async (req, res, next) => {
 };
 const createWorklog = async (req, res, next) => {
   try {
+    const { id } = req.params;
+    const contract = await Contract.findById(id);
+
+    if (!contract) {
+      return res.status(404).json({ message: "No such Contract" });
+    }
+
     const {
       workAreaType,
       chemical,
@@ -387,7 +392,8 @@ const createWorklog = async (req, res, next) => {
       areaTreated,
       areaTreatedUnit,
     } = req.body;
-    await WorkLogs.create({
+
+    const log = await WorkLogs.create({
       workAreaType,
       chemical,
       chemicalUsed,
@@ -396,9 +402,15 @@ const createWorklog = async (req, res, next) => {
       areaTreatedUnit,
       entryBy: req.user.id,
     });
-    res.status(200).json({ message: "Worklog Created" });
+
+    // Update the contract with the new worklog
+    contract.worklogs.push(log._id);
+    await contract.save();
+
+    // Respond with the created worklog
+    res.status(201).json({ message: "Worklog Created", log });
   } catch (error) {
-    next(error);
+    next(error); // Pass the error to the error handling middleware
   }
 };
 const getWorklogs = async (req, res, next) => {

@@ -83,11 +83,12 @@ export const createDC = createAsyncThunk(
 export const createWorklog = createAsyncThunk(
   "create/worklog",
   async (data, { rejectWithValue }) => {
+    const { worklogObj, id } = data;
     try {
-      const response = await fetch("/api/v1/contract/worklog/create", {
+      const response = await fetch(`/api/v1/contract/${id}/worklog/create`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify(worklogObj),
       });
       if (!response.ok) {
         const errorData = await response.json();

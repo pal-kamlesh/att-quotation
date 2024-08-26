@@ -13,6 +13,7 @@ import {
   Document,
   VerticalAlign,
   BorderStyle,
+  HeightRule,
 } from "docx";
 import { saveAs } from "file-saver";
 import QRCode from "qrcode";
@@ -809,6 +810,7 @@ const generateStandardContractAdv = async (data, annexure) => {
     const year = date.getFullYear();
     return `${day}.${month}.${year}`;
   };
+  const { firstTable, divider, secondTable } = await workLogdocx(data);
   const { header, title, table } =
     data.docType === "standard"
       ? await generateStandardDoc(data.quoteInfo)
@@ -1543,6 +1545,19 @@ const generateStandardContractAdv = async (data, annexure) => {
           }),
         ],
       },
+      {
+        properties: {
+          page: {
+            margin: {
+              top: 500, // 0.5 cm in twips
+              bottom: 500, // 0.5 cm in twips
+              left: 800, // 1.27 cm in twips
+              right: 800, // 1.27 cm in twips
+            },
+          },
+        },
+        children: [firstTable, divider, secondTable],
+      },
       ...(annexure
         ? [
             {
@@ -1565,6 +1580,175 @@ const generateStandardContractAdv = async (data, annexure) => {
 
   const blob = await Packer.toBlob(doc);
   saveAs(blob, `Contract_${data.contractNo ? data.contractNo : data._id}.docx`);
+};
+const workLogdocx = async (data) => {
+  const { contractNo, shipToAddress, _id } = data;
+  // Generate QR Code as Base64
+  const qrCodeUrl = await QRCode.toDataURL(
+    `https://att-quotation.onrender.com/workLog/${_id}`
+  );
+
+  // Convert Base64 to Uint8Array
+  const qrCodeUint8Array = base64ToUint8Array(qrCodeUrl);
+  // Function to create a cell with borders
+  const createCell = (content, width) => {
+    return new TableCell({
+      children: [new Paragraph(content)],
+      width: {
+        size: width,
+        type: WidthType.PERCENTAGE,
+      },
+      borders: {
+        top: { style: BorderStyle.SINGLE, size: 1 },
+        bottom: { style: BorderStyle.SINGLE, size: 1 },
+        left: { style: BorderStyle.SINGLE, size: 1 },
+        right: { style: BorderStyle.SINGLE, size: 1 },
+      },
+    });
+  };
+
+  // First table (unchanged)
+  const firstTable = new Table({
+    width: {
+      size: 100,
+      type: WidthType.PERCENTAGE,
+    },
+    rows: [
+      new TableRow({
+        children: [
+          new TableCell({
+            children: [
+              new Paragraph(`Contract No: ${contractNo}`),
+              new Paragraph({
+                children: [
+                  new ImageRun({
+                    data: qrCodeUint8Array,
+                    transformation: {
+                      width: 76, // Width in pixels for 2 cm
+                      height: 76, // Height in pixels for 2 cm
+                    },
+                  }),
+                ],
+              }),
+            ],
+            width: {
+              size: 30,
+              type: WidthType.PERCENTAGE,
+            },
+          }),
+          new TableCell({
+            width: { size: 70, type: WidthType.PERCENTAGE }, // Adjust to fit your needs
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: "Ship TO",
+                    bold: true,
+                    size: 20,
+                  }),
+                  new TextRun({
+                    text: "Address ",
+                    bold: true,
+                    size: 20,
+                    break: 1,
+                  }),
+                  new TextRun({
+                    text: `\t: ${shipToAddress.a1},`,
+                    size: 18,
+                  }),
+                  new TextRun({
+                    text: `\t ${shipToAddress.a2},`,
+                    size: 18,
+                    break: 1,
+                  }),
+                  new TextRun({
+                    text: `\t ${shipToAddress.a3},`,
+                    size: 18,
+                    break: 1,
+                  }),
+                  new TextRun({
+                    text: `\t ${shipToAddress.a4},`,
+                    size: 18,
+                    break: 1,
+                  }),
+                  new TextRun({
+                    text: `\t ${shipToAddress.city} - ${shipToAddress.pincode}`,
+                    size: 18,
+                    break: 1,
+                  }),
+                  new TextRun({
+                    text: `\t ${shipToAddress.a5}`,
+                    size: 18,
+                    break: 1,
+                  }),
+                ],
+                tabStops: [
+                  {
+                    type: AlignmentType.LEFT,
+                    position: 1500,
+                  },
+                ],
+                spacing: {
+                  after: 300,
+                },
+              }),
+            ],
+          }),
+        ],
+      }),
+    ],
+  });
+
+  // Divider paragraph (unchanged)
+  const divider = new Paragraph({
+    text: "",
+    spacing: {
+      before: 200,
+      after: 200,
+    },
+  });
+
+  // Function to create an empty row
+  const createEmptyRow = () => {
+    return new TableRow({
+      children: Array(8)
+        .fill()
+        .map(() => createCell("", 12.5)),
+      height: {
+        value: 300,
+        rule: HeightRule.ATLEAST,
+      },
+    });
+  };
+
+  // Second table with stretched columns
+  const secondTable = new Table({
+    width: {
+      size: 100,
+      type: WidthType.PERCENTAGE,
+    },
+    rows: [
+      new TableRow({
+        children: [
+          createCell("Date", 12.5),
+          createCell("Executive Name", 12.5),
+          createCell("Area Treated", 12.5),
+          createCell("Structure Name", 12.5),
+          createCell("Chemical Used", 12.5),
+          createCell("Chemical Left @ site", 12.5),
+          createCell("Chemical Package", 12.5),
+          createCell("Note", 12.5),
+        ],
+      }),
+      // Add empty rows to stretch the table
+      ...Array(20)
+        .fill()
+        .map(() => createEmptyRow()),
+    ],
+  });
+
+  // Return the tables and divider
+  return { firstTable, divider, secondTable };
 };
 
 // Function to create the Contract Card

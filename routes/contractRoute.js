@@ -25,7 +25,7 @@ router.get("/approve/:id", verifyToken, approve);
 router.get("/print/:id", verifyToken, printCount);
 router.get("/docx/:id", verifyToken, docData);
 router.post("dc/create", verifyToken, createDC);
-router.post("worklog/create", verifyToken, createWorklog);
+router.post("/:id/worklog/create", verifyToken, createWorklog);
 router.get("/worklog/:id", verifyToken, getWorklogs);
 
 export default router;

@@ -13,7 +13,7 @@ import { unwrapResult } from "@reduxjs/toolkit";
 import { useDispatch } from "react-redux";
 import { createWorklog } from "../redux/contract/contractSlice";
 
-function WorklogForm({ quoteInfo }) {
+function WorklogForm({ id, quoteInfo }) {
   const dispatch = useDispatch();
   const [validInput, setValidInput] = useState(false);
   const [worklogObj, setWorklogObj] = useState({
@@ -53,7 +53,7 @@ function WorklogForm({ quoteInfo }) {
 
   async function handleSubmit() {
     if (validInput) {
-      const dispatchAction = await dispatch(createWorklog(worklogObj));
+      const dispatchAction = await dispatch(createWorklog({ worklogObj, id }));
       const result = unwrapResult(dispatchAction);
       toast.info(result.message);
       setWorklogObj({
@@ -70,7 +70,7 @@ function WorklogForm({ quoteInfo }) {
   }
 
   return (
-    <Card className="max-w-md mx-auto p-6">
+    <div className="max-w-md mx-auto p-6">
       <h3 className="text-xl font-semibold text-center mb-4">Worklog Form</h3>
       <div className="space-y-4">
         <div>
@@ -158,7 +158,7 @@ function WorklogForm({ quoteInfo }) {
           Add Worklog
         </Button>
       </div>
-    </Card>
+    </div>
   );
 }
 
