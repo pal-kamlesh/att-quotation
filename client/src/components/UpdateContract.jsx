@@ -58,7 +58,7 @@ function UpdateContract({ onClose, activeId = null }) {
     docType: "standard",
     quoteInfo: [],
     workOrderNo: "",
-    workOrderDate: new Date().toISOString().split("T")[0],
+    workOrderDate: "",
     gstNo: "",
     paymentTerms: "",
   });
@@ -272,7 +272,6 @@ function UpdateContract({ onClose, activeId = null }) {
             </div>
             <TextInput
               name="workOrderNo"
-              type="number"
               value={contract?.workOrderNo}
               onChange={handleContractChange}
             />

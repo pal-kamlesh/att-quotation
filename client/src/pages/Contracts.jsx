@@ -227,7 +227,7 @@ function Contracts() {
         isOpen={updateModel}
         onClose={() => setUpdateModel(!updateModel)}
         size="7xl"
-        heading="New Contract"
+        heading="Update Contract"
         bg="bg-red-50"
       >
         <UpdateContract
