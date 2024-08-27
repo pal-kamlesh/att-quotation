@@ -360,21 +360,6 @@ const printCount = async (req, res, next) => {
     next(error);
   }
 };
-const createDC = async (req, res, next) => {
-  try {
-    const { chemical, batchNo, chemicalqty, packaging } = req.body;
-    await DC.create({
-      chemical,
-      batchNumber: batchNo,
-      chemicalqty,
-      packaging,
-      entryBy: req.user.id,
-    });
-    res.status(200).json({ message: "DC Created" });
-  } catch (error) {
-    next(error);
-  }
-};
 const createWorklog = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -428,9 +413,46 @@ const getWorklogs = async (req, res, next) => {
     next(error);
   }
 };
+const createDC = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const contract = await Contract.findById(id);
+
+    if (!contract) {
+      return res.status(404).json({ message: "No such Contract" });
+    }
+    const { chemical, batchNo, chemicalqty, packaging } = req.body;
+
+    const dc = await DC.create({
+      chemical,
+      batchNumber: batchNo,
+      chemicalqty,
+      packaging,
+      entryBy: req.user.id,
+    });
+
+    // Update the contract with the new worklog
+    contract.dcs.push(dc._id);
+    await contract.save();
+
+    // Respond with the created worklog
+    res.status(201).json({ message: "Worklog Created", dc });
+  } catch (error) {
+    next(error); // Pass the error to the error handling middleware
+  }
+};
+
 const getDCs = async (req, res, next) => {
   try {
     const { id } = req.params;
+    const data = await Contract.findById(id).populate({
+      path: "dcs",
+      populate: { path: "entryBy", model: "User" },
+    });
+    res.status(200).json({
+      message: "",
+      result: data,
+    });
   } catch (error) {
     next(error);
   }
@@ -448,4 +470,5 @@ export {
   createDC,
   createWorklog,
   getWorklogs,
+  getDCs,
 };

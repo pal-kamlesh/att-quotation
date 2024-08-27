@@ -86,7 +86,7 @@ const contractSchema = mongoose.Schema(
       type: Number,
       default: 0,
     },
-    workOrderNo: { type: Number },
+    workOrderNo: { type: String },
     workOrderDate: { type: Date },
     gstNo: { type: String },
     quoteInfo: [{ type: mongoose.Schema.Types.ObjectId, ref: "QuoteInfo" }],
