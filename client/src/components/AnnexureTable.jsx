@@ -1140,8 +1140,14 @@ const generateStandardContractAdv = async (data, annexure) => {
                             text: "Payment terms",
                             bold: true,
                           }),
-                          new TextRun({
-                            text: `\t: ${paymentTerms}`,
+                          ...paymentTerms.split(".").map((v, idx) => {
+                            if (idx === 0) {
+                              return new TextRun({
+                                text: `\t ${idx === 0 ? ":" : ""} ${
+                                  idx + 1
+                                } ${v}`,
+                              });
+                            }
                           }),
                         ],
                         tabStops: [
@@ -1150,6 +1156,21 @@ const generateStandardContractAdv = async (data, annexure) => {
                             position: 3000,
                           },
                         ],
+                      }),
+                      new Paragraph({
+                        children: [
+                          ...paymentTerms.split(".").map((v, idx) => {
+                            if (idx !== 0) {
+                              return new TextRun({
+                                text: `${idx === 0 ? ":" : ""} ${idx + 1} ${v}`,
+                                break: idx === 1 ? null : 1,
+                              });
+                            }
+                          }),
+                        ],
+                        indent: {
+                          start: 3150, // Adjust this value to control indentation
+                        },
                       }),
                       new Paragraph({
                         children: [
