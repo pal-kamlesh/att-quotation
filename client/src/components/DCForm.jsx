@@ -1,12 +1,12 @@
 /* eslint-disable react/prop-types */
-import { Button, TextInput, Label, Card, Select } from "flowbite-react";
+import { Button, TextInput, Label, Select } from "flowbite-react";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { createDC } from "../redux/contract/contractSlice";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
 
-function DCForm({ quoteInfo }) {
+function DCForm({ id, quoteInfo, setDCs, onClose }) {
   const dispatch = useDispatch();
   const [validInput, setValidInput] = useState(false);
   const [dcObj, setDcObj] = useState({
@@ -34,7 +34,7 @@ function DCForm({ quoteInfo }) {
 
   async function handleSubmit() {
     if (validInput) {
-      const dispatchAction = await dispatch(createDC(dcObj));
+      const dispatchAction = await dispatch(createDC({ id, dcObj }));
       const result = unwrapResult(dispatchAction);
       toast.info(result.message);
       setDcObj({
@@ -43,13 +43,15 @@ function DCForm({ quoteInfo }) {
         chemicalqty: "",
         packaging: "",
       });
+      setDCs((prev) => [...prev, result.dc]);
+      onClose();
     } else {
       console.log("Invalid input, please fill all fields.");
     }
   }
 
   return (
-    <Card className="max-w-md mx-auto p-6">
+    <div className="max-w-md mx-auto p-6">
       <h3 className="text-xl font-semibold text-center mb-4">DC Form</h3>
       <form className="space-y-4">
         <div>
@@ -117,7 +119,7 @@ function DCForm({ quoteInfo }) {
           Submit
         </Button>
       </form>
-    </Card>
+    </div>
   );
 }
 

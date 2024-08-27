@@ -2,30 +2,28 @@ import { unwrapResult } from "@reduxjs/toolkit";
 import { Button } from "flowbite-react";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { getWorklogs } from "../redux/contract/contractSlice";
-import { WorklogForm, CustomModal } from "../components/index.js";
-
+import { getdcs } from "../redux/contract/contractSlice";
+import { CustomModal, DCForm } from "../components/index.js";
 // eslint-disable-next-line react/prop-types
-function PrintWorkLogs({ id, quoteInfo }) {
-  const [workLogs, setWorkLogs] = useState([]);
+function PrintDC({ id, quoteInfo }) {
+  const [dcs, setDCs] = useState([]);
   const [form, setForm] = useState(false);
   const dispatch = useDispatch();
   useEffect(() => {
     //fetch workLogs
     async function fetch() {
-      const actionResult = await dispatch(getWorklogs(id));
+      const actionResult = await dispatch(getdcs(id));
       const result = unwrapResult(actionResult);
-      setWorkLogs(result.result.worklogs);
+      setDCs(result.result.dcs);
     }
     fetch();
   }, [dispatch, id]);
-  console.log(workLogs);
   return (
     <div className=" max-w-[1400px] mx-auto  ">
-      <h4 className="text-lg font-semibold mb-2">Worklogs</h4>
-      <Button onClick={() => setForm(true)}>Make Worklog</Button>
+      <h4 className="text-lg font-semibold mb-2">DC s</h4>
+      <Button onClick={() => setForm(true)}>Make DC</Button>
       <div className="grid grid-cols-12  gap-4">
-        {workLogs?.map((log) => (
+        {dcs?.map((log) => (
           <div
             key={log._id}
             className="flex flex-col p-4 bg-gray-100 rounded-lg col-span-3"
@@ -54,10 +52,10 @@ function PrintWorkLogs({ id, quoteInfo }) {
         heading="WorkLogs Entry"
         bg="bg-teal-50"
       >
-        <WorklogForm
+        <DCForm
           id={id}
           quoteInfo={quoteInfo}
-          setWorkLogs={setWorkLogs}
+          setDCs={setDCs}
           onClose={() => setForm(!form)}
         />
       </CustomModal>
@@ -65,4 +63,4 @@ function PrintWorkLogs({ id, quoteInfo }) {
   );
 }
 
-export default PrintWorkLogs;
+export default PrintDC;

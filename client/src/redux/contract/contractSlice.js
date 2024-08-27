@@ -62,11 +62,12 @@ export const createContract = createAsyncThunk(
 export const createDC = createAsyncThunk(
   "create/DC",
   async (data, { rejectWithValue }) => {
+    const { id, dcObj } = data;
     try {
-      const response = await fetch("/api/v1/contract/create/dc", {
+      const response = await fetch(`/api/v1/contract/${id}/dc/create`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify(dcObj),
       });
       if (!response.ok) {
         const errorData = await response.json();
@@ -107,6 +108,23 @@ export const getWorklogs = createAsyncThunk(
   async (data, { rejectWithValue }) => {
     try {
       const response = await fetch(`/api/v1/contract/worklog/${data}`);
+      if (!response.ok) {
+        const errorData = await response.json();
+        return rejectWithValue(errorData);
+      }
+      const result = await response.json();
+      return result;
+    } catch (error) {
+      console.log(error);
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+export const getdcs = createAsyncThunk(
+  "get/worklogs",
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await fetch(`/api/v1/contract/dc/${data}`);
       if (!response.ok) {
         const errorData = await response.json();
         return rejectWithValue(errorData);

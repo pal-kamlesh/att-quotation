@@ -1200,7 +1200,7 @@ const generateStandardContractAdv = async (data, annexure) => {
                       new Paragraph({
                         children: [
                           new TextRun({
-                            text: "Area & Service Charges",
+                            text: "Area details & Service Charges",
                             bold: true,
                             alignment: AlignmentType.LEFT,
                           }),
@@ -1582,7 +1582,7 @@ const generateStandardContractAdv = async (data, annexure) => {
   saveAs(blob, `Contract_${data.contractNo ? data.contractNo : data._id}.docx`);
 };
 const workLogdocx = async (data) => {
-  const { contractNo, shipToAddress, _id } = data;
+  const { contractNo, billToAddress, shipToAddress, _id } = data;
   // Generate QR Code as Base64
   const qrCodeUrl = await QRCode.toDataURL(
     `https://att-quotation.onrender.com/workLog/${_id}`
@@ -1621,6 +1621,16 @@ const workLogdocx = async (data) => {
               new Paragraph(`Contract No: ${contractNo}`),
               new Paragraph({
                 children: [
+                  new TextRun({
+                    text: `Client: ${billToAddress.prefix} ${billToAddress.name}`,
+                    bold: true,
+                    size: 20,
+                  }),
+                ],
+              }),
+              ...emptyParagraph(1),
+              new Paragraph({
+                children: [
                   new ImageRun({
                     data: qrCodeUint8Array,
                     transformation: {
@@ -1629,15 +1639,16 @@ const workLogdocx = async (data) => {
                     },
                   }),
                 ],
+                alignment: AlignmentType.CENTER,
               }),
             ],
             width: {
-              size: 30,
+              size: 40,
               type: WidthType.PERCENTAGE,
             },
           }),
           new TableCell({
-            width: { size: 70, type: WidthType.PERCENTAGE }, // Adjust to fit your needs
+            width: { size: 60, type: WidthType.PERCENTAGE }, // Adjust to fit your needs
             children: [
               new Paragraph({
                 children: [
@@ -1653,8 +1664,14 @@ const workLogdocx = async (data) => {
                     break: 1,
                   }),
                   new TextRun({
-                    text: `\t: ${shipToAddress.a1},`,
+                    text: `\t: ${shipToAddress.projectName}`,
+                    bold: true,
+                    break: 1,
+                  }),
+                  new TextRun({
+                    text: `\t ${shipToAddress.a1},`,
                     size: 18,
+                    break: 1,
                   }),
                   new TextRun({
                     text: `\t ${shipToAddress.a2},`,
@@ -1730,18 +1747,18 @@ const workLogdocx = async (data) => {
     rows: [
       new TableRow({
         children: [
-          createCell("Date", 12.5),
-          createCell("Executive Name", 12.5),
-          createCell("Area Treated", 12.5),
-          createCell("Structure Name", 12.5),
-          createCell("Chemical Used", 12.5),
-          createCell("Chemical Left @ site", 12.5),
-          createCell("Chemical Package", 12.5),
-          createCell("Note", 12.5),
+          createCell("Date", 10),
+          createCell("Executive Name", 12),
+          createCell("Area Treated", 12),
+          createCell("Structure Name", 9),
+          createCell("Chemical Used", 10),
+          createCell("Chemical Left @ site", 12),
+          createCell("Chemical Package", 12),
+          createCell("Notes", 25),
         ],
       }),
       // Add empty rows to stretch the table
-      ...Array(20)
+      ...Array(40)
         .fill()
         .map(() => createEmptyRow()),
     ],
@@ -2033,6 +2050,11 @@ const createContractCard = async (data) => {
           }),
           ...emptyParagraph(1),
           // Final Small Table
+          createParagraph(
+            "Area details & service charges",
+            true,
+            AlignmentType.LEFT
+          ),
           new Table({
             rows: [
               new TableRow({
@@ -2055,14 +2077,14 @@ const createContractCard = async (data) => {
                                       createParagraph(info.workAreaType),
                                     ],
                                     width: {
-                                      size: 40,
+                                      size: 45,
                                       type: WidthType.PERCENTAGE,
                                     },
                                   }),
                                   new TableCell({
                                     children: [...emptyParagraph(1)],
                                     width: {
-                                      size: 20,
+                                      size: 10,
                                       type: WidthType.PERCENTAGE,
                                     },
                                   }),
@@ -2073,7 +2095,7 @@ const createContractCard = async (data) => {
                                       ),
                                     ],
                                     width: {
-                                      size: 40,
+                                      size: 45,
                                       type: WidthType.PERCENTAGE,
                                     },
                                   }),
@@ -2130,6 +2152,19 @@ const createContractCard = async (data) => {
                                           }),
                                           new TableCell({
                                             children: [createParagraph("1:19")],
+                                          }),
+                                        ],
+                                      }),
+                                      new TableRow({
+                                        children: [
+                                          new TableCell({
+                                            children: [
+                                              createParagraph(
+                                                "Drawing",
+                                                AlignmentType.CENTER
+                                              ),
+                                            ],
+                                            columnSpan: 2,
                                           }),
                                         ],
                                       }),

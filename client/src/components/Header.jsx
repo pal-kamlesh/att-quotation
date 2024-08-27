@@ -119,6 +119,12 @@ export default function Header() {
             <Link to="/user">User</Link>
           </Navbar.Link>
         )}
+        <Navbar.Link
+          as="div"
+          active={location.pathname === "/reports" ? true : false}
+        >
+          <Link to="/reports">Reports</Link>
+        </Navbar.Link>
       </Navbar.Collapse>
     </Navbar>
   );

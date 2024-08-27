@@ -1,19 +1,12 @@
 /* eslint-disable react/prop-types */
-import {
-  Button,
-  Textarea,
-  TextInput,
-  Label,
-  Card,
-  Select,
-} from "flowbite-react";
+import { Button, Textarea, TextInput, Label, Select } from "flowbite-react";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { useDispatch } from "react-redux";
 import { createWorklog } from "../redux/contract/contractSlice";
 
-function WorklogForm({ id, quoteInfo }) {
+function WorklogForm({ id, quoteInfo, setWorkLogs, onClose }) {
   const dispatch = useDispatch();
   const [validInput, setValidInput] = useState(false);
   const [worklogObj, setWorklogObj] = useState({
@@ -55,7 +48,9 @@ function WorklogForm({ id, quoteInfo }) {
     if (validInput) {
       const dispatchAction = await dispatch(createWorklog({ worklogObj, id }));
       const result = unwrapResult(dispatchAction);
+      const { log } = result;
       toast.info(result.message);
+      setWorkLogs((prev) => [...prev, log]);
       setWorklogObj({
         workAreaType: "",
         chemical: "",
@@ -64,6 +59,7 @@ function WorklogForm({ id, quoteInfo }) {
         areaTreatedUnit: quoteInfo[0].workAreaUnit,
         remark: "",
       });
+      onClose();
     } else {
       console.log("Invalid input, please fill all fields.");
     }

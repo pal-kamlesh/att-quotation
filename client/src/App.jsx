@@ -27,6 +27,7 @@ function App() {
           <Route path="/user" element={<User />} />
           <Route path="/workLog" element={<Reports />} />
           <Route path="/workLog/:id" element={<WorkLog />} />
+          <Route path="/reports" element={<Reports />} />
           <Route path="*" element={<PageNotFound />} />
         </Route>
         <Route path="/login" element={<Login />} />

@@ -23,6 +23,8 @@ import PopUp from "./PopUp";
 import PopUpContract from "./PopUpContract";
 import WorklogForm from "./WorklogForm";
 import DCForm from "./DCForm";
+import PrintDC from "./PrintDC";
+import PrintWorkLogs from "./PrintWorkLogs";
 export {
   CustomModal,
   NewQuote,
@@ -49,4 +51,6 @@ export {
   PopUpContract,
   WorklogForm,
   DCForm,
+  PrintDC,
+  PrintWorkLogs,
 };
