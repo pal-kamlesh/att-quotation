@@ -9,7 +9,10 @@ import { WorklogForm, CustomModal } from "../components/index.js";
 function PrintWorkLogs({ id, quoteInfo }) {
   const [workLogs, setWorkLogs] = useState([]);
   const [form, setForm] = useState(false);
+  const [detailModel, setDetailModel] = useState(false);
+  const [selectedLog, setSelectedLog] = useState(null); // State for selected worklog
   const dispatch = useDispatch();
+
   useEffect(() => {
     //fetch workLogs
     async function fetch() {
@@ -19,35 +22,49 @@ function PrintWorkLogs({ id, quoteInfo }) {
     }
     fetch();
   }, [dispatch, id]);
-  console.log(workLogs);
+
+  const openWorklogModal = (log) => {
+    setSelectedLog(log);
+    setDetailModel(true);
+  };
+
   return (
-    <div className=" max-w-[1400px] mx-auto  ">
-      <h4 className="text-lg font-semibold mb-2">Worklogs</h4>
+    <div className="max-w-[1400px] mx-auto p-4">
+      <h4 className="text-lg font-semibold mb-4">Worklogs</h4>
       <Button onClick={() => setForm(true)}>Make Worklog</Button>
-      <div className="grid grid-cols-12  gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
         {workLogs?.map((log) => (
           <div
             key={log._id}
-            className="flex flex-col p-4 bg-gray-100 rounded-lg col-span-3"
+            className="p-4 bg-gray-100 rounded-lg cursor-pointer"
+            onClick={() => openWorklogModal(log)}
           >
-            <div className="mb-2">
-              <p className="font-semibold">{log.workAreaType}</p>
-              <p>Chemical: {log.chemical}</p>
-              <p>Quantity: {log.chemicalUsed}</p>
-              <p>
-                Area Treated: {log.areaTreated} {log.areaTreatedUnit}
-              </p>
-              {log.remark && <p>Remark: {log.remark}</p>}
-            </div>
-            <div className="flex justify-between">
-              {/* <Button size="sm">Edit</Button>
-              <Button size="sm" color="failure">
-                Delete
-              </Button> */}
-            </div>
+            <p className="font-semibold">
+              {new Date(log.createdAt).toLocaleDateString()}{" "}
+              {new Date(log.createdAt).toLocaleTimeString()}
+            </p>
           </div>
         ))}
       </div>
+      <CustomModal
+        isOpen={detailModel}
+        onClose={() => setDetailModel(false)}
+        heading="WorkLog Details"
+        bg="bg-teal-50"
+      >
+        {selectedLog && (
+          <div>
+            <p className="font-semibold">{selectedLog.workAreaType}</p>
+            <p>Chemical: {selectedLog.chemical}</p>
+            <p>Quantity: {selectedLog.chemicalUsed}</p>
+            <p>
+              Area Treated: {selectedLog.areaTreated}{" "}
+              {selectedLog.areaTreatedUnit}
+            </p>
+            {selectedLog.remark && <p>Remark: {selectedLog.remark}</p>}
+          </div>
+        )}
+      </CustomModal>
       <CustomModal
         isOpen={form}
         onClose={() => setForm(!form)}

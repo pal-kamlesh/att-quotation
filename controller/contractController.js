@@ -401,15 +401,29 @@ const createWorklog = async (req, res, next) => {
 const getWorklogs = async (req, res, next) => {
   try {
     const { id } = req.params;
+
+    // Find the contract by ID and populate the related fields
     const data = await Contract.findById(id).populate({
       path: "worklogs",
       populate: { path: "entryBy", model: "User" },
     });
+
+    // Check if the contract was found
+    if (!data) {
+      // Return a 404 Not Found status if the contract does not exist
+      return res.status(404).json({
+        message: "Contract not found",
+        result: null,
+      });
+    }
+
+    // Return the found data with a 200 OK status
     res.status(200).json({
       message: "",
       result: data,
     });
   } catch (error) {
+    // Pass any errors to the error-handling middleware
     next(error);
   }
 };

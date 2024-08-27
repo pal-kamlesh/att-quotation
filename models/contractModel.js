@@ -92,6 +92,9 @@ const contractSchema = mongoose.Schema(
     quoteInfo: [{ type: mongoose.Schema.Types.ObjectId, ref: "QuoteInfo" }],
     dcs: [{ type: mongoose.Schema.Types.ObjectId, ref: "DC" }],
     worklogs: [{ type: mongoose.Schema.Types.ObjectId, ref: "WorkLogs" }],
+    note: {
+      type: String,
+    },
   },
   { timestamps: true }
 );
