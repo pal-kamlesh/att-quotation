@@ -455,7 +455,6 @@ const createDC = async (req, res, next) => {
     next(error); // Pass the error to the error handling middleware
   }
 };
-
 const getDCs = async (req, res, next) => {
   try {
     const { id } = req.params;
