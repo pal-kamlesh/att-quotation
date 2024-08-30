@@ -364,7 +364,6 @@ const QuotationGenerator = ({ id, color, onClick, text, annexure }) => {
                     new TextRun({ text: shipTo.projectName + ".", bold: true }),
                   ],
                 }),
-                new Paragraph({ text: shipTo.projectName + ".", bold: true }),
                 new Paragraph({ text: shipTo.a1 + " " + shipTo.a2 + "," }),
                 new Paragraph({ text: shipTo.a3 + "," }),
                 new Paragraph({ text: shipTo.a4 + "," }),

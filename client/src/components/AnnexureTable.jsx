@@ -42,11 +42,11 @@ const createQuoteInfoTableStandard = (quoteInfo) => {
                     }),
                   ],
                   alignment: AlignmentType.CENTER,
-                  spacing: {
-                    before: 120, // Space before the paragraph (in twips)
-                    after: 120, // Space after the paragraph (in twips)
-                    line: 200, // Line spacing (1.5 line spacing in twips)
-                  },
+                  // spacing: {
+                  //   before: 120, // Space before the paragraph (in twips)
+                  //   after: 120, // Space after the paragraph (in twips)
+                  //   line: 200, // Line spacing (1.5 line spacing in twips)
+                  // },
                 }),
               ],
               shading: { fill: "D3D3D3" },
@@ -69,11 +69,11 @@ const createQuoteInfoTableStandard = (quoteInfo) => {
                     new Paragraph({
                       text,
                       alignment: AlignmentType.CENTER,
-                      spacing: {
-                        before: 120, // Space before the paragraph (in twips)
-                        after: 120, // Space after the paragraph (in twips)
-                        line: 200, // Line spacing (1.5 line spacing in twips)
-                      },
+                      // spacing: {
+                      //   before: 120, // Space before the paragraph (in twips)
+                      //   after: 120, // Space after the paragraph (in twips)
+                      //   line: 200, // Line spacing (1.5 line spacing in twips)
+                      // },
                     }),
                   ],
                   verticalAlign: VerticalAlign.CENTER,
@@ -384,7 +384,7 @@ const generateStandardDoc = async (data) => {
           columnSpan: 6,
           children: [
             new Paragraph({
-              text: "(+) @ 18% As applicable",
+              text: "(+)GST @ 18% As applicable",
               alignment: AlignmentType.LEFT,
               spacing: { before: 200, after: 200 },
             }),
@@ -802,6 +802,7 @@ const generateStandardContractAdv = async (data, annexure) => {
     createdAt,
     gstNo,
     taxation,
+    printCount,
   } = data;
   const formatDate = (dateStr) => {
     const date = new Date(dateStr);
@@ -810,6 +811,10 @@ const generateStandardContractAdv = async (data, annexure) => {
     const year = date.getFullYear();
     return `${day}.${month}.${year}`;
   };
+  const paymentTermsArray = paymentTerms
+    .split(".")
+    .filter((v) => v.trim() !== "");
+  console.log(paymentTerms);
   const { firstTable, divider, secondTable } = await workLogdocx(data);
   const { header, title, table } =
     data.docType === "standard"
@@ -887,7 +892,7 @@ const generateStandardContractAdv = async (data, annexure) => {
                       new Paragraph({
                         children: [
                           new TextRun({
-                            text: `${billToAddress.prefix} ${billToAddress.name}`,
+                            text: `${billToAddress.prefix} ${billToAddress.name}.`,
                             bold: true,
                           }),
                         ],
@@ -895,14 +900,21 @@ const generateStandardContractAdv = async (data, annexure) => {
                       new Paragraph({
                         children: [
                           new TextRun({
-                            text: `${billToAddress.a2}, ${billToAddress.a1}`,
+                            text: `${billToAddress.a1}, ${billToAddress.a2},`,
                           }),
                         ],
                       }),
                       new Paragraph({
                         children: [
                           new TextRun({
-                            text: `${billToAddress.a3}, ${billToAddress.a4}, ${billToAddress.a5}`,
+                            text: `${billToAddress.a3},`,
+                          }),
+                        ],
+                      }),
+                      new Paragraph({
+                        children: [
+                          new TextRun({
+                            text: `${billToAddress.a4},`,
                           }),
                         ],
                       }),
@@ -913,15 +925,24 @@ const generateStandardContractAdv = async (data, annexure) => {
                           }),
                         ],
                       }),
+                      new Paragraph({
+                        children: [
+                          new TextRun({
+                            text: `${billToAddress.a5},`,
+                          }),
+                        ],
+                      }),
                       ...(gstNo && gstNo.trim() !== ""
                         ? [
                             new Paragraph({
                               children: [
                                 new TextRun({
                                   text: "[GST No.",
+                                  bold: true,
                                 }),
                                 new TextRun({
                                   text: `${gstNo}]`,
+                                  bold: true,
                                 }),
                               ],
                               alignment: AlignmentType.LEFT,
@@ -972,7 +993,7 @@ const generateStandardContractAdv = async (data, annexure) => {
                             }),
                           ]
                         : []),
-                      ...(workOrderDate
+                      ...(workOrderNo
                         ? [
                             new Paragraph({
                               children: [
@@ -1140,10 +1161,10 @@ const generateStandardContractAdv = async (data, annexure) => {
                             text: "Payment terms",
                             bold: true,
                           }),
-                          ...paymentTerms.split(".").map((v, idx) => {
+                          ...paymentTermsArray.map((v, idx) => {
                             if (idx === 0) {
                               return new TextRun({
-                                text: `\t ${idx === 0 ? ":" : ""} ${
+                                text: `\t${idx === 0 ? ":" : ""} ${
                                   idx + 1
                                 } ${v}`,
                               });
@@ -1157,21 +1178,30 @@ const generateStandardContractAdv = async (data, annexure) => {
                           },
                         ],
                       }),
-                      new Paragraph({
-                        children: [
-                          ...paymentTerms.split(".").map((v, idx) => {
-                            if (idx !== 0) {
-                              return new TextRun({
-                                text: `${idx === 0 ? ":" : ""} ${idx + 1} ${v}`,
-                                break: idx === 1 ? null : 1,
-                              });
-                            }
-                          }),
-                        ],
-                        indent: {
-                          start: 3150, // Adjust this value to control indentation
-                        },
-                      }),
+                      ...(paymentTermsArray.length > 1
+                        ? [
+                            new Paragraph({
+                              children: [
+                                ...paymentTermsArray.map((v, idx) => {
+                                  if (idx !== 0) {
+                                    return new TextRun({
+                                      text: `${idx === 0 ? ":" : ""} ${
+                                        idx + 1
+                                      } ${v}`,
+                                      break:
+                                        idx !== paymentTermsArray.length - 1
+                                          ? 1
+                                          : null,
+                                    });
+                                  }
+                                }),
+                              ],
+                              indent: {
+                                start: 3150, // Adjust this value to control indentation
+                              },
+                            }),
+                          ]
+                        : []),
                       new Paragraph({
                         children: [
                           new TextRun({
@@ -1298,7 +1328,7 @@ const generateStandardContractAdv = async (data, annexure) => {
                       new Paragraph({
                         children: [
                           new TextRun({
-                            text: `${shipToAddress.a2} ${shipToAddress.a1}`,
+                            text: `${shipToAddress.a1} ${shipToAddress.a2}`,
                           }),
                         ],
                         alignment: AlignmentType.LEFT,
@@ -1314,7 +1344,7 @@ const generateStandardContractAdv = async (data, annexure) => {
                       new Paragraph({
                         children: [
                           new TextRun({
-                            text: shipToAddress.a5,
+                            text: `${shipToAddress.a4},`,
                           }),
                         ],
                         alignment: AlignmentType.LEFT,
@@ -1323,6 +1353,14 @@ const generateStandardContractAdv = async (data, annexure) => {
                         children: [
                           new TextRun({
                             text: `${shipToAddress.city} - ${shipToAddress.pincode}`,
+                          }),
+                        ],
+                        alignment: AlignmentType.LEFT,
+                      }),
+                      new Paragraph({
+                        children: [
+                          new TextRun({
+                            text: shipToAddress.a5,
                           }),
                         ],
                         alignment: AlignmentType.LEFT,
@@ -1566,19 +1604,23 @@ const generateStandardContractAdv = async (data, annexure) => {
           }),
         ],
       },
-      {
-        properties: {
-          page: {
-            margin: {
-              top: 500, // 0.5 cm in twips
-              bottom: 500, // 0.5 cm in twips
-              left: 800, // 1.27 cm in twips
-              right: 800, // 1.27 cm in twips
+      ...(printCount <= 0
+        ? [
+            {
+              properties: {
+                page: {
+                  margin: {
+                    top: 500, // 0.5 cm in twips
+                    bottom: 500, // 0.5 cm in twips
+                    left: 800, // 1.27 cm in twips
+                    right: 800, // 1.27 cm in twips
+                  },
+                },
+              },
+              children: [firstTable, divider, secondTable],
             },
-          },
-        },
-        children: [firstTable, divider, secondTable],
-      },
+          ]
+        : []),
       ...(annexure
         ? [
             {
@@ -1690,12 +1732,7 @@ const workLogdocx = async (data) => {
                     break: 1,
                   }),
                   new TextRun({
-                    text: `\t ${shipToAddress.a1},`,
-                    size: 18,
-                    break: 1,
-                  }),
-                  new TextRun({
-                    text: `\t ${shipToAddress.a2},`,
+                    text: `\t ${shipToAddress.a1}, ${shipToAddress.a2},`,
                     size: 18,
                     break: 1,
                   }),
@@ -1753,7 +1790,7 @@ const workLogdocx = async (data) => {
         .fill()
         .map(() => createCell("", 12.5)),
       height: {
-        value: 300,
+        value: 480,
         rule: HeightRule.ATLEAST,
       },
     });
@@ -1774,12 +1811,12 @@ const workLogdocx = async (data) => {
           createCell("Structure Name", 9),
           createCell("Chemical Used", 10),
           createCell("Chemical Left @ site", 12),
-          createCell("Chemical Package", 12),
+          createCell("Chemical Packaging", 12),
           createCell("Notes", 25),
         ],
       }),
       // Add empty rows to stretch the table
-      ...Array(40)
+      ...Array(25)
         .fill()
         .map(() => createEmptyRow()),
     ],
@@ -1957,13 +1994,8 @@ const createContractCard = async (data) => {
                             break: 1,
                           }),
                           new TextRun({
-                            text: `\t: ${shipToAddress.a1},`,
+                            text: `\t: ${shipToAddress.a1}, ${shipToAddress.a2},`,
                             size: 18,
-                          }),
-                          new TextRun({
-                            text: `\t ${shipToAddress.a2},`,
-                            size: 18,
-                            break: 1,
                           }),
                           new TextRun({
                             text: `\t ${shipToAddress.a3},`,
