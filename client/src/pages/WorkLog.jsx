@@ -37,11 +37,6 @@ function WorkLog() {
             <h3>Select an action to proceed</h3>
           </div>
         </div>
-        <div>
-          <button className="bg-[#FFFDB5] hover:bg-yellow-200 font-medium py-2 px-4 rounded-tl-lg rounded-br-lg mr-2">
-            Create Quotation
-          </button>
-        </div>
       </div>
       <div className="flex justify-center mb-6">
         <Button
