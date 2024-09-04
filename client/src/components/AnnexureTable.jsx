@@ -16,8 +16,7 @@ import {
   HeightRule,
 } from "docx";
 import { saveAs } from "file-saver";
-import QRCode from "qrcode";
-import { fetchImage } from "../funtions/funtion";
+import { fetchImage, qrCodeUint8Arrayfn } from "../funtions/funtion";
 import headerImage from "../images/header.png";
 
 const createQuoteInfoTableStandard = (quoteInfo) => {
@@ -814,7 +813,6 @@ const generateStandardContractAdv = async (data, annexure) => {
   const paymentTermsArray = paymentTerms
     .split(".")
     .filter((v) => v.trim() !== "");
-  console.log(paymentTerms);
   const { firstTable, divider, secondTable } = await workLogdocx(data);
   const { header, title, table } =
     data.docType === "standard"
@@ -1647,12 +1645,9 @@ const generateStandardContractAdv = async (data, annexure) => {
 const workLogdocx = async (data) => {
   const { contractNo, billToAddress, shipToAddress, _id } = data;
   // Generate QR Code as Base64
-  const qrCodeUrl = await QRCode.toDataURL(
-    `https://att-quotation.onrender.com/workLog/${_id}`
-  );
 
   // Convert Base64 to Uint8Array
-  const qrCodeUint8Array = base64ToUint8Array(qrCodeUrl);
+  const qrCodeUint8Array = await qrCodeUint8Arrayfn(_id);
   // Function to create a cell with borders
   const createCell = (content, width) => {
     return new TableCell({
@@ -1843,14 +1838,7 @@ const createContractCard = async (data) => {
       alignment: alignment,
     });
   };
-
-  // Generate QR Code as Base64
-  const qrCodeUrl = await QRCode.toDataURL(
-    `https://att-quotation.onrender.com/workLog/${_id}`
-  );
-
-  // Convert Base64 to Uint8Array
-  const qrCodeUint8Array = base64ToUint8Array(qrCodeUrl);
+  const qrCodeUint8Array = qrCodeUint8Arrayfn(_id);
   const elementWidth = 13 * 566.9;
 
   const doc = new Document({
@@ -2288,6 +2276,7 @@ function getQuoteInfoTable(docType, quoteInfo) {
       return createQuoteInfoTableApplySupply(quoteInfo);
   }
 }
+
 function emptyParagraph(num) {
   let paraArray = [];
   for (let i = 1; i <= num; i++) {
@@ -2336,16 +2325,7 @@ function emptyRows(num) {
   }
   return paramArray;
 }
-// Function to convert a base64 image to a Uint8Array
-const base64ToUint8Array = (base64) => {
-  const binaryString = atob(base64.split(",")[1]);
-  const length = binaryString.length;
-  const bytes = new Uint8Array(length);
-  for (let i = 0; i < length; i++) {
-    bytes[i] = binaryString.charCodeAt(i);
-  }
-  return bytes;
-};
+
 export {
   generateStandardDoc,
   generateSupplyDoc,
@@ -2355,4 +2335,5 @@ export {
   createQuoteInfoTableStandard,
   createQuoteInfoTableSupply,
   createContractCard,
+  workLogdocx,
 };

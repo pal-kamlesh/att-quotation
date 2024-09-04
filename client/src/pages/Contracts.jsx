@@ -8,6 +8,8 @@ import {
   SearchContract,
   UpdateContract,
   ViewContract,
+  PopUp,
+  QRbutton,
 } from "../components/index.js";
 import TimeAgo from "react-timeago";
 import { Button, Table } from "flowbite-react";
@@ -20,9 +22,9 @@ import {
 } from "../redux/contract/contractSlice.js";
 import { toast } from "react-toastify";
 import { getDotColor } from "../funtions/funtion.js";
-import PopUp from "../components/PopUp.jsx";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { useNavigate } from "react-router-dom";
+
 function Contracts() {
   const {
     contracts = [],
@@ -86,7 +88,6 @@ function Contracts() {
     // eslint-disable-next-line no-unused-vars
     const result = unwrapResult(actionResult);
   }
-
   return (
     <div className=" max-w-[1400px] mx-auto ">
       {loading ? <Loading /> : null}
@@ -241,8 +242,12 @@ function Contracts() {
         onClose={() => setViewModel(!viewModel)}
         size="7xl"
         heading={
-          <div className="flex items-center justify-center">
+          <div className="flex gap-3 items-center justify-center">
             <span>View/Edit</span>
+            <QRbutton
+              id={activeId}
+              data={contracts.find((c) => c._id === activeId)}
+            />
           </div>
         }
       >

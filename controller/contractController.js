@@ -210,7 +210,9 @@ const contractify = async (req, res, next) => {
 const singleContract = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const contract = await Contract.findById(id).populate("quoteInfo");
+    const contract = await Contract.findById(id)
+      .populate("quoteInfo")
+      .populate("salesPerson");
     if (!contract) {
       res.status(400).json({ message: "No such Contract" });
       return;

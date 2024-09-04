@@ -4,9 +4,8 @@ import { forwardRef, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Loading from "./Loading";
 import { saprateQuoteInfo } from "../funtions/funtion.js";
-import { Button } from "flowbite-react";
+import { Button, Table } from "flowbite-react";
 import { getSingleContract } from "../redux/contract/contractSlice.js";
-
 function longestKey() {
   return Math.max(
     "Quotation No".length,
@@ -113,6 +112,32 @@ const ViewContract = forwardRef((props) => {
                 {contract.billToAddress?.city} -{" "}
                 {contract.billToAddress?.pincode}
               </p>
+
+              <div className="overflow-x-auto">
+                <Table hoverable className="w-full">
+                  <Table.Head>
+                    <Table.HeadCell>Sr.No</Table.HeadCell>
+                    <Table.HeadCell>Name</Table.HeadCell>
+                    <Table.HeadCell>Contact</Table.HeadCell>
+                    <Table.HeadCell>Email</Table.HeadCell>
+                  </Table.Head>
+                  <Table.Body className="divide-y">
+                    {contract.billToAddress?.kci.map((kci, idx) => (
+                      <Table.Row
+                        key={kci.id}
+                        className={`${
+                          idx % 2 === 0 ? "bg-white" : "bg-gray-100"
+                        } dark:bg-gray-800`}
+                      >
+                        <Table.Cell>{idx + 1}</Table.Cell>
+                        <Table.Cell>{kci.name}</Table.Cell>
+                        <Table.Cell>{kci.contact}</Table.Cell>
+                        <Table.Cell>{kci.email}</Table.Cell>
+                      </Table.Row>
+                    ))}
+                  </Table.Body>
+                </Table>
+              </div>
             </div>
             <div>
               <h2 className="text-lg font-semibold mb-2">Ship To:</h2>
@@ -130,6 +155,31 @@ const ViewContract = forwardRef((props) => {
                 {contract.shipToAddress?.city} -{" "}
                 {contract.shipToAddress?.pincode}
               </p>
+              <div className="overflow-x-auto">
+                <Table hoverable className="w-full">
+                  <Table.Head>
+                    <Table.HeadCell>Sr.No</Table.HeadCell>
+                    <Table.HeadCell>Name</Table.HeadCell>
+                    <Table.HeadCell>Contact</Table.HeadCell>
+                    <Table.HeadCell>Email</Table.HeadCell>
+                  </Table.Head>
+                  <Table.Body className="divide-y">
+                    {contract.shipToAddress?.kci.map((kci, idx) => (
+                      <Table.Row
+                        key={kci.id}
+                        className={`${
+                          idx % 2 === 0 ? "bg-white" : "bg-gray-100"
+                        } dark:bg-gray-800`}
+                      >
+                        <Table.Cell>{idx + 1}</Table.Cell>
+                        <Table.Cell>{kci.name}</Table.Cell>
+                        <Table.Cell>{kci.contact}</Table.Cell>
+                        <Table.Cell>{kci.email}</Table.Cell>
+                      </Table.Row>
+                    ))}
+                  </Table.Body>
+                </Table>
+              </div>
             </div>
           </div>
           <div className="mb-6 flex">
@@ -307,6 +357,20 @@ const ViewContract = forwardRef((props) => {
                 </div>
               </div>
             )}
+          </div>
+
+          {/* Footer */}
+          <div className="bg-gray-200 p-4 rounded-b-lg flex justify-between items-center">
+            <div>
+              <p>
+                Sales Person:
+                {`${contract?.salesPerson?.prefix} ${contract?.salesPerson?.username} (
+                ${contract?.salesPerson?.initials}) `}
+              </p>
+            </div>
+            <div>
+              <p>Approved: {contract?.approved ? "✓" : "✗"}</p>
+            </div>
           </div>
         </div>
         <div className="flex items-center justify-center mt-2">

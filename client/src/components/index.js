@@ -25,6 +25,7 @@ import WorklogForm from "./WorklogForm";
 import DCForm from "./DCForm";
 import PrintDC from "./PrintDC";
 import PrintWorkLogs from "./PrintWorkLogs";
+import QRbutton from "./QRbutton";
 export {
   CustomModal,
   NewQuote,
@@ -53,4 +54,5 @@ export {
   DCForm,
   PrintDC,
   PrintWorkLogs,
+  QRbutton,
 };

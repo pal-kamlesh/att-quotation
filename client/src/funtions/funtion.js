@@ -1,3 +1,5 @@
+import QRCode from "qrcode";
+
 function saprateQuoteInfo(a1) {
   const array = [...a1];
   const stan = array.filter((a1) => a1.applyRate === null);
@@ -54,10 +56,49 @@ function getChemicalRatio(chemical) {
   }
 }
 
+// Function to convert a base64 image to a Uint8Array
+const base64ToUint8Array = (base64) => {
+  const binaryString = atob(base64.split(",")[1]);
+  const length = binaryString.length;
+  const bytes = new Uint8Array(length);
+  for (let i = 0; i < length; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
+  return bytes;
+};
+async function qrCodeUint8Arrayfn(id) {
+  try {
+    // Generate QR Code as Base64
+    const qrCodeUrl = await QRCode.toDataURL(
+      `https://att-quotation.onrender.com/workLog/${id}`,
+      { type: "image/png" } // Explicitly specify PNG format
+    );
+    return base64ToUint8Array(qrCodeUrl);
+  } catch (error) {
+    console.error("Error generating QR code:", error);
+    throw error; // Re-throw the error to be caught by the calling function
+  }
+}
+async function base64Url(id) {
+  try {
+    // Generate QR Code as Base64
+    const qrCodeUrl = await QRCode.toDataURL(
+      `https://att-quotation.onrender.com/workLog/${id}`,
+      { type: "image/png", width: 95, margin: 1 } // Explicitly specify PNG format
+    );
+    return qrCodeUrl;
+  } catch (error) {
+    console.error("Error generating QR code:", error);
+    throw error; // Re-throw the error to be caught by the calling function
+  }
+}
+
 export {
   saprateQuoteInfo,
   getDotColor,
   fetchImage,
   duplicateBillToShipTo,
   getChemicalRatio,
+  qrCodeUint8Arrayfn,
+  base64Url,
 };
