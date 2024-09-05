@@ -1,21 +1,7 @@
 import { Quotation, QuoteArchive, QuoteInfo } from "../models/index.js";
-import {
-  Document,
-  Packer,
-  Paragraph,
-  Table,
-  TableCell,
-  TableRow,
-  TextRun,
-  WidthType,
-  BorderStyle,
-  Header,
-  Footer,
-} from "docx";
 import fs from "fs/promises";
 import path from "path";
 import { isValidObjectId } from "mongoose";
-import libre from "libreoffice-convert";
 import { promisify } from "util";
 import {
   removeIdFromDocuments,
@@ -24,22 +10,6 @@ import {
   createQuoteArchiveEntry,
 } from "../utils/functions.js";
 
-const convertAsync = promisify(libre.convert);
-
-const toPdf = async (req, res, next) => {
-  try {
-    const __dirname = path.resolve();
-    const inputPath = path.join(__dirname, "./temp/TicketNest.docx");
-    const outputPath = path.join(__dirname, "./temp/output.pdf");
-    const docxFile = await fs.readFile(inputPath);
-    const pdfBuffer = await convertAsync(docxFile, ".pdf", undefined);
-    await fs.writeFile(outputPath, pdfBuffer);
-    res.status(200).json({ message: "check forlder" });
-  } catch (error) {
-    console.log(error);
-    next(error);
-  }
-};
 const create = async (req, res, next) => {
   try {
     const { quote } = req.body;
@@ -108,7 +78,6 @@ const create = async (req, res, next) => {
     next(error);
   }
 };
-
 const quotes = async (req, res, next) => {
   try {
     // Parse and set start and end of the day for fromDate and toDate
@@ -180,7 +149,9 @@ const quotes = async (req, res, next) => {
     const approvePending = await Quotation.countDocuments({
       approved: false,
     });
-
+    const contractified = await Quotation.countDocuments({
+      contractified: true,
+    });
     res.status(200).json({
       message: "Quotations Retrieved",
       result: quotes,
@@ -188,13 +159,13 @@ const quotes = async (req, res, next) => {
       todayQuotes,
       approvedCount,
       approvePending,
+      contractified,
     });
   } catch (error) {
     console.log(error);
     next(error);
   }
 };
-
 const singleQuote = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -306,87 +277,6 @@ const update = async (req, res, next) => {
   }
 };
 
-const docx = async (req, res, next) => {
-  try {
-    const __dirname = path.resolve();
-    const outputPath = path.join(__dirname, "./temp/output.docx");
-    // const data = {
-    //   quotationNo: "EPPL/ATT/QTN/2023-001",
-    //   quotationDate: {
-    //     $date: {
-    //       $numberLong: "1687305600000",
-    //     },
-    //   },
-    //   kindAttentionPrefix: "Mr.",
-    //   kindAttention: "Parag Datar",
-    //   subject: "Quotation for Anti-Termite Treatment",
-    //   reference: "Your enquiry and our discussion",
-    //   treatmentType: "Anti-Termite Treatment",
-    //   specification: "As per IS 6313 (Part 2):2013 & 2022",
-    //   equipments:
-    //     "Sprayers & Sprinklers will be used to ensure proper penetration of chemicals into the earth.",
-    //   paymentTerms: "Within 15 days from the date of submission of bill.",
-    //   taxation: "GST @ 18% As Applicable.",
-    //   note: "1) (Before/After Raft)(At the Rate 5.0 Ltr/Per Sq.mt)\n2) (At the Rate 7.5 ltr/Per sq.mt)",
-    //   quoteInfo: [
-    //     {
-    //       workAreaType: "Basement Area",
-    //       workArea: "20,000",
-    //       workAreaUnit: "Sq.ft",
-    //       chemicalRate: "3.50",
-    //       chemicalRateUnit: "Sq.ft",
-    //       chemical: 'Imidachloprid 30.5% SC ("PREMISE" - By Bayer India/ENVU)',
-    //     },
-    //     {
-    //       workAreaType: "Ground Floor",
-    //       workArea: "15,000",
-    //       workAreaUnit: "Sq.ft",
-    //       chemicalRate: "3.75",
-    //       chemicalRateUnit: "Sq.ft",
-    //       chemical: 'Imidachloprid 30.5% SC ("PREMISE" - By Bayer India/ENVU)',
-    //     },
-    //     {
-    //       workAreaType: "External Perimeter",
-    //       workArea: "5,000",
-    //       workAreaUnit: "Linear ft",
-    //       chemicalRate: "4.00",
-    //       chemicalRateUnit: "Linear ft",
-    //       chemical: 'Imidachloprid 30.5% SC ("PREMISE" - By Bayer India/ENVU)',
-    //     },
-    //   ],
-    //   billToAddress: {
-    //     prefix: "Ms.",
-    //     name: "Dhruva Woolen Mills Pvt. Ltd.",
-    //     a1: "Runwal & Omkar Esquare,",
-    //     a2: "5th floor,",
-    //     a3: "Sion Trombay Road,",
-    //     a4: "Sion (E),",
-    //     a5: "Opp. Sion Chunabhatti Signal,",
-    //     city: "Mumbai",
-    //     pincode: "400022",
-    //   },
-    // };
-    const data = await Quotation.findOne({
-      quotationNo: "EPPL/ATT/QTN/4",
-    })
-      .populate("quoteInfo")
-      .lean({ virtuals: ["subject"] });
-    const quotationDoc = generateQuotation(data);
-
-    const buffer = await Packer.toBuffer(quotationDoc);
-    // Set the appropriate headers
-    res.setHeader("Content-Disposition", "attachment; filename=Quotation.docx");
-    res.setHeader(
-      "Content-Type",
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-    );
-
-    // Send the buffer as the response
-    res.send(buffer);
-  } catch (error) {
-    next(error);
-  }
-};
 const docData = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -501,175 +391,13 @@ const similarProjects = async (req, res, next) => {
   }
 };
 
-function generateQuotation(data) {
-  const doc = new Document({
-    sections: [
-      {
-        headers: {
-          default: new Header({
-            children: [new Paragraph("Header text")],
-          }),
-        },
-        footers: {
-          default: new Footer({
-            children: [new Paragraph("Footer text")],
-          }),
-        },
-        properties: {},
-        children: [
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: `Quotation Number: ${data.quotationNo}`,
-                bold: true,
-              }),
-            ],
-          }),
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: `Date: ${new Date(
-                  data.quotationDate
-                ).toLocaleDateString()}`,
-                bold: true,
-              }),
-            ],
-          }),
-          new Paragraph({ text: "" }),
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: `Kind Attention: ${data.kindAttentionPrefix} ${data.kindAttention}`,
-                bold: true,
-              }),
-            ],
-          }),
-          new Paragraph({
-            children: [new TextRun({ text: `Subject: ${data.subject}` })],
-          }),
-          new Paragraph({
-            children: [new TextRun({ text: `Reference: ${data.reference}` })],
-          }),
-          new Paragraph({
-            children: [
-              new TextRun({ text: `Treatment Type: ${data.treatmentType}` }),
-            ],
-          }),
-          new Paragraph({
-            children: [
-              new TextRun({ text: `Specification: ${data.specification}` }),
-            ],
-          }),
-          new Paragraph({
-            children: [new TextRun({ text: `Equipments: ${data.equipments}` })],
-          }),
-          new Paragraph({
-            children: [
-              new TextRun({ text: `Payment Terms: ${data.paymentTerms}` }),
-            ],
-          }),
-          new Paragraph({
-            children: [new TextRun({ text: `Taxation: ${data.taxation}` })],
-          }),
-          new Paragraph({
-            children: [new TextRun({ text: `Note: ${data.note}` })],
-          }),
-          new Paragraph({ text: "" }),
-          new Paragraph({
-            children: [new TextRun({ text: "Work Area Details:", bold: true })],
-          }),
-          createQuoteInfoTable(data.quoteInfo),
-          new Paragraph({ text: "" }),
-          new Paragraph({
-            children: [
-              new TextRun(
-                "We hope you will accept the same and will give us the opportunity to be of service to you."
-              ),
-            ],
-          }),
-          new Paragraph({
-            children: [new TextRun("Please call us for clarification if any.")],
-          }),
-          new Paragraph({ text: "" }),
-          new Paragraph({
-            children: [new TextRun("Thanking you,")],
-          }),
-          new Paragraph({
-            children: [new TextRun("Yours Faithfully,")],
-          }),
-          new Paragraph({
-            children: [new TextRun("For EXPRESS PESTICIDES PVT.LTD.")],
-          }),
-          new Paragraph({ text: "" }),
-          new Paragraph({
-            children: [new TextRun("Authorized Signatory")],
-          }),
-        ],
-      },
-    ],
-  });
-
-  return doc;
-}
-function createQuoteInfoTable(quoteInfo) {
-  const table = new Table({
-    width: {
-      size: 100,
-      type: WidthType.PERCENTAGE,
-    },
-    borders: {
-      top: { style: BorderStyle.SINGLE, size: 1 },
-      bottom: { style: BorderStyle.SINGLE, size: 1 },
-      left: { style: BorderStyle.SINGLE, size: 1 },
-      right: { style: BorderStyle.SINGLE, size: 1 },
-      insideHorizontal: { style: BorderStyle.SINGLE, size: 1 },
-      insideVertical: { style: BorderStyle.SINGLE, size: 1 },
-    },
-    rows: [
-      new TableRow({
-        children: [
-          new TableCell({ children: [new Paragraph("Work Area Type")] }),
-          new TableCell({ children: [new Paragraph("Work Area")] }),
-          new TableCell({ children: [new Paragraph("Chemical Rate")] }),
-          new TableCell({ children: [new Paragraph("Chemical")] }),
-        ],
-      }),
-      ...quoteInfo.map(
-        (info) =>
-          new TableRow({
-            children: [
-              new TableCell({ children: [new Paragraph(info.workAreaType)] }),
-              new TableCell({
-                children: [
-                  new Paragraph(`${info.workArea} ${info.workAreaUnit}`),
-                ],
-              }),
-              new TableCell({
-                children: [
-                  new Paragraph(
-                    `${info.chemicalRate} ${info.chemicalRateUnit}`
-                  ),
-                ],
-              }),
-              new TableCell({ children: [new Paragraph(info.chemical)] }),
-            ],
-          })
-      ),
-    ],
-  });
-
-  return table;
-}
-
 export {
   create,
   quotes,
-  docx,
   singleQuote,
   docData,
   update,
   approve,
-  toPdf,
   getArchive,
   similarProjects,
 };

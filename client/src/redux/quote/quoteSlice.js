@@ -7,6 +7,7 @@ const initialState = {
   todayQuotations: "",
   approvedCount: "",
   approvePending: "",
+  contractified: "",
   loading: false,
   showMore: true,
 };
@@ -111,7 +112,6 @@ export const getSingleQuote = createAsyncThunk(
     }
   }
 );
-
 export const approve = createAsyncThunk(
   "approve/singleQuote",
   async (data, { rejectWithValue }) => {
@@ -129,7 +129,6 @@ export const approve = createAsyncThunk(
     }
   }
 );
-
 export const searchQuotes = createAsyncThunk(
   "search/quotes",
   async (data, { rejectWithValue }) => {
@@ -164,7 +163,6 @@ export const docxData = createAsyncThunk(
     }
   }
 );
-
 export const archiveData = createAsyncThunk(
   "get/archivedata",
   async (data, { rejectWithValue }) => {
@@ -182,7 +180,6 @@ export const archiveData = createAsyncThunk(
     }
   }
 );
-
 export const updateQuote = createAsyncThunk(
   "update/quote",
   async (data, { rejectWithValue }) => {
@@ -205,7 +202,6 @@ export const updateQuote = createAsyncThunk(
     }
   }
 );
-
 export const makeContract = createAsyncThunk(
   "quote/contract",
   async (data, { rejectWithValue }) => {
@@ -223,73 +219,10 @@ export const makeContract = createAsyncThunk(
     }
   }
 );
-
 export const quoteSlice = createSlice({
   name: "quote",
   initialState,
-  reducers: {
-    updateIssueField: (state, action) => {
-      const { field, value } = action.payload;
-      state.newTicket.issue[field] = value;
-    },
-    handleMode: (state, action) => {
-      state.newTicket.complainMode = action.payload;
-      state.newTicket.modeDetails = {
-        email: {
-          emailCopy: "",
-        },
-        phone: {
-          date: "",
-          number: "",
-          callerDetails: "",
-        },
-        inspection: {
-          inspector: "",
-          assessment: "",
-          images: [],
-        },
-      };
-    },
-    handlePhoneFilds: (state, action) => {
-      const { field, value } = action.payload;
-      state.newTicket.modeDetails.phone[field] = value;
-    },
-    handleInspection: (state, action) => {
-      const { field, value } = action.payload;
-      state.newTicket.modeDetails.inspection[field] = value;
-    },
-    setTickets: (state, action) => {
-      const newData = [...state.tickets, ...action.payload];
-      state.tickets = newData;
-    },
-    setCreator: (state, action) => {
-      state.newTicket.createdBy = action.payload;
-    },
-    setSelectedService: (state, action) => {
-      const existingObj = state.newTicket.contract.selectedServices.find(
-        (service) =>
-          service.name === action.payload.name &&
-          service.serviceId === action.payload.serviceId
-      );
-      if (existingObj) {
-        state.newTicket.contract.selectedServices =
-          state.newTicket.contract.selectedServices.filter(
-            (service) =>
-              !(
-                service.name === action.payload.name &&
-                service.serviceId === action.payload.serviceId
-              )
-          );
-      } else {
-        state.newTicket.contract.selectedServices.push(action.payload);
-      }
-    },
-    setInit: (state) => {
-      state.newTicket = initialState.newTicket;
-      state.services = initialState.services;
-      state.loading = initialState.loading;
-    },
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(uploadFiles.pending, (state) => {
@@ -358,6 +291,7 @@ export const quoteSlice = createSlice({
         state.totalQuotations = payload.totalQuotes;
         state.approvedCount = payload.approvedCount;
         state.approvePending = payload.approvePending;
+        state.contractified = payload.contractified;
         if (payload.result.length < 9) {
           state.showMore = false;
         } else {
@@ -378,6 +312,7 @@ export const quoteSlice = createSlice({
         state.totalQuotations = payload.totalQuotes;
         state.approvedCount = payload.approvedCount;
         state.approvePending = payload.approvePending;
+        state.contractified = payload.contractified;
         if (payload.result.length < 9) {
           state.showMore = false;
         } else {

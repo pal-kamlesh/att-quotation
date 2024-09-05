@@ -133,7 +133,6 @@ const contracts = async (req, res, next) => {
     const approvePending = await Contract.countDocuments({
       approved: false,
     });
-
     res.status(200).json({
       message: "Contracts Retrieved",
       result: contracts,

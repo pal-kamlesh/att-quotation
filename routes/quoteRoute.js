@@ -3,7 +3,6 @@ import { Router } from "express";
 import {
   create,
   quotes,
-  docx,
   singleQuote,
   docData,
   update,
@@ -17,7 +16,6 @@ const router = Router();
 
 router.post("/create", verifyToken, create);
 router.get("/getQuotes", verifyToken, quotes);
-router.get("/docx", verifyToken, docx);
 router.post("/similarPorjects", similarProjects);
 router.get("/:id", verifyToken, singleQuote);
 router.post("/:id", verifyToken, update);
