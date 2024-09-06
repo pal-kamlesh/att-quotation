@@ -1,5 +1,5 @@
 import { Button, Table } from "flowbite-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import TimeAgo from "react-timeago";
 import {
   CustomModal,
@@ -25,6 +25,7 @@ import { toast } from "react-toastify";
 import PopUp from "../components/PopUp";
 import { getDotColor } from "../funtions/funtion";
 import { useNavigate } from "react-router-dom";
+import debounce from "lodash.debounce";
 
 export default function Create() {
   const {
@@ -49,7 +50,9 @@ export default function Create() {
       dispatch(getInitials());
       dispatch(getQuotes());
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch]);
+
   useEffect(() => {
     if (
       currentUser.rights.createQuote ||
@@ -77,19 +80,40 @@ export default function Create() {
     // eslint-disable-next-line no-unused-vars
     const result = unwrapResult(actionResult);
   }
-  async function handleShowMore() {
-    const startIndex = quotations.length;
-    if (!showMore) {
-      toast.error("No more data.");
-      return;
+  const handleShowMore = useCallback(
+    debounce(async () => {
+      const startIndex = quotations.length;
+      if (!showMore) {
+        return;
+      }
+      if (showMore && extraQuery) {
+        dispatch(showMoreQuotes({ startIndex, extraQuery }));
+      } else {
+        dispatch(showMoreQuotes({ startIndex, extraQuery }));
+        setExtraQuery(null);
+      }
+    }, 400), // Debounce delay in milliseconds
+    [quotations.length, showMore, extraQuery, dispatch] // Dependencies for useCallback
+  );
+  // Check if the user has scrolled to the bottom of the page
+  const handleScroll = useCallback(() => {
+    const scrollTop = window.scrollY;
+    const windowHeight = window.innerHeight;
+    const documentHeight = document.documentElement.scrollHeight;
+
+    if (scrollTop + windowHeight >= documentHeight - 5) {
+      handleShowMore(); // Call the debounced function
     }
-    if (showMore && extraQuery) {
-      dispatch(showMoreQuotes({ startIndex, extraQuery }));
-    } else {
-      dispatch(showMoreQuotes({ startIndex, extraQuery }));
-      setExtraQuery(null);
-    }
-  }
+  }, [handleShowMore]);
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+
+    // Clean up the event listener on unmount
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [handleScroll]);
+
   async function handleContractify(id) {
     try {
       if (!currentUser.rights.createContract) {
@@ -152,7 +176,14 @@ export default function Create() {
               <Table.Body>
                 {quotations.length > 0 &&
                   quotations.map((ticket) => (
-                    <Table.Row key={ticket._id} className=" border-b-2">
+                    <Table.Row
+                      key={ticket._id}
+                      className={`transition-all duration-700 ease-in-out ${
+                        quoteId === ticket._id
+                          ? "bg-blue-100 border-green-500 text-green-700"
+                          : "bg-white border-blue-200 text-gray-700"
+                      } border-b-2`}
+                    >
                       <Table.Cell>
                         <div className="flex items-center justify-start w-full gap-1 ">
                           <PopUp
@@ -229,7 +260,10 @@ export default function Create() {
                           {ticket.approved && !ticket.contractified ? (
                             <Button
                               gradientMonochrome="purple"
-                              onClick={() => handleContractify(ticket._id)}
+                              onClick={() => [
+                                handleContractify(ticket._id),
+                                setQuoteId(ticket._id),
+                              ]}
                               disabled={
                                 currentUser.rights.createContract ||
                                 currentUser.rights.admin
@@ -254,6 +288,7 @@ export default function Create() {
                             </Button>
                           ) : null}
                           <PopUp2
+                            setQuoteId={setQuoteId}
                             id={ticket._id}
                             disabled={ticket.contractified}
                           />
@@ -272,25 +307,18 @@ export default function Create() {
           </div>
         </div>
       </div>
-      {showMore && (
-        <div className="flex items-center justify-center p-1">
-          <Button gradientDuoTone="purpleToPink" pill onClick={handleShowMore}>
-            Show more
-          </Button>
-        </div>
-      )}
       <CustomModal
         isOpen={createModel}
-        onClose={() => setCreateModel(!createModel)}
+        onClose={() => [setCreateModel(!createModel), setQuoteId(null)]}
         size="7xl"
         heading="New Quotation"
         bg="bg-teal-50"
       >
-        <NewQuote onClose={() => setCreateModel(!createModel)} />
+        <NewQuote onClose={() => [setCreateModel(!createModel)]} />
       </CustomModal>
       <CustomModal
         isOpen={viewModel}
-        onClose={() => setViewModel(!viewModel)}
+        onClose={() => [setViewModel(!viewModel)]}
         size="7xl"
         heading={
           <div className="flex items-center justify-center">
@@ -307,7 +335,7 @@ export default function Create() {
       </CustomModal>
       <CustomModal
         isOpen={updateModel}
-        onClose={() => setUpdateModel(!updateModel)}
+        onClose={() => [setUpdateModel(!updateModel)]}
         size="7xl"
         heading={
           <div className="flex items-center justify-center">
@@ -322,12 +350,12 @@ export default function Create() {
       >
         <Update
           quoteId={quoteId}
-          onClose={() => setUpdateModel(!updateModel)}
+          onClose={() => [setUpdateModel(!updateModel)]}
         />
       </CustomModal>
       <CustomModal
         isOpen={archiveModel}
-        onClose={() => setArchiveModel(!archiveModel)}
+        onClose={() => [setArchiveModel(!archiveModel)]}
         size="7xl"
         heading={
           <div className="flex items-center justify-center">
@@ -342,7 +370,7 @@ export default function Create() {
       >
         <Diff
           quoteId={quoteId}
-          onClose={() => setArchiveModel(!archiveModel)}
+          onClose={() => [setArchiveModel(!archiveModel)]}
         />
       </CustomModal>
     </div>

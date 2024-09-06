@@ -36,7 +36,11 @@ function PrintWorkLogs({ id, quoteInfo }) {
         {workLogs?.map((log) => (
           <div
             key={log._id}
-            className="p-4 bg-gray-100 rounded-lg cursor-pointer"
+            className={`p-4 bg-gray-100 rounded-lg cursor-pointer border transition-all duration-300 ease-in-out ${
+              selectedLog?._id === log._id
+                ? "border-blue-500 shadow-lg transform scale-105"
+                : "border-blue-300"
+            }`}
             onClick={() => openWorklogModal(log)}
           >
             <p className="font-semibold">
@@ -48,7 +52,7 @@ function PrintWorkLogs({ id, quoteInfo }) {
       </div>
       <CustomModal
         isOpen={detailModel}
-        onClose={() => setDetailModel(false)}
+        onClose={() => [setDetailModel(false), setSelectedLog(null)]}
         heading="WorkLog Details"
         bg="bg-teal-50"
       >

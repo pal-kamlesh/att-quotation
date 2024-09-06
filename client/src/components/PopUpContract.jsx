@@ -4,7 +4,7 @@ import morpheus from "../images/morpheus.png";
 import { ContractDownloadButton } from ".";
 
 // eslint-disable-next-line react/prop-types
-function PopUpContract({ id, disabled }) {
+function PopUpContract({ id, disabled, setActiveId }) {
   const [openModal, setOpenModal] = useState(false);
 
   return (
@@ -12,7 +12,7 @@ function PopUpContract({ id, disabled }) {
       <div>
         <Button
           gradientDuoTone="purpleToPink"
-          onClick={() => setOpenModal(true)}
+          onClick={() => [setOpenModal(true), setActiveId(id)]}
           disabled={disabled}
         >
           .docx

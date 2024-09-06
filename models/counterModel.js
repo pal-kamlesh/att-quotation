@@ -14,5 +14,6 @@ const chemicalAndBatch = new mongoose.Schema({
 });
 
 const Counter = mongoose.model("Counter", counterSchema);
+const ChemicalBatchNos = mongoose.model("ChemicalBatchNos", chemicalAndBatch);
 
-export default Counter;
+export { Counter, ChemicalBatchNos };

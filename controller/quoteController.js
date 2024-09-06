@@ -1,8 +1,5 @@
-import { Quotation, QuoteArchive, QuoteInfo } from "../models/index.js";
-import fs from "fs/promises";
-import path from "path";
+import { Quotation, QuoteInfo } from "../models/index.js";
 import { isValidObjectId } from "mongoose";
-import { promisify } from "util";
 import {
   removeIdFromDocuments,
   remove_IdFromObj,
@@ -334,13 +331,6 @@ const getArchive = async (req, res, next) => {
     next(error);
   }
 };
-const quoteStats = async (req, res, next) => {
-  try {
-  } catch (error) {
-    next(error);
-  }
-};
-
 const similarProjects = async (req, res, next) => {
   try {
     const { clientName, projectName, workAreaType, workArea } = req.body;

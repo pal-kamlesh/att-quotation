@@ -471,6 +471,91 @@ const getDCs = async (req, res, next) => {
     next(error);
   }
 };
+const getChemical = async (req, res, next) => {
+  try {
+    const allChemicals = await ChemicalBatchNos.find();
+    res.status(200).json({ data: allChemicals });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const addChemical = async (req, res, next) => {
+  const { chemical, batchNos } = req.body;
+
+  try {
+    const newChemical = new ChemicalBatchNos({ chemical, batchNos });
+    await newChemical.save();
+    res
+      .status(201)
+      .json({ message: "Chemical added successfully", data: newChemical });
+  } catch (error) {
+    next(error);
+  }
+};
+const addBatchNumber = async (req, res, next) => {
+  const { chemical } = req.params;
+  const { batchNo } = req.body;
+
+  try {
+    const updatedChemical = await ChemicalBatchNos.findOneAndUpdate(
+      { chemical },
+      { $addToSet: { batchNos: batchNo } }, // Prevents duplicate batch numbers
+      { new: true }
+    );
+
+    if (!updatedChemical) {
+      return res.status(404).json({ error: "Chemical not found" });
+    }
+
+    res
+      .status(200)
+      .json({ message: "Batch number added", data: updatedChemical });
+  } catch (error) {
+    next(error);
+  }
+};
+const deleteBatchNumber = async (req, res, next) => {
+  const { chemical } = req.params;
+  const { batchNo } = req.body;
+
+  try {
+    const updatedChemical = await ChemicalBatchNos.findOneAndUpdate(
+      { chemical },
+      { $pull: { batchNos: batchNo } }, // Removes the specified batch number
+      { new: true }
+    );
+
+    if (!updatedChemical) {
+      return res.status(404).json({ error: "Chemical not found" });
+    }
+
+    res
+      .status(200)
+      .json({ message: "Batch number deleted", data: updatedChemical });
+  } catch (error) {
+    next(error);
+  }
+};
+const deleteChemical = async (req, res, next) => {
+  const { chemical } = req.params;
+
+  try {
+    const deletedChemical = await ChemicalBatchNos.findOneAndDelete({
+      chemical,
+    });
+
+    if (!deletedChemical) {
+      return res.status(404).json({ error: "Chemical not found" });
+    }
+
+    res
+      .status(200)
+      .json({ message: "Chemical deleted", data: deletedChemical });
+  } catch (error) {
+    next(error);
+  }
+};
 
 export {
   create,
@@ -485,4 +570,9 @@ export {
   createWorklog,
   getWorklogs,
   getDCs,
+  addBatchNumber,
+  addChemical,
+  deleteBatchNumber,
+  deleteChemical,
+  getChemical,
 };

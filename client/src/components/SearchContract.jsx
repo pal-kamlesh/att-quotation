@@ -1,12 +1,5 @@
 import { useState } from "react";
-import {
-  Button,
-  Checkbox,
-  Label,
-  Select,
-  Spinner,
-  TextInput,
-} from "flowbite-react";
+import { Button, Label, Select, Spinner, TextInput } from "flowbite-react";
 import { useDispatch, useSelector } from "react-redux";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { searchContracts } from "../redux/contract/contractSlice";
@@ -21,38 +14,31 @@ const SearchContract = ({ setExtraQuery }) => {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const { initials } = useSelector((state) => state.user);
-  const [selectedFilters, setSelectedFilters] = useState({
-    createdBy: false,
-    projectName: false,
-    clientName: false,
-    fromDate: false,
-    toDate: false,
-    contractNo: false,
-  });
+
   const [loading, setLoading] = useState(false);
 
   const handleSearch = async () => {
     let query = "";
 
-    if (selectedFilters.createdBy) {
+    if (createdBy !== "") {
       query += `&createdBy=${createdBy}`;
     }
 
-    if (selectedFilters.projectName) {
+    if (projectName !== "") {
       query += `&projectName=${projectName}`;
     }
-    if (selectedFilters.clientName) {
+    if (clientName !== "") {
       query += `&clientName=${clientName}`;
     }
 
-    if (selectedFilters.fromDate) {
+    if (fromDate !== "") {
       query += `&fromDate=${fromDate}`;
     }
-    if (selectedFilters.toDate) {
+    if (toDate !== "") {
       query += `&toDate=${toDate}`;
     }
 
-    if (selectedFilters.contractNo) {
+    if (contractNo !== "") {
       query += `&contractNo=${contractNo}`;
     }
 
@@ -83,18 +69,6 @@ const SearchContract = ({ setExtraQuery }) => {
               value={contractNo}
               onChange={(e) => setContractNo(e.target.value)}
             />
-            <Checkbox
-              type="checkbox"
-              className=" ml-1"
-              name="contractNo"
-              checked={selectedFilters.contractNo}
-              onChange={(e) =>
-                setSelectedFilters({
-                  ...selectedFilters,
-                  contractNo: e.target.checked,
-                })
-              }
-            />
           </div>
         </div>
         <div className="">
@@ -116,17 +90,6 @@ const SearchContract = ({ setExtraQuery }) => {
                   </option>
                 ))}
             </Select>
-            <Checkbox
-              name="createdBy"
-              checked={selectedFilters.createdBy}
-              className=" ml-1"
-              onChange={(e) =>
-                setSelectedFilters({
-                  ...selectedFilters,
-                  createdBy: e.target.checked,
-                })
-              }
-            />
           </div>
         </div>
         <div>
@@ -141,18 +104,6 @@ const SearchContract = ({ setExtraQuery }) => {
               id="projectName"
               onChange={(e) => setProjectName(e.target.value)}
             />
-            <Checkbox
-              type="checkbox"
-              checked={selectedFilters.projectName}
-              className=" ml-1"
-              name="projectName"
-              onChange={(e) =>
-                setSelectedFilters({
-                  ...selectedFilters,
-                  projectName: e.target.checked,
-                })
-              }
-            />
           </div>
         </div>
         <div>
@@ -166,18 +117,6 @@ const SearchContract = ({ setExtraQuery }) => {
               name="clientName"
               id="clientName"
               onChange={(e) => setClientName(e.target.value)}
-            />
-            <Checkbox
-              type="checkbox"
-              checked={selectedFilters.clientName}
-              className=" ml-1"
-              name="clientName"
-              onChange={(e) =>
-                setSelectedFilters({
-                  ...selectedFilters,
-                  clientName: e.target.checked,
-                })
-              }
             />
           </div>
         </div>
@@ -194,18 +133,6 @@ const SearchContract = ({ setExtraQuery }) => {
               className="w-full px-3 py-2 border rounded-md"
               onChange={(e) => setFromDate(e.target.value)}
             ></input>
-            <Checkbox
-              type="checkbox"
-              checked={selectedFilters.fromDate}
-              className=" ml-1"
-              name="fromDate"
-              onChange={(e) =>
-                setSelectedFilters({
-                  ...selectedFilters,
-                  fromDate: e.target.checked,
-                })
-              }
-            />
           </div>
         </div>
         <div>
@@ -221,18 +148,6 @@ const SearchContract = ({ setExtraQuery }) => {
               className="w-full px-3 py-2 border rounded-md"
               onChange={(e) => setToDate(e.target.value)}
             ></input>
-            <Checkbox
-              type="checkbox"
-              checked={selectedFilters.toDate}
-              className=" ml-1"
-              name="toDate"
-              onChange={(e) =>
-                setSelectedFilters({
-                  ...selectedFilters,
-                  toDate: e.target.checked,
-                })
-              }
-            />
           </div>
         </div>
       </div>

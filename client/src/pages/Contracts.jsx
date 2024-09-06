@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   CustomModal,
   Loading,
@@ -24,6 +24,7 @@ import { toast } from "react-toastify";
 import { getDotColor } from "../funtions/funtion.js";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { useNavigate } from "react-router-dom";
+import debounce from "lodash.debounce";
 
 function Contracts() {
   const {
@@ -41,25 +42,27 @@ function Contracts() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  async function handleShowMore() {
-    const startIndex = contracts.length;
-    if (!showMore) {
-      toast.error("No more data.");
-      return;
-    }
-    if (showMore && extraQuery) {
-      dispatch(showMoreContract({ startIndex, extraQuery }));
-    } else {
-      dispatch(showMoreContract({ startIndex, extraQuery }));
-      setExtraQuery(null);
-    }
-  }
+  const handleShowMore = useCallback(
+    debounce(async () => {
+      const startIndex = contracts.length;
+      if (!showMore) {
+        return;
+      }
+      if (showMore && extraQuery) {
+        dispatch(showMoreContract({ startIndex, extraQuery }));
+      } else {
+        dispatch(showMoreContract({ startIndex, extraQuery }));
+        setExtraQuery(null);
+      }
+    }, 400), // Debounce delay in milliseconds
+    [contracts.length, showMore, extraQuery, dispatch] // Dependencies for useCallback
+  );
   useEffect(() => {
     if (contracts.length <= 0) {
       dispatch(getInitials());
       dispatch(getContracts());
     }
-  }, [dispatch, contracts.length]);
+  }, [dispatch]);
 
   useEffect(() => {
     if (currentUser.rights.createContract || currentUser.rights.admin) {
@@ -73,6 +76,24 @@ function Contracts() {
     dispatch,
     navigate,
   ]);
+  const handleScroll = useCallback(() => {
+    const scrollTop = window.scrollY;
+    const windowHeight = window.innerHeight;
+    const documentHeight = document.documentElement.scrollHeight;
+
+    if (scrollTop + windowHeight >= documentHeight - 5) {
+      handleShowMore(); // Call the debounced function
+    }
+  }, [handleShowMore]);
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+
+    // Clean up the event listener on unmount
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [handleScroll]);
   async function handleRefresh() {
     setPending(true);
     await dispatch(getContracts());
@@ -129,7 +150,14 @@ function Contracts() {
               <Table.Body>
                 {contracts.length > 0 &&
                   contracts.map((contract) => (
-                    <Table.Row key={contract._id} className=" border-b-2">
+                    <Table.Row
+                      key={contract._id}
+                      className={`transition-all duration-700 ease-in-out ${
+                        activeId === contract._id
+                          ? "bg-blue-100 border-green-500 text-green-700"
+                          : "bg-white border-blue-200 text-gray-700"
+                      } border-b-2`}
+                    >
                       <Table.Cell>
                         <div className="flex items-center justify-start w-full gap-1 ">
                           <PopUp
@@ -188,7 +216,10 @@ function Contracts() {
                           >
                             View
                           </Button>
-                          <PopUpContract id={contract._id} />
+                          <PopUpContract
+                            id={contract._id}
+                            setActiveId={setActiveId}
+                          />
                         </div>
                       </Table.Cell>
                     </Table.Row>
@@ -204,13 +235,6 @@ function Contracts() {
           </div>
         </div>
       </div>
-      {showMore && (
-        <div className="flex items-center justify-center p-1">
-          <Button gradientDuoTone="purpleToPink" pill onClick={handleShowMore}>
-            Show more
-          </Button>
-        </div>
-      )}
       <CustomModal
         isOpen={createModel}
         onClose={() => setCreateModel(!createModel)}

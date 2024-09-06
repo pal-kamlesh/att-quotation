@@ -1,10 +1,9 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getInitials } from "../redux/user/userSlice";
 import { Button, Table } from "flowbite-react";
 import { Loading, Refresh, SearchContract, PopUp } from "../components";
 import TimeAgo from "react-timeago";
-import { toast } from "react-toastify";
 import { getDotColor } from "../funtions/funtion";
 import { FcPrint } from "react-icons/fc";
 import {
@@ -15,12 +14,13 @@ import {
 import { useNavigate } from "react-router-dom";
 import { createContractCard } from "../components/AnnexureTable";
 import { unwrapResult } from "@reduxjs/toolkit";
-
+import debounce from "lodash.debounce";
 function Cards() {
   const { cards = [], showMore, loading } = useSelector((state) => state.card);
   const { currentUser } = useSelector((state) => state.user);
   const [extraQuery, setExtraQuery] = useState("&approved=true");
   const [pending, setPending] = useState(false);
+  const [activeId, setActiveId] = useState("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -43,24 +43,46 @@ function Cards() {
     dispatch,
     navigate,
   ]);
+  const handleShowMore = useCallback(
+    debounce(async () => {
+      const startIndex = cards.length;
+      if (!showMore) {
+        return;
+      }
+      if (showMore && extraQuery) {
+        dispatch(showMoreCard({ startIndex, extraQuery }));
+      } else {
+        dispatch(showMoreCard({ startIndex, extraQuery }));
+        setExtraQuery("&approved=true");
+      }
+    }, 400), // Debounce delay in milliseconds
+    [cards.length, showMore, extraQuery, dispatch] // Dependencies for useCallback
+  );
+
+  // Check if the user has scrolled to the bottom of the page
+  const handleScroll = useCallback(() => {
+    const scrollTop = window.scrollY;
+    const windowHeight = window.innerHeight;
+    const documentHeight = document.documentElement.scrollHeight;
+
+    if (scrollTop + windowHeight >= documentHeight - 5) {
+      handleShowMore(); // Call the debounced function
+    }
+  }, [handleShowMore]);
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+
+    // Clean up the event listener on unmount
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [handleScroll]);
 
   async function handleRefresh() {
     setPending(true);
     await dispatch(searchCards("&approved=true"));
     setPending(false);
-  }
-  async function handleShowMore() {
-    const startIndex = cards.length;
-    if (!showMore) {
-      toast.error("No more data.");
-      return;
-    }
-    if (showMore && extraQuery) {
-      dispatch(showMoreCard({ startIndex, extraQuery }));
-    } else {
-      dispatch(showMoreCard({ startIndex, extraQuery }));
-      setExtraQuery("&approved=true");
-    }
   }
   async function handlePrint(id) {
     try {
@@ -108,7 +130,14 @@ function Cards() {
               <Table.Body>
                 {cards.length > 0 &&
                   cards.map((contract) => (
-                    <Table.Row key={contract._id} className=" border-b-2">
+                    <Table.Row
+                      key={contract._id}
+                      className={`transition-all duration-700 ease-in-out ${
+                        activeId === contract._id
+                          ? "bg-blue-100 border-green-500 text-green-700"
+                          : "bg-white border-blue-200 text-gray-700"
+                      } border-b-2`}
+                    >
                       <Table.Cell>
                         <div className="flex items-center justify-start w-full gap-1 ">
                           <PopUp
@@ -142,7 +171,10 @@ function Cards() {
                           ></div>
                           <Button
                             color="gray"
-                            onClick={() => handlePrint(contract._id)}
+                            onClick={() => [
+                              handlePrint(contract._id),
+                              setActiveId(contract._id),
+                            ]}
                           >
                             <FcPrint className="h-6 w-6" />
                             <div className="cursor-pointer text-gray-800 font-semibold hover:text-gray-600">
@@ -164,13 +196,6 @@ function Cards() {
           </div>
         </div>
       </div>
-      {showMore && (
-        <div className="flex items-center justify-center p-1">
-          <Button gradientDuoTone="purpleToPink" pill onClick={handleShowMore}>
-            Show more
-          </Button>
-        </div>
-      )}
     </div>
   );
 }

@@ -4,7 +4,7 @@ import morpheus from "../images/morpheus.png";
 import { QuotationDownloadButton } from ".";
 
 // eslint-disable-next-line react/prop-types
-function PopUp2({ id, disabled }) {
+function PopUp2({ id, disabled, setQuoteId }) {
   const [openModal, setOpenModal] = useState(false);
 
   return (
@@ -12,7 +12,7 @@ function PopUp2({ id, disabled }) {
       <div>
         <Button
           gradientDuoTone="purpleToPink"
-          onClick={() => setOpenModal(true)}
+          onClick={() => [setOpenModal(true), setQuoteId(id)]}
           disabled={disabled}
         >
           .docx
