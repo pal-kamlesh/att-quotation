@@ -23,7 +23,7 @@ function WorkLog() {
   }, [dispatch, id]);
   async function handleRefresh() {
     setPending(true);
-    await dispatch();
+    await dispatch(getSingleContract(id));
     setPending(false);
   }
   return (

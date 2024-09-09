@@ -2,13 +2,15 @@
 import { Button, TextInput, Label, Select } from "flowbite-react";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { createDC } from "../redux/contract/contractSlice";
+import { createDC, getChemicals } from "../redux/contract/contractSlice";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
 
 function DCForm({ id, quoteInfo, setDCs, onClose }) {
   const dispatch = useDispatch();
   const [validInput, setValidInput] = useState(false);
+  const [chemicalList, setChemicalList] = useState([]);
+  const [batchNos, setBatchNos] = useState([]);
   const [dcObj, setDcObj] = useState({
     chemical: "",
     batchNo: "",
@@ -32,6 +34,22 @@ function DCForm({ id, quoteInfo, setDCs, onClose }) {
     }
   }, [dcObj]);
 
+  useEffect(() => {
+    async function fetchChemicals() {
+      const actionResult = await dispatch(getChemicals());
+      const result = unwrapResult(actionResult);
+      setChemicalList(result.data);
+    }
+    fetchChemicals();
+  }, [dispatch]);
+
+  useEffect(() => {
+    const selectChemical = chemicalList.find(
+      (obj) => obj.chemical === dcObj.chemical
+    );
+    setBatchNos(selectChemical?.batchNos);
+  }, [dcObj.chemical]);
+
   async function handleSubmit() {
     if (validInput) {
       const dispatchAction = await dispatch(createDC({ id, dcObj }));
@@ -49,7 +67,7 @@ function DCForm({ id, quoteInfo, setDCs, onClose }) {
       console.log("Invalid input, please fill all fields.");
     }
   }
-
+  console.log(batchNos);
   return (
     <div className="max-w-md mx-auto p-6">
       <h3 className="text-xl font-semibold text-center mb-4">DC Form</h3>
@@ -72,14 +90,19 @@ function DCForm({ id, quoteInfo, setDCs, onClose }) {
         </div>
         <div>
           <Label htmlFor="batchNo" value="Batch Number" />
-          <TextInput
+          <Select
             id="batchNo"
             name="batchNo"
-            placeholder="Enter batch number"
+            placeholder="Select batch number"
             value={dcObj.batchNo}
             onChange={handleInputChange}
             required
-          />
+          >
+            <option></option>
+            {batchNos?.map((no, idx) => (
+              <option key={idx}>{no}</option>
+            ))}
+          </Select>
         </div>
         <div>
           <Label htmlFor="chemicalqty" value="Quantity" />

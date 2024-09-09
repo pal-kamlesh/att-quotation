@@ -24,6 +24,7 @@ function PrintDC({ id, quoteInfo }) {
     setSelectedDc(log);
     setDetailModel(true);
   };
+  console.log(selectedDc);
   return (
     <div className=" max-w-[1400px] mx-auto  ">
       <h4 className="text-lg font-semibold mb-2">DC s</h4>
@@ -32,19 +33,24 @@ function PrintDC({ id, quoteInfo }) {
         {dcs?.map((log) => (
           <div
             key={log._id}
-            className="p-4 bg-gray-100 rounded-lg cursor-pointer"
+            className={`p-4 bg-gray-100 rounded-lg cursor-pointer border transition-all duration-300 ease-in-out ${
+              selectedDc?._id === log._id
+                ? "border-blue-500 shadow-lg transform scale-105"
+                : "border-blue-300"
+            }`}
             onClick={() => openWorklogModal(log)}
           >
-            <p className="font-semibold">
-              {new Date(log.createdAt).toLocaleDateString()}{" "}
-              {new Date(log.createdAt).toLocaleTimeString()}
-            </p>
+            <div className="font-semibold flex items-center justify-start w-full gap-4">
+              <p>Date: {new Date(log.createdAt).toLocaleDateString()}</p>
+              <p>Time: {new Date(log.createdAt).toLocaleTimeString()}</p>
+            </div>
+            <p>Entry By: {log.entryBy?.username}</p>
           </div>
         ))}
       </div>
       <CustomModal
         isOpen={detailModel}
-        onClose={() => setDetailModel(false)}
+        onClose={() => [setDetailModel(false), setSelectedDc(null)]}
         heading="DC Details"
         bg="bg-teal-50"
       >
@@ -53,11 +59,10 @@ function PrintDC({ id, quoteInfo }) {
             <div className="mb-2">
               <p className="font-semibold">{selectedDc.workAreaType}</p>
               <p>Chemical: {selectedDc.chemical}</p>
-              <p>Quantity: {selectedDc.chemicalUsed}</p>
-              <p>
-                Area Treated: {selectedDc.areaTreated}{" "}
-                {selectedDc.areaTreatedUnit}
-              </p>
+              <p>Batch Number: {selectedDc.batchNumber}</p>
+              <p>Quantity: {selectedDc.chemicalqty}</p>
+              <p>Packaging: {selectedDc.packaging}</p>
+
               {selectedDc.remark && <p>Remark: {selectedDc.remark}</p>}
             </div>
             <div className="flex justify-between">

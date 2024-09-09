@@ -1,5 +1,6 @@
 import { isValidObjectId } from "mongoose";
 import {
+  ChemicalBatchNos,
   Contract,
   DC,
   Quotation,
@@ -379,7 +380,7 @@ const createWorklog = async (req, res, next) => {
       areaTreatedUnit,
     } = req.body;
 
-    const log = await WorkLogs.create({
+    let log = await WorkLogs.create({
       workAreaType,
       chemical,
       chemicalUsed,
@@ -392,7 +393,7 @@ const createWorklog = async (req, res, next) => {
     // Update the contract with the new worklog
     contract.worklogs.push(log._id);
     await contract.save();
-
+    log = await WorkLogs.findById(log._id).populate("entryBy");
     // Respond with the created worklog
     res.status(201).json({ message: "Worklog Created", log });
   } catch (error) {
@@ -438,7 +439,7 @@ const createDC = async (req, res, next) => {
     }
     const { chemical, batchNo, chemicalqty, packaging } = req.body;
 
-    const dc = await DC.create({
+    let dc = await DC.create({
       chemical,
       batchNumber: batchNo,
       chemicalqty,
@@ -450,6 +451,7 @@ const createDC = async (req, res, next) => {
     contract.dcs.push(dc._id);
     await contract.save();
 
+    dc = await DC.findById(dc._id).populate("entryBy");
     // Respond with the created worklog
     res.status(201).json({ message: "Worklog Created", dc });
   } catch (error) {
@@ -481,10 +483,11 @@ const getChemical = async (req, res, next) => {
 };
 
 const addChemical = async (req, res, next) => {
-  const { chemical, batchNos } = req.body;
-
+  const { chemical } = req.body;
   try {
-    const newChemical = new ChemicalBatchNos({ chemical, batchNos });
+    const newChemical = new ChemicalBatchNos({
+      chemical,
+    });
     await newChemical.save();
     res
       .status(201)
@@ -494,13 +497,13 @@ const addChemical = async (req, res, next) => {
   }
 };
 const addBatchNumber = async (req, res, next) => {
-  const { chemical } = req.params;
+  const { chemicalId } = req.params;
   const { batchNo } = req.body;
 
   try {
-    const updatedChemical = await ChemicalBatchNos.findOneAndUpdate(
-      { chemical },
-      { $addToSet: { batchNos: batchNo } }, // Prevents duplicate batch numbers
+    const updatedChemical = await ChemicalBatchNos.findByIdAndUpdate(
+      { _id: chemicalId },
+      { $addToSet: { batchNos: batchNo } },
       { new: true }
     );
 
@@ -516,12 +519,12 @@ const addBatchNumber = async (req, res, next) => {
   }
 };
 const deleteBatchNumber = async (req, res, next) => {
-  const { chemical } = req.params;
+  const { chemicalId } = req.params;
   const { batchNo } = req.body;
 
   try {
-    const updatedChemical = await ChemicalBatchNos.findOneAndUpdate(
-      { chemical },
+    const updatedChemical = await ChemicalBatchNos.findByIdAndUpdate(
+      { _id: chemicalId },
       { $pull: { batchNos: batchNo } }, // Removes the specified batch number
       { new: true }
     );
@@ -538,15 +541,14 @@ const deleteBatchNumber = async (req, res, next) => {
   }
 };
 const deleteChemical = async (req, res, next) => {
-  const { chemical } = req.params;
-
+  const { chemicalId } = req.params;
   try {
-    const deletedChemical = await ChemicalBatchNos.findOneAndDelete({
-      chemical,
+    const deletedChemical = await ChemicalBatchNos.findByIdAndDelete({
+      _id: chemicalId,
     });
 
     if (!deletedChemical) {
-      return res.status(404).json({ error: "Chemical not found" });
+      return res.status(404).json({ message: "Chemical not found" });
     }
 
     res

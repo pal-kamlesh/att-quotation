@@ -14,6 +14,10 @@ const dcSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    packaging: {
+      type: String,
+      required: true,
+    },
     entryBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

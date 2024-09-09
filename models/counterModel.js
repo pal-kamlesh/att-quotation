@@ -10,7 +10,7 @@ const chemicalAndBatch = new mongoose.Schema({
     type: String,
     required: true,
   },
-  batchNo: [String],
+  batchNos: [String],
 });
 
 const Counter = mongoose.model("Counter", counterSchema);

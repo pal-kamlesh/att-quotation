@@ -8,15 +8,25 @@ import {
   deleteUser,
 } from "../redux/user/userSlice";
 import {
+  addChemical,
+  addBatchNumber,
+  deleteBatchNumber,
+  deleteChemical,
+  getChemicals,
+} from "../redux/contract/contractSlice.js";
+import {
   Button,
   Checkbox,
   Label,
   Modal,
   Select,
+  Spinner,
   Table,
   TextInput,
 } from "flowbite-react";
 import { unwrapResult } from "@reduxjs/toolkit";
+import { CustomModal } from "../components/index.js";
+import { toast } from "react-toastify";
 
 const userInit = {
   username: "",
@@ -40,6 +50,15 @@ export default function User() {
   const [openModal, setOpenModal] = useState(false);
   const [update, setUpdate] = useState(false);
   const [rights, setRights] = useState([]);
+  const [chemicalModel, setChemicalModel] = useState(false);
+  const [batchModel, setBatchModel] = useState(false);
+  const [chemicalData, setChemicalData] = useState("");
+  const [batchData, setBatchData] = useState({
+    batchNo: "",
+    _id: "",
+  });
+  const [uploading, setUploading] = useState(false);
+  const [chemicalList, setChemicalList] = useState([]);
 
   function onCloseModal() {
     setOpenModal(false);
@@ -50,11 +69,17 @@ export default function User() {
   }, [setRights]);
 
   useEffect(() => {
-    if (!currentUser.rights.admin) {
-      navigate("/");
-    } else {
-      dispatch(getUsers());
+    async function fetchChemicals() {
+      if (!currentUser.rights.admin) {
+        navigate("/");
+      } else {
+        dispatch(getUsers());
+        const actionResult = await dispatch(getChemicals());
+        const result = unwrapResult(actionResult);
+        setChemicalList(result.data);
+      }
     }
+    fetchChemicals();
   }, [currentUser, navigate, dispatch]);
 
   const handleRights = (e) => {
@@ -76,7 +101,6 @@ export default function User() {
       }));
     }
   };
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setUser({ ...user, [name]: value });
@@ -113,7 +137,59 @@ export default function User() {
     // Join the array with spaces in between
     return splitArray.join(" ");
   }
-
+  async function addChem() {
+    try {
+      setUploading(true);
+      const actionResult = await dispatch(addChemical(chemicalData));
+      const result = unwrapResult(actionResult);
+      toast.success(result.message);
+      setChemicalList((prev) => [...prev, result.data]);
+      setChemicalData("");
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setUploading(false);
+    }
+  }
+  async function delChem() {
+    try {
+      setUploading(true);
+      const actionResult = await dispatch(deleteChemical(chemicalData));
+      const result = unwrapResult(actionResult);
+      toast.success(result.message);
+      setChemicalData("");
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setUploading(false);
+    }
+  }
+  async function addBatch() {
+    try {
+      setUploading(true);
+      const actionResult = await dispatch(addBatchNumber(batchData));
+      const result = unwrapResult(actionResult);
+      toast.success(result.message);
+      setBatchData((prev) => ({ ...prev, batchNo: "" }));
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setUploading(false);
+    }
+  }
+  async function delBatch() {
+    try {
+      setUploading(true);
+      const actionResult = await dispatch(deleteBatchNumber(batchData));
+      const result = unwrapResult(actionResult);
+      toast.success(result.message);
+      setBatchData((prev) => ({ ...prev, batchNo: "" }));
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setUploading(false);
+    }
+  }
   return (
     <div className="max-w-7xl mx-auto ">
       <div className=" mt-3 h-full">
@@ -122,6 +198,22 @@ export default function User() {
             <div className="flex items-center justify-center">
               <h3>All Users</h3>
             </div>
+          </div>
+          <div>
+            <button
+              className="bg-[#FFFDB5] hover:bg-yellow-200 font-medium py-2 px-4 rounded mr-2"
+              onClick={() => setChemicalModel(true)}
+            >
+              Chemical
+            </button>
+          </div>
+          <div>
+            <button
+              onClick={() => setBatchModel(true)}
+              className="bg-[#FFFDB5] hover:bg-yellow-200 font-medium py-2 px-4 rounded mr-2"
+            >
+              Batch No
+            </button>
           </div>
           <div>
             <button
@@ -323,6 +415,148 @@ export default function User() {
           </div>
         </Modal.Body>
       </Modal>
+      <CustomModal
+        isOpen={chemicalModel}
+        onClose={() => setChemicalModel(!chemicalModel)}
+        size="md"
+        heading={
+          <div className="flex gap-3 items-center justify-center">
+            <span className="text-lg font-semibold text-gray-800">
+              Add/Delete Chemical
+            </span>
+          </div>
+        }
+      >
+        <div className="w-full p-4">
+          <h1 className="text-lg font-medium text-gray-700 mb-4 text-center">
+            Chemical
+          </h1>
+          <div className="max-w-full">
+            <div className="mb-2 block">
+              <Label htmlFor="" value="Chemical Name" />
+            </div>
+            <TextInput
+              placeholder="Enter Chemical"
+              className="mb-4 w-full"
+              sizing="md"
+              value={chemicalData}
+              onChange={(e) => setChemicalData(e.target.value)}
+            />
+          </div>
+          <div className="w-full flex items-center justify-around">
+            <Button
+              onClick={addChem}
+              color="yellow"
+              className="mr-2"
+              disabled={uploading}
+            >
+              {uploading ? (
+                <>
+                  <span className=" pr-3">Loading...</span>
+                  <Spinner size="sm" />
+                </>
+              ) : (
+                "Add"
+              )}
+            </Button>
+            <Button onClick={delChem} color="red" disabled={uploading}>
+              {uploading ? (
+                <>
+                  <span className=" pr-3">Loading...</span>
+                  <Spinner size="sm" />
+                </>
+              ) : (
+                "Delete"
+              )}
+            </Button>
+          </div>
+        </div>
+      </CustomModal>
+
+      <CustomModal
+        isOpen={batchModel}
+        onClose={() => setBatchModel(!batchModel)}
+        size="md"
+        heading={
+          <div className="flex gap-3 items-center justify-center">
+            <span>Add/Delete Batch No</span>
+          </div>
+        }
+      >
+        <div className="w-full p-4">
+          <h1 className="text-xl font-medium text-gray-700 mb-4 text-center">
+            Batch No
+          </h1>
+          <div className="max-w-full">
+            <div className="mb-2 block">
+              <Label htmlFor="" value="Select a Chemical"></Label>
+            </div>
+            <Select
+              name="chemical"
+              onChange={(e) => {
+                console.log(e);
+                return setBatchData((prev) => ({
+                  ...prev,
+                  _id: e.target.value,
+                }));
+              }}
+            >
+              <option></option>
+              {chemicalList?.map((chem) => (
+                <option key={chem._id} value={chem._id}>
+                  {chem.chemical}
+                </option>
+              ))}
+            </Select>
+          </div>
+          <div className="max-w-full">
+            <div className="mb-2 block">
+              <Label htmlFor="" value="Batch No" />
+            </div>
+            <TextInput
+              placeholder="Enter Batch No"
+              className="mb-4 w-full"
+              sizing="md"
+              value={batchData.batchNo}
+              name="batchNo"
+              onChange={(e) =>
+                setBatchData((prev) => ({
+                  ...prev,
+                  [e.target.name]: e.target.value,
+                }))
+              }
+            ></TextInput>
+          </div>
+
+          <div className="w-full flex items-center justify-around">
+            <Button
+              onClick={addBatch}
+              color="yellow"
+              className="mr-2"
+              disabled={uploading}
+            >
+              {uploading ? (
+                <>
+                  <span className=" pr-3">Loading...</span>
+                  <Spinner size="sm" />
+                </>
+              ) : (
+                "Add"
+              )}
+            </Button>
+            <Button onClick={delBatch} color="red" disabled={uploading}>
+              {uploading ? (
+                <>
+                  <span className=" pr-3">Loading...</span>
+                  <Spinner size="sm" />
+                </>
+              ) : (
+                "Delete"
+              )}
+            </Button>
+          </div>
+        </div>
+      </CustomModal>
     </div>
   );
 }

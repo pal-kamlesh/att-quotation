@@ -13,6 +13,9 @@ import { GiCancel } from "react-icons/gi";
 import { customAlphabet } from "nanoid";
 import { toast } from "react-toastify";
 import { FaEdit } from "react-icons/fa";
+import { unwrapResult } from "@reduxjs/toolkit";
+import { getChemicals } from "../redux/contract/contractSlice";
+import { useDispatch } from "react-redux";
 
 const nanoid = customAlphabet(
   "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
@@ -22,6 +25,7 @@ const nanoid = customAlphabet(
 function InputStandardAdv({ quote, setQuote }) {
   const [validInput, setValidInput] = useState(false);
   const [infoArray, setInfoArray] = useState(quote.quoteInfo);
+  const [chemicalList, setChemicalList] = useState([]);
   const [infoObj, setInfoObj] = useState({
     _id: nanoid(),
     workAreaType: "",
@@ -32,11 +36,21 @@ function InputStandardAdv({ quote, setQuote }) {
     chemical: "",
     description: "",
   });
+  const dispatch = useDispatch();
 
   //effect to set the infoArray initially
   useEffect(() => {
     setInfoArray(quote.quoteInfo);
   }, [quote.quoteInfo]);
+
+  useEffect(() => {
+    async function fetchChemicals() {
+      const actionResult = await dispatch(getChemicals());
+      const result = unwrapResult(actionResult);
+      setChemicalList(result.data);
+    }
+    fetchChemicals();
+  }, [dispatch]);
 
   //effect to set validInput variable
   useEffect(() => {
@@ -206,12 +220,9 @@ function InputStandardAdv({ quote, setQuote }) {
               className="flex-1 bg-lime-50 border-lime-400 focus:border-lime-600 focus:ring-lime-600"
             >
               <option value=""></option>
-              <option>Imidachloprid 30.5% SC</option>
-              <option>Imidachloprid 30.5% SC 'Termida'</option>
-              <option>Chloropyriphos 20% EC</option>
-              <option>
-                Imidachloprid 30.5% SC ("PREMISE" - By Bayer India/ENVU)
-              </option>
+              {chemicalList?.map((chem, idx) => (
+                <option key={idx}>{chem.chemical}</option>
+              ))}
             </Select>
             <Button
               onClick={moreInfo}

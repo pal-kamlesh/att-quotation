@@ -43,10 +43,11 @@ function PrintWorkLogs({ id, quoteInfo }) {
             }`}
             onClick={() => openWorklogModal(log)}
           >
-            <p className="font-semibold">
-              {new Date(log.createdAt).toLocaleDateString()}{" "}
-              {new Date(log.createdAt).toLocaleTimeString()}
-            </p>
+            <div className="font-semibold flex items-center justify-start w-full gap-4">
+              <p>Date: {new Date(log.createdAt).toLocaleDateString()}</p>
+              <p>Time: {new Date(log.createdAt).toLocaleTimeString()}</p>
+            </div>
+            <p>Entry By: {log.entryBy?.username}</p>
           </div>
         ))}
       </div>

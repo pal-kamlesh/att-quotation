@@ -13,6 +13,9 @@ import { GiCancel } from "react-icons/gi";
 import { customAlphabet } from "nanoid";
 import { toast } from "react-toastify";
 import { FaEdit } from "react-icons/fa";
+import { unwrapResult } from "@reduxjs/toolkit";
+import { useDispatch } from "react-redux";
+import { getChemicals } from "../redux/contract/contractSlice";
 
 const nanoid = customAlphabet(
   "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
@@ -22,6 +25,7 @@ const nanoid = customAlphabet(
 function InputSupplyAdv({ quote, setQuote }) {
   const [validInput, setValidInput] = useState(false);
   const [infoArray, setInfoArray] = useState(quote.quoteInfo);
+  const [chemicalList, setChemicalList] = useState([]);
   const [infoObj, setInfoObj] = useState({
     _id: nanoid(),
     workAreaType: "",
@@ -31,10 +35,12 @@ function InputSupplyAdv({ quote, setQuote }) {
     chemical: "",
     description: "",
   });
+  const dispatch = useDispatch();
 
   useEffect(() => {
     setInfoArray(quote.quoteInfo);
   }, [quote.quoteInfo]);
+
   useEffect(() => {
     if (
       infoObj.workAreaType !== "" &&
@@ -53,6 +59,15 @@ function InputSupplyAdv({ quote, setQuote }) {
     infoObj.chemicalQuantity,
     infoObj.chemical,
   ]);
+
+  useEffect(() => {
+    async function fetchChemicals() {
+      const actionResult = await dispatch(getChemicals());
+      const result = unwrapResult(actionResult);
+      setChemicalList(result.data);
+    }
+    fetchChemicals();
+  }, [dispatch]);
 
   function handleInfoChange(e) {
     const { name, value } = e.target;
@@ -164,18 +179,9 @@ function InputSupplyAdv({ quote, setQuote }) {
               className="flex-1 bg-yellow-100 border-yellow-400 focus:border-yellow-600 focus:ring-yellow-600"
             >
               <option value=""></option>
-              <option value="Imidachloprid 30.5% SC">
-                Imidachloprid 30.5% SC
-              </option>
-              <option value="Imidachloprid 30.5% SC 'Termida'">
-                Imidachloprid 30.5% SC 'Termida'
-              </option>
-              <option value="Chloropyriphos 20% EC">
-                Chloropyriphos 20% EC
-              </option>
-              <option value='Imidachloprid 30.5% SC ("PREMISE" - By Bayer India/ENVU)'>
-                Imidachloprid 30.5% SC ("PREMISE" - By Bayer India/ENVU)
-              </option>
+              {chemicalList?.map((chem, idx) => (
+                <option key={idx}>{chem.chemical}</option>
+              ))}
             </Select>
             <Button
               onClick={moreInfo}

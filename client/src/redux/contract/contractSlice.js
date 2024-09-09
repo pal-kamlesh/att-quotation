@@ -278,6 +278,107 @@ export const updateContract = createAsyncThunk(
     }
   }
 );
+export const addChemical = createAsyncThunk(
+  "chemical/addChemical",
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await fetch("/api/v1/contract/chemical", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chemical: data }),
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        return rejectWithValue(errorData);
+      }
+      const result = await response.json();
+      return result;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+export const addBatchNumber = createAsyncThunk(
+  "chemical/addBatchNumber",
+  async (data, { rejectWithValue }) => {
+    const { _id, batchNo } = data;
+    try {
+      const response = await fetch(`/api/v1/contract/chemical/${_id}/batch`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ batchNo }),
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        return rejectWithValue(errorData);
+      }
+      const result = await response.json();
+      return result;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+export const deleteBatchNumber = createAsyncThunk(
+  "chemical/deleteBatchNumber",
+  async (data, { rejectWithValue }) => {
+    const { _id, batchNo } = data;
+    try {
+      const response = await fetch(`/api/v1/contract/chemical/${_id}/batch`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ batchNo }),
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        return rejectWithValue(errorData);
+      }
+      const result = await response.json();
+      return result;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+export const deleteChemical = createAsyncThunk(
+  "chemical/deleteChemical",
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await fetch(`/api/v1/contract/chemical/${data}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        return rejectWithValue(errorData);
+      }
+      const result = await response.json();
+      return result;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+export const getChemicals = createAsyncThunk(
+  "chemical/getChemicals",
+  async (data, { rejectWithValue }) => {
+    try {
+      const url = "/api/v1/contract/chemical";
+      const response = await fetch(url, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        return rejectWithValue(errorData);
+      }
+      const result = await response.json();
+      return result;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
 export const contractSlice = createSlice({
   name: "contract",
   initialState,
@@ -346,6 +447,51 @@ export const contractSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      .addCase(getChemicals.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(getChemicals.rejected, (state, { payload }) => {
+        state.loading = false;
+        toast.error(payload.message);
+      })
+      .addCase(deleteChemical.fulfilled, (state, { payload }) => {
+        state.loading = false;
+        state.chemicals = state.chemicals.filter(
+          (c) => c.chemical !== payload.data.chemical
+        );
+        toast.success("Chemical deleted successfully");
+      })
+      .addCase(deleteChemical.rejected, (state, { payload }) => {
+        state.loading = false;
+        toast.error(payload.message);
+      })
+      .addCase(deleteBatchNumber.fulfilled, (state, { payload }) => {
+        state.loading = false;
+        const index = state.chemicals.findIndex(
+          (c) => c.chemical === payload.data.chemical
+        );
+        if (index !== -1) state.chemicals[index] = payload.data;
+        toast.success("Batch number deleted successfully");
+      })
+      .addCase(deleteBatchNumber.rejected, (state, { payload }) => {
+        state.loading = false;
+        toast.error(payload.message);
+      })
+      .addCase(addBatchNumber.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(addBatchNumber.rejected, (state, { payload }) => {
+        state.loading = false;
+        toast.error(payload.message);
+      })
+      .addCase(addChemical.fulfilled, (state) => {
+        state.loading = false;
+        toast.success("Chemical added successfully");
+      })
+      .addCase(addChemical.rejected, (state, { payload }) => {
+        state.loading = false;
+        toast.error(payload.message);
+      })
       .addCase(uploadFiles.pending, (state) => {
         state.loading = true;
         state.newTicket.modeDetails.email.emailCopy = "";
@@ -512,6 +658,7 @@ export const contractSlice = createSlice({
       });
   },
 });
+
 export const {
   updateIssueField,
   handleMode,

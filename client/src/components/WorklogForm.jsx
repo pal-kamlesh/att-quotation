@@ -122,7 +122,7 @@ function WorklogForm({ id, quoteInfo, setWorkLogs, onClose }) {
               value={worklogObj.areaTreated}
               onChange={handleWorklogChange}
               required
-              className=" col-span-10 "
+              className="col-span-10"
             />
             <TextInput
               id="areaTreatedUnit"

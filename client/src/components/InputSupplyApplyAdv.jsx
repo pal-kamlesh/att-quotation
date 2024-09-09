@@ -13,6 +13,9 @@ import { GiCancel } from "react-icons/gi";
 import { customAlphabet } from "nanoid";
 import { toast } from "react-toastify";
 import { FaEdit } from "react-icons/fa";
+import { getChemicals } from "../redux/contract/contractSlice";
+import { unwrapResult } from "@reduxjs/toolkit";
+import { useDispatch } from "react-redux";
 
 const nanoid = customAlphabet(
   "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
@@ -35,6 +38,8 @@ function InputSupplyApplyAdv({ quote, setQuote }) {
     chemical: "",
     description: "",
   });
+  const [chemicalList, setChemicalList] = useState([]);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     setInfoArray(quote.quoteInfo);
@@ -63,6 +68,15 @@ function InputSupplyApplyAdv({ quote, setQuote }) {
     infoObj.applyRateUnit,
     infoObj.chemical,
   ]);
+
+  useEffect(() => {
+    async function fetchChemicals() {
+      const actionResult = await dispatch(getChemicals());
+      const result = unwrapResult(actionResult);
+      setChemicalList(result.data);
+    }
+    fetchChemicals();
+  }, [dispatch]);
 
   function handleInfoChange(e) {
     const { name, value } = e.target;
@@ -277,12 +291,9 @@ function InputSupplyApplyAdv({ quote, setQuote }) {
                 className="flex-1 bg-blue-100 border-blue-400 focus:border-blue-600 focus:ring-blue-600"
               >
                 <option value=""></option>
-                <option>Imidachloprid 30.5% SC</option>
-                <option>Imidachloprid 30.5% SC 'Termida'</option>
-                <option>Chloropyriphos 20% EC</option>
-                <option>
-                  Imidachloprid 30.5% SC ("PREMISE" - By Bayer India/ENVU)
-                </option>
+                {chemicalList?.map((chem, idx) => (
+                  <option key={idx}>{chem.chemical}</option>
+                ))}
               </Select>
               <Button
                 onClick={moreInfo}
