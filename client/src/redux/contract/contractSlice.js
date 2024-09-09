@@ -454,24 +454,15 @@ export const contractSlice = createSlice({
         state.loading = false;
         toast.error(payload.message);
       })
-      .addCase(deleteChemical.fulfilled, (state, { payload }) => {
+      .addCase(deleteChemical.fulfilled, (state) => {
         state.loading = false;
-        state.chemicals = state.chemicals.filter(
-          (c) => c.chemical !== payload.data.chemical
-        );
-        toast.success("Chemical deleted successfully");
       })
       .addCase(deleteChemical.rejected, (state, { payload }) => {
         state.loading = false;
         toast.error(payload.message);
       })
-      .addCase(deleteBatchNumber.fulfilled, (state, { payload }) => {
+      .addCase(deleteBatchNumber.fulfilled, (state) => {
         state.loading = false;
-        const index = state.chemicals.findIndex(
-          (c) => c.chemical === payload.data.chemical
-        );
-        if (index !== -1) state.chemicals[index] = payload.data;
-        toast.success("Batch number deleted successfully");
       })
       .addCase(deleteBatchNumber.rejected, (state, { payload }) => {
         state.loading = false;
@@ -486,7 +477,6 @@ export const contractSlice = createSlice({
       })
       .addCase(addChemical.fulfilled, (state) => {
         state.loading = false;
-        toast.success("Chemical added successfully");
       })
       .addCase(addChemical.rejected, (state, { payload }) => {
         state.loading = false;
