@@ -793,6 +793,7 @@ const generateSupplyApplyDoc = async (data) => {
 const generateStandardContractAdv = async (data, annexure) => {
   const {
     contractNo,
+    contractDate,
     billToAddress,
     shipToAddress,
     paymentTerms,
@@ -974,7 +975,9 @@ const generateStandardContractAdv = async (data, annexure) => {
                         alignment: AlignmentType.LEFT,
                         children: [
                           new TextRun({
-                            text: `Contract Date     :${formatDate(createdAt)}`,
+                            text: `Contract Date     :${formatDate(
+                              contractDate ? contractDate : createdAt
+                            )}`,
                           }),
                         ],
                       }),

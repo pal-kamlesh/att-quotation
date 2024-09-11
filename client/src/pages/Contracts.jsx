@@ -10,6 +10,7 @@ import {
   ViewContract,
   PopUp,
   QRbutton,
+  HistoryPanelContract,
 } from "../components/index.js";
 import TimeAgo from "react-timeago";
 import { Button, Table } from "flowbite-react";
@@ -17,6 +18,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { getInitials } from "../redux/user/userSlice.js";
 import {
   approve,
+  // eslint-disable-next-line no-unused-vars
+  deleteContract,
   getContracts,
   showMoreContract,
 } from "../redux/contract/contractSlice.js";
@@ -39,6 +42,8 @@ function Contracts() {
   const [viewModel, setViewModel] = useState(false);
   const [activeId, setActiveId] = useState("");
   const [pending, setPending] = useState(false);
+  const [archiveModel, setArchiveModel] = useState(false);
+  const [contractNo, setContractNo] = useState(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -57,6 +62,7 @@ function Contracts() {
     }, 400), // Debounce delay in milliseconds
     [contracts.length, showMore, extraQuery, dispatch] // Dependencies for useCallback
   );
+
   useEffect(() => {
     if (contracts.length <= 0) {
       dispatch(getInitials());
@@ -109,6 +115,16 @@ function Contracts() {
     // eslint-disable-next-line no-unused-vars
     const result = unwrapResult(actionResult);
   }
+
+  // async function handleDelete(id) {
+  //   if (!currentUser.rights.admin) {
+  //     toast.error("Contact KP to Delete.");
+  //     return;
+  //   }
+  //   const actionResult = await dispatch(deleteContract(id));
+  //   const result = unwrapResult(actionResult);
+  //   toast.success(result.message);
+  // }
   return (
     <div className=" max-w-[1400px] mx-auto ">
       {loading ? <Loading /> : null}
@@ -172,9 +188,11 @@ function Contracts() {
                         </div>
                       </Table.Cell>
                       <Table.Cell>
-                        {new Date(contract.createdAt).toLocaleDateString(
-                          "en-GB"
-                        )}
+                        {new Date(
+                          contract.contractDate
+                            ? contract.contractDate
+                            : contract.createdAt
+                        ).toLocaleDateString("en-GB")}
                       </Table.Cell>
                       <Table.Cell>{contract.createdBy?.username}</Table.Cell>
                       <Table.Cell>
@@ -216,6 +234,29 @@ function Contracts() {
                           >
                             View
                           </Button>
+                          {/* {currentUser.rights.admin ? (
+                            <Button
+                              onClick={() => [
+                                setActiveId(contract._id),
+                                handleDelete(contract._id),
+                              ]}
+                              gradientMonochrome="failure"
+                            >
+                              Delete
+                            </Button>
+                          ) : null} */}
+                          {contract.approved ? (
+                            <Button
+                              onClick={() => [
+                                setArchiveModel(true),
+                                setActiveId(contract._id),
+                                setContractNo(contract.quotationNo),
+                              ]}
+                              gradientDuoTone="tealToLime"
+                            >
+                              History
+                            </Button>
+                          ) : null}
                           <PopUpContract
                             id={contract._id}
                             setActiveId={setActiveId}
@@ -276,6 +317,26 @@ function Contracts() {
         }
       >
         <ViewContract id={activeId} />
+      </CustomModal>
+      <CustomModal
+        isOpen={archiveModel}
+        onClose={() => [setArchiveModel(!archiveModel)]}
+        size="7xl"
+        heading={
+          <div className="flex items-center justify-center">
+            <span>View/Edit</span>
+            {contractNo ? (
+              <span className="ml-5">{contractNo}</span>
+            ) : (
+              <span className="ml-5">{contractNo}</span>
+            )}
+          </div>
+        }
+      >
+        <HistoryPanelContract
+          contractId={activeId}
+          onClose={() => [setArchiveModel(!archiveModel)]}
+        />
       </CustomModal>
     </div>
   );

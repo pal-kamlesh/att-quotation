@@ -1,11 +1,15 @@
 import mongoose from "mongoose";
-import { Counter } from "./index.js";
+import { Counter, DC, QuoteInfo, QuoteArchive, WorkLogs } from "./index.js";
 
 const contractSchema = mongoose.Schema(
   {
     quotation: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Quotation",
+    },
+    contractDate: {
+      type: Date,
+      default: null,
     },
     contractNo: {
       type: String,
@@ -117,8 +121,10 @@ contractSchema.virtual("workLog", {
 contractSchema.set("toObject", { virtuals: false });
 contractSchema.set("toJSON", { virtuals: false });
 
+//######Uncomment contractDate for automatic No###########
 contractSchema.methods.approve = async function () {
   this.approved = true;
+  //this.contractDate = new Date();
   return this.save();
 };
 contractSchema.methods.generateContractNo = async function () {
@@ -146,10 +152,6 @@ contractSchema.methods.generateContractNo = async function () {
 
     // Set the generated contract number on the current document
     this.contractNo = newContractNo;
-
-    // Optionally, you can add a check to ensure the generated number is unique
-
-    // Save the current document with the new contract number
     return this.save();
   } catch (error) {
     // Log the error and rethrow it
@@ -167,6 +169,34 @@ contractSchema.statics.isApproved = async function (id) {
   const doc = await this.findById(id, "approved");
   return doc ? doc.approved : false;
 };
+
+contractSchema.pre("findOneAndDelete", async function (next) {
+  try {
+    // Get the document that is about to be deleted
+    const doc = await this.model.findOne(this.getFilter());
+
+    if (doc) {
+      // Now we can use doc instead of this
+      await mongoose
+        .model("QuoteInfo")
+        .deleteMany({ _id: { $in: doc.quoteInfo } });
+      await mongoose.model("DC").deleteMany({ _id: { $in: doc.dcs } });
+      await mongoose
+        .model("WorkLogs")
+        .deleteMany({ _id: { $in: doc.worklogs } });
+      await mongoose.model("QuoteArchive").deleteOne({ quotationId: doc._id });
+      await mongoose.model("WorkLogs").deleteOne({ contractId: doc._id });
+
+      if (doc.quotation) {
+        await mongoose.model("Quotation").deleteOne({ _id: doc.quotation });
+      }
+    }
+
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
 
 const Contract = mongoose.model("Contract", contractSchema);
 export default Contract;

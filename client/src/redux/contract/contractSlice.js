@@ -239,11 +239,11 @@ export const docxData = createAsyncThunk(
     }
   }
 );
-export const archiveData = createAsyncThunk(
-  "get/archivedata",
+export const archiveDataContract = createAsyncThunk(
+  "contract/archivedata",
   async (data, { rejectWithValue }) => {
     try {
-      const response = await fetch(`/api/v1/quotation/archive/${data}`);
+      const response = await fetch(`/api/v1/contract/archive/${data}`);
       if (!response.ok) {
         const errorData = await response.json();
         return rejectWithValue(errorData);
@@ -366,6 +366,26 @@ export const getChemicals = createAsyncThunk(
       const url = "/api/v1/contract/chemical";
       const response = await fetch(url, {
         method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        return rejectWithValue(errorData);
+      }
+      const result = await response.json();
+      return result;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+export const deleteContract = createAsyncThunk(
+  "contract/delete",
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await fetch(`/api/v1/contract/${data}`, {
+        method: "DELETE",
         headers: { "Content-Type": "application/json" },
       });
       if (!response.ok) {
@@ -586,7 +606,7 @@ export const contractSlice = createSlice({
       })
       .addCase(getSingleContract.rejected, (state, { payload }) => {
         state.loading = false;
-        toast.error(payload);
+        toast.error(payload.message);
       })
       .addCase(approve.pending, (state) => {
         state.loading = true;
@@ -636,13 +656,13 @@ export const contractSlice = createSlice({
         state.loading = false;
         toast.error(payload.message);
       })
-      .addCase(archiveData.pending, (state) => {
+      .addCase(archiveDataContract.pending, (state) => {
         state.loading = true;
       })
-      .addCase(archiveData.fulfilled, (state) => {
+      .addCase(archiveDataContract.fulfilled, (state) => {
         state.loading = false;
       })
-      .addCase(archiveData.rejected, (state, { payload }) => {
+      .addCase(archiveDataContract.rejected, (state, { payload }) => {
         state.loading = false;
         toast.error(payload);
       });

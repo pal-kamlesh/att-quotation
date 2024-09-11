@@ -198,7 +198,6 @@ const contractify = async (req, res, next) => {
       quoteInfo: quoteInfoIds,
       createdBy: req.user.id,
     });
-    await newContract.generateContractNo();
     quote.contractified = true;
     await quote.save();
     res.status(200).json({ message: "Contract Created!", result: quote });
@@ -332,6 +331,7 @@ const docData = async (req, res, next) => {
     next(error);
   }
 };
+//######Uncomment generateContractNo for automatic No###########
 const approve = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -339,6 +339,7 @@ const approve = async (req, res, next) => {
       .populate("quoteInfo")
       .populate("createdBy");
     await data.approve();
+    //await data.generateContractNo();
     res.status(200).json({
       message: "Contract Approved.",
       result: data,
@@ -481,7 +482,6 @@ const getChemical = async (req, res, next) => {
     next(error);
   }
 };
-
 const addChemical = async (req, res, next) => {
   const { chemical } = req.body;
   try {
@@ -558,6 +558,41 @@ const deleteChemical = async (req, res, next) => {
     next(error);
   }
 };
+const deletedContract = async (req, res, next) => {
+  try {
+    const { contractId } = req.params;
+
+    const contract = await Contract.findOneAndDelete({ _id: contractId });
+
+    if (!contract) {
+      return res.status(404).json({ message: "Contract not found" });
+    }
+
+    res.status(200).json({ message: "Contract Deleted!" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getArchive = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const data = await Contract.findById(id)
+      .populate("quoteInfo")
+      .populate("salesPerson")
+      .populate("createdBy")
+      .populate({
+        path: "archive",
+        populate: { path: "revisions.author", model: "User" },
+      });
+    res.status(200).json({
+      message: "Nothing to say for now.",
+      result: data,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 export {
   create,
@@ -577,4 +612,6 @@ export {
   deleteBatchNumber,
   deleteChemical,
   getChemical,
+  deletedContract,
+  getArchive,
 };

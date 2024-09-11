@@ -9,6 +9,7 @@ import Contracts from "./Contracts";
 import Cards from "./Cards";
 import Reports from "./Reports";
 import WorkLog from "./WorkLog";
+import WorkLogDash from "./WorkLogDash";
 import PrintWorkLogs from "../components/PrintWorkLogs";
 
 export {
@@ -23,5 +24,6 @@ export {
   Cards,
   Reports,
   WorkLog,
+  WorkLogDash,
   PrintWorkLogs,
 };

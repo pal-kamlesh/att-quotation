@@ -132,42 +132,42 @@ function NewContract({ onClose }) {
     }
   }
 
-  // function dummyQuote() {
-  //   const data = {
-  //     contract: {
-  //       billToAddress: {
-  //         prefix: "M/s.",
-  //         name: "KEC International Ltd.",
-  //         a1: "Raghuram Heights",
-  //         a2: "463",
-  //         a3: "Dr Annie Besant Raod",
-  //         a4: "Worli",
-  //         a5: "Opposite Hell",
-  //         city: "Mumbai",
-  //         pincode: "400030",
-  //         kci: [],
-  //       },
-  //       shipToAddress: {
-  //         projectName: "Prestige City Rehab Project",
-  //         a1: "Raghuram Heights",
-  //         a2: "463",
-  //         a3: "Dr Annie Besant Raod",
-  //         a4: "Worli",
-  //         a5: "Opposite Hell",
-  //         city: "Mumbai",
-  //         pincode: "400030",
-  //         kci: [],
-  //       },
-  //       kindAttentionPrefix: "Mr.",
-  //       kindAttention: "Malahari Naik",
-  //       reference: "Our earlier quotation No EPPL/ATT/QTN/401",
-  //       specification: "As per IS 6313 (Part 2):2013",
-  //       note: "",
-  //       quoteInfo: [],
-  //     },
-  //   };
-  //   setContract(data.contract);
-  // }
+  function dummyQuote() {
+    const data = {
+      contract: {
+        billToAddress: {
+          prefix: "M/s.",
+          name: "KEC International Ltd.",
+          a1: "Raghuram Heights",
+          a2: "463",
+          a3: "Dr Annie Besant Raod",
+          a4: "Worli",
+          a5: "Opposite Hell",
+          city: "Mumbai",
+          pincode: "400030",
+          kci: [],
+        },
+        shipToAddress: {
+          projectName: "Prestige City Rehab Project",
+          a1: "Raghuram Heights",
+          a2: "463",
+          a3: "Dr Annie Besant Raod",
+          a4: "Worli",
+          a5: "Opposite Hell",
+          city: "Mumbai",
+          pincode: "400030",
+          kci: [],
+        },
+        kindAttentionPrefix: "Mr.",
+        kindAttention: "Malahari Naik",
+        reference: "Our earlier quotation No EPPL/ATT/QTN/401",
+        specification: "As per IS 6313 (Part 2):2013",
+        note: "",
+        quoteInfo: [],
+      },
+    };
+    setContract(data.contract);
+  }
   async function handleSubmit(e) {
     e.preventDefault();
     if (
@@ -289,9 +289,9 @@ function NewContract({ onClose }) {
           >
             Copy BillTo/ShipTo
           </Button>
-          {/* <Button outline gradientMonochrome="cyan" onClick={dummyQuote}>
+          <Button outline gradientMonochrome="cyan" onClick={dummyQuote}>
             Dummy contract
-          </Button> */}
+          </Button>
         </div>
         <div className="grid grid-cols-8 gap-4 border mb-4 rounded-md">
           <div className=" p-4 col-span-4">

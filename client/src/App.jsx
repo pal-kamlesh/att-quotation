@@ -12,6 +12,7 @@ import {
   Cards,
   Reports,
   WorkLog,
+  WorkLogDash,
 } from "./pages";
 
 function App() {
@@ -25,7 +26,7 @@ function App() {
           <Route path="/contracts" element={<Contracts />} />
           <Route path="/cards" element={<Cards />} />
           <Route path="/user" element={<User />} />
-          <Route path="/workLog" element={<Reports />} />
+          <Route path="/workLog" element={<WorkLogDash />} />
           <Route path="/workLog/:id" element={<WorkLog />} />
           <Route path="/reports" element={<Reports />} />
           <Route path="*" element={<PageNotFound />} />

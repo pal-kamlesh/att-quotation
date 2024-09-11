@@ -1,12 +1,13 @@
 /* eslint-disable react/prop-types */
 import { useDispatch } from "react-redux";
-import { archiveData } from "../redux/quote/quoteSlice";
 import { useEffect, useState } from "react";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { diff } from "deep-object-diff";
 import { Loading, RevisionHistoryCard } from "./index.js";
+import { archiveDataContract } from "../redux/contract/contractSlice.js";
+import { Table } from "flowbite-react";
 
-function Diff({ quoteId }) {
+function HistoryPanelContract({ contractId }) {
   const dispatch = useDispatch();
   const [latest, setLatest] = useState({});
   const [archive, setArchive] = useState([]);
@@ -17,7 +18,7 @@ function Diff({ quoteId }) {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const resultAction = await dispatch(archiveData(quoteId));
+        const resultAction = await dispatch(archiveDataContract(contractId));
         const result = unwrapResult(resultAction);
 
         const { archive: history, ...rest } = result.result;
@@ -37,11 +38,12 @@ function Diff({ quoteId }) {
     };
 
     fetchData();
-  }, [dispatch, quoteId]);
+  }, [dispatch, contractId]);
 
   useEffect(() => {
     if (archive?.length > 0) {
       const modifiedKeys = getModifiedKeys(archive[0].state, latest);
+      console.log(modifiedKeys);
     }
   }, [latest, archive]);
 
@@ -87,15 +89,14 @@ function Diff({ quoteId }) {
         <div className="bg-gray-200 p-4 rounded-t-lg top-0">
           {/* Make the header sticky */}
           <h1 className="text-xl font-bold">
-            Quotation No: {revisionDetails?.quotationNo}
+            Contract No: {revisionDetails?.contractNo}
           </h1>
           <p className="text-gray-600">
             Date:
-            {new Date(revisionDetails?.quotationDate).toLocaleDateString(
+            {new Date(revisionDetails?.contractDate).toLocaleDateString(
               "en-GB"
             )}
           </p>
-          <p className="text-gray-600">Subject: {revisionDetails?.subject}</p>
         </div>
         {/* Company & Contact Information */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-white p-4 border-b border-gray-200">
@@ -118,6 +119,31 @@ function Diff({ quoteId }) {
               {revisionDetails?.billToAddress?.city},{" "}
               {revisionDetails?.billToAddress?.pincode}
             </p>
+            <div className="overflow-x-auto mt-2">
+              <Table hoverable className="w-full">
+                <Table.Head>
+                  <Table.HeadCell>Sr.No</Table.HeadCell>
+                  <Table.HeadCell>Name</Table.HeadCell>
+                  <Table.HeadCell>Contact</Table.HeadCell>
+                  <Table.HeadCell>Email</Table.HeadCell>
+                </Table.Head>
+                <Table.Body className="divide-y">
+                  {revisionDetails.billToAddress?.kci.map((kci, idx) => (
+                    <Table.Row
+                      key={kci.id}
+                      className={`${
+                        idx % 2 === 0 ? "bg-white" : "bg-gray-100"
+                      } dark:bg-gray-800`}
+                    >
+                      <Table.Cell>{idx + 1}</Table.Cell>
+                      <Table.Cell>{kci.name}</Table.Cell>
+                      <Table.Cell>{kci.contact}</Table.Cell>
+                      <Table.Cell>{kci.email}</Table.Cell>
+                    </Table.Row>
+                  ))}
+                </Table.Body>
+              </Table>
+            </div>
           </div>
           <div>
             <h2 className="text-lg font-semibold">Ship To:</h2>
@@ -135,24 +161,41 @@ function Diff({ quoteId }) {
               {revisionDetails?.shipToAddress?.city},{" "}
               {revisionDetails?.shipToAddress?.pincode}
             </p>
-          </div>
-          <div className="col-span-1 md:col-span-2">
-            <h2 className="text-lg font-semibold">Kind Attention:</h2>
-            <p>
-              {revisionDetails?.kindAttentionPrefix}{" "}
-              {revisionDetails?.kindAttention}
-            </p>
-            <p>Reference: {revisionDetails?.reference}</p>
+            <div className="overflow-x-auto mt-2">
+              <Table hoverable className="w-full">
+                <Table.Head>
+                  <Table.HeadCell>Sr.No</Table.HeadCell>
+                  <Table.HeadCell>Name</Table.HeadCell>
+                  <Table.HeadCell>Contact</Table.HeadCell>
+                  <Table.HeadCell>Email</Table.HeadCell>
+                </Table.Head>
+                <Table.Body className="divide-y">
+                  {revisionDetails.shipToAddress?.kci.map((kci, idx) => (
+                    <Table.Row
+                      key={kci.id}
+                      className={`${
+                        idx % 2 === 0 ? "bg-white" : "bg-gray-100"
+                      } dark:bg-gray-800`}
+                    >
+                      <Table.Cell>{idx + 1}</Table.Cell>
+                      <Table.Cell>{kci.name}</Table.Cell>
+                      <Table.Cell>{kci.contact}</Table.Cell>
+                      <Table.Cell>{kci.email}</Table.Cell>
+                    </Table.Row>
+                  ))}
+                </Table.Body>
+              </Table>
+            </div>
           </div>
         </div>
         {/* Treatment & Specification Details */}
         <div className="bg-white p-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold">Treatment Type:</h2>
-          <p>{revisionDetails?.treatmentType}</p>
-          <h2 className="text-lg font-semibold mt-4">Specification:</h2>
-          <p>{revisionDetails?.specification}</p>
-          <h2 className="text-lg font-semibold mt-4">Equipments:</h2>
-          <p>{revisionDetails?.equipments}</p>
+          <h2 className="text-lg font-semibold">Gst No:</h2>
+          <p>{revisionDetails?.gstNo}</p>
+          <h2 className="text-lg font-semibold mt-4">Work Order No:</h2>
+          <p>{revisionDetails?.workOrderNo}</p>
+          <h2 className="text-lg font-semibold mt-4">Work Order Date:</h2>
+          <p>{revisionDetails?.workOrderDate}</p>
         </div>
         {/* Payment & Taxation Information */}
         <div className="bg-white p-4 border-b border-gray-200">
@@ -225,4 +268,4 @@ function Diff({ quoteId }) {
   );
 }
 
-export default Diff;
+export default HistoryPanelContract;

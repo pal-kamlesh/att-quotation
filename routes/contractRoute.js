@@ -17,6 +17,8 @@ import {
   deleteBatchNumber,
   deleteChemical,
   getChemical,
+  deletedContract,
+  getArchive,
 } from "../controller/contractController.js";
 import { verifyToken } from "../middleware/verifyUser.js";
 
@@ -39,5 +41,7 @@ router.delete("/chemical/:chemicalId/batch", deleteBatchNumber);
 router.delete("/chemical/:chemicalId", deleteChemical);
 router.get("/:id", verifyToken, singleContract);
 router.post("/:id", verifyToken, update);
+router.delete("/:contractId", verifyToken, deletedContract);
+router.get("/archive/:id", verifyToken, getArchive);
 
 export default router;

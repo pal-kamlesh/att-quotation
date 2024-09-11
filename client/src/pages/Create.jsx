@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import TimeAgo from "react-timeago";
 import {
   CustomModal,
-  Diff,
+  HistoryPanelQuote,
   Loading,
   NewQuote,
   PopUp2,
@@ -368,7 +368,7 @@ export default function Create() {
           </div>
         }
       >
-        <Diff
+        <HistoryPanelQuote
           quoteId={quoteId}
           onClose={() => [setArchiveModel(!archiveModel)]}
         />

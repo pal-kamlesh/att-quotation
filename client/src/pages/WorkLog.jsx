@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Button } from "flowbite-react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { getSingleContract } from "../redux/contract/contractSlice";
 import { unwrapResult } from "@reduxjs/toolkit";
@@ -12,12 +12,17 @@ function WorkLog() {
   const [pending, setPending] = useState(false);
   const { id } = useParams();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function fn() {
-      const actionResult = await dispatch(getSingleContract(id));
-      const result = await unwrapResult(actionResult);
-      setContract(result.result);
+      try {
+        const actionResult = await dispatch(getSingleContract(id));
+        const result = unwrapResult(actionResult);
+        setContract(result.result);
+      } catch (error) {
+        navigate("/");
+      }
     }
     fn();
   }, [dispatch, id]);

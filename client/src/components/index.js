@@ -8,7 +8,6 @@ import ViewQuote from "./ViewQuote";
 import ViewContract from "./ViewContract";
 import QuotationDownloadButton from "./DownloadButtonQuotation";
 import ContractDownloadButton from "./DownloadButtonContract";
-import Diff from "./Diff";
 import RevisionHistoryCard from "./RevisionHistoryCard";
 import KCI from "./KCI";
 import InputStandardAdv from "./InputStandardAdv";
@@ -26,6 +25,8 @@ import DCForm from "./DCForm";
 import PrintDC from "./PrintDC";
 import PrintWorkLogs from "./PrintWorkLogs";
 import QRbutton from "./QRbutton";
+import HistoryPanelContract from "./HistoryPanelContract";
+import HistoryPanelQuote from "./HistoryPanelQuote";
 export {
   CustomModal,
   NewQuote,
@@ -37,7 +38,6 @@ export {
   ViewContract,
   QuotationDownloadButton,
   ContractDownloadButton,
-  Diff,
   RevisionHistoryCard,
   KCI,
   InputStandardAdv,
@@ -55,4 +55,6 @@ export {
   PrintDC,
   PrintWorkLogs,
   QRbutton,
+  HistoryPanelContract,
+  HistoryPanelQuote,
 };
