@@ -339,7 +339,7 @@ const approve = async (req, res, next) => {
       .populate("quoteInfo")
       .populate("createdBy");
     await data.approve();
-    //await data.generateContractNo();
+    await data.generateContractNo();
     res.status(200).json({
       message: "Contract Approved.",
       result: data,

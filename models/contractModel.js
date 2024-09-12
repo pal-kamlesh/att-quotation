@@ -124,7 +124,7 @@ contractSchema.set("toJSON", { virtuals: false });
 //######Uncomment contractDate for automatic No###########
 contractSchema.methods.approve = async function () {
   this.approved = true;
-  //this.contractDate = new Date();
+  this.contractDate = new Date();
   return this.save();
 };
 contractSchema.methods.generateContractNo = async function () {
