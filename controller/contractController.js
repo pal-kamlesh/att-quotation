@@ -10,7 +10,7 @@ import {
 import {
   differenceBetweenArrays,
   remove_IdFromObj,
-  createQuoteArchiveEntry,
+  createContractArchiveEntry,
 } from "../utils/functions.js";
 
 const create = async (req, res, next) => {
@@ -240,12 +240,7 @@ const update = async (req, res, next) => {
         .populate({ path: "createdBy", select: "-password" })
         .lean();
       const author = req.user.id;
-      const archive = await createQuoteArchiveEntry(
-        contractId,
-        state,
-        author,
-        message
-      );
+      await createContractArchiveEntry(contractId, state, author, message);
     }
 
     // Fetch the existing quotation document
@@ -278,6 +273,7 @@ const update = async (req, res, next) => {
       }
       updatedQuoteInfoIds.push(quoteInfoDoc._id);
     }
+
     if (!isapproved) {
       const { quoteInfo: oldIdArray } = await Contract.findById(
         contractId
@@ -303,7 +299,7 @@ const update = async (req, res, next) => {
     contract.quoteInfo = updatedQuoteInfoIds;
     await contract.save();
 
-    // Fetch the updated quotation with populated quoteInfo
+    // Fetch the updated quotation with populated quoteInfo & send resposnse
     const finalContract = await Contract.findById(contractId)
       .populate("quoteInfo")
       .populate("createdBy");
@@ -584,7 +580,8 @@ const getArchive = async (req, res, next) => {
       .populate({
         path: "archive",
         populate: { path: "revisions.author", model: "User" },
-      });
+      })
+      .lean();
     res.status(200).json({
       message: "Nothing to say for now.",
       result: data,

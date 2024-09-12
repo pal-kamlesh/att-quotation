@@ -25,9 +25,25 @@ async function createQuoteArchiveEntry(quoteId, state, author, message) {
     await newArchive.save();
   }
 }
+
+async function createContractArchiveEntry(contractId, state, author, message) {
+  const theArchive = await QuoteArchive.findOne({ contractId });
+  if (theArchive) {
+    theArchive.revisions.push({ state, author, message });
+    await theArchive.save();
+  } else {
+    const newArchive = new QuoteArchive({
+      contractId,
+      revisions: [{ state, author, message }],
+    });
+    await newArchive.save();
+  }
+}
+
 export {
   differenceBetweenArrays,
   removeIdFromDocuments,
   remove_IdFromObj,
   createQuoteArchiveEntry,
+  createContractArchiveEntry,
 };

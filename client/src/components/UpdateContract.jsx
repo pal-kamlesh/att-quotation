@@ -65,6 +65,7 @@ function UpdateContract({ onClose, activeId = null }) {
   const [doc, setDoc] = useState(contract?.docType);
   const [disableRadio, setDisableRadio] = useState(false);
   const [areaTypeModel, setAreaTypeModel] = useState(false);
+  const [message, setMessage] = useState("");
   const [docType, setDocType] = useState("");
   const dispatch = useDispatch();
   const { initials } = useSelector((state) => state.user);
@@ -182,7 +183,23 @@ function UpdateContract({ onClose, activeId = null }) {
   }, [docType]);
   console.log(docType);
 
-  async function handleSubmit(e) {
+  async function handleSubmitApproved(e) {
+    e.preventDefault();
+    if (message === "") {
+      toast.error("Please provide resion for Revision.");
+      return;
+    }
+    if (contract.quoteInfo.length <= 0) {
+      toast.error("Please fill the number details.");
+      return;
+    }
+    const data = { id: contract._id, contract, message };
+    const actionResult = await dispatch(updateContract(data));
+    // eslint-disable-next-line no-unused-vars
+    const result = unwrapResult(actionResult);
+    onClose();
+  }
+  async function handleSubmitNotApproved(e) {
     e.preventDefault();
     if (
       contract.billToAddress.name === "" ||
@@ -683,6 +700,19 @@ function UpdateContract({ onClose, activeId = null }) {
         {doc === "supply/apply" && (
           <InputSupplyApplyAdv quote={contract} setQuote={setContract} />
         )}
+        {contract.approved ? (
+          <div className="col-span-1 mb-4">
+            <Label>
+              <span>Revision Reason:</span>
+              <span className="text-red-500">*</span>
+            </Label>
+            <Textarea
+              name="message"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+            />
+          </div>
+        ) : null}
         <div className="col-span-1 mb-4">
           <Label>Notes: </Label>
           <Textarea
@@ -691,8 +721,13 @@ function UpdateContract({ onClose, activeId = null }) {
             value={contract.note}
           />
         </div>
-        <Button type="submit" onClick={handleSubmit}>
-          Submit
+        <Button
+          type="submit"
+          onClick={
+            contract.approved ? handleSubmitApproved : handleSubmitNotApproved
+          }
+        >
+          Update
         </Button>
       </form>
       <CustomModal

@@ -4,7 +4,9 @@ import mongooseLeanVirtuals from "mongoose-lean-virtuals";
 const quoteArchiveSchema = mongoose.Schema({
   quotationId: {
     type: mongoose.Schema.Types.ObjectId,
-    required: true,
+  },
+  contractId: {
+    type: mongoose.Schema.Types.ObjectId,
   },
   revisions: [
     {
@@ -27,6 +29,14 @@ const quoteArchiveSchema = mongoose.Schema({
     },
   ],
 });
+// Custom validator to ensure either quotationId or contractId is provided
+quoteArchiveSchema.path("quotationId").validate(function (value) {
+  return value || this.contractId;
+}, "Either quotationId or contractId is required.");
+
+quoteArchiveSchema.path("contractId").validate(function (value) {
+  return value || this.quotationId;
+}, "Either quotationId or contractId is required.");
 
 quoteArchiveSchema.plugin(mongooseLeanVirtuals);
 

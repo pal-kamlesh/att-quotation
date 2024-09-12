@@ -489,7 +489,7 @@ function Update({ quoteId, onClose }) {
             <span className="text-red-500">*</span>
           </Label>
           <Textarea
-            name="note"
+            name="message"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
           />

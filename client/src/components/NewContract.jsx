@@ -29,7 +29,6 @@ const getInitialContractState = () => {
     return contract;
   }
   return {
-    contractNo: "",
     salesPerson: "",
     billToAddress: {
       prefix: "",
@@ -213,16 +212,6 @@ function NewContract({ onClose }) {
       {loading ? <Loading /> : null}
       <form className="">
         <div className="flex items-center justify-evenly gap-4 mb-4 flex-wrap">
-          <div className="max-w-full">
-            <div className="mb-2 block">
-              <Label htmlFor="contractNo" value="Contract No" />
-            </div>
-            <TextInput
-              name="contractNo"
-              value={contract.contractNo}
-              onChange={handleQuoteChange}
-            />
-          </div>
           <div className="max-w-full">
             <div className="mb-2 block">
               <Label htmlFor="workOrderNo" value="Work Order No" />

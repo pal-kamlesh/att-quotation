@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { Counter, DC, QuoteInfo, QuoteArchive, WorkLogs } from "./index.js";
+import { Counter } from "./index.js";
 
 const contractSchema = mongoose.Schema(
   {
@@ -106,7 +106,7 @@ const contractSchema = mongoose.Schema(
 contractSchema.virtual("archive", {
   ref: "QuoteArchive",
   localField: "_id",
-  foreignField: "quotationId",
+  foreignField: "contractId",
   justOne: true,
 });
 
