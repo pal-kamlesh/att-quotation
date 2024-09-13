@@ -257,7 +257,10 @@ export default function Create() {
                             <Button gradientDuoTone="greenToBlue">Email</Button>
                           ) : null}
 
-                          {ticket.approved && !ticket.contractified ? (
+                          {ticket.approved &&
+                          !ticket.contractified &&
+                          (currentUser.rights.createContract ||
+                            currentUser.rights.admin) ? (
                             <Button
                               gradientMonochrome="purple"
                               onClick={() => [

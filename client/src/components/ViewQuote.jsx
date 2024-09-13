@@ -5,7 +5,7 @@ import { getSingleQuote } from "../redux/quote/quoteSlice";
 import { useDispatch, useSelector } from "react-redux";
 import Loading from "./Loading";
 import { saprateQuoteInfo } from "../funtions/funtion.js";
-import { Button } from "flowbite-react";
+import { Button, Table } from "flowbite-react";
 
 function longestKey() {
   return Math.max(
@@ -113,6 +113,31 @@ const ViewQuote = forwardRef((props) => {
               <p className="text-gray-600">
                 {quote.billToAddress?.city} - {quote.billToAddress?.pincode}
               </p>
+              <div className="overflow-x-auto mt-2 mb-2">
+                <Table hoverable className="w-full">
+                  <Table.Head>
+                    <Table.HeadCell>Sr.No</Table.HeadCell>
+                    <Table.HeadCell>Name</Table.HeadCell>
+                    <Table.HeadCell>Contact</Table.HeadCell>
+                    <Table.HeadCell>Email</Table.HeadCell>
+                  </Table.Head>
+                  <Table.Body className="divide-y">
+                    {quote.billToAddress?.kci.map((kci, idx) => (
+                      <Table.Row
+                        key={kci.id}
+                        className={`${
+                          idx % 2 === 0 ? "bg-white" : "bg-gray-100"
+                        } dark:bg-gray-800`}
+                      >
+                        <Table.Cell>{idx + 1}</Table.Cell>
+                        <Table.Cell>{kci.name}</Table.Cell>
+                        <Table.Cell>{kci.contact}</Table.Cell>
+                        <Table.Cell>{kci.email}</Table.Cell>
+                      </Table.Row>
+                    ))}
+                  </Table.Body>
+                </Table>
+              </div>
             </div>
             <div>
               <h2 className="text-lg font-semibold mb-2">Ship To:</h2>
@@ -129,6 +154,31 @@ const ViewQuote = forwardRef((props) => {
               <p className="text-gray-600">
                 {quote.shipToAddress?.city} - {quote.shipToAddress?.pincode}
               </p>
+              <div className="overflow-x-auto mt-2 mb-2">
+                <Table hoverable className="w-full">
+                  <Table.Head>
+                    <Table.HeadCell>Sr.No</Table.HeadCell>
+                    <Table.HeadCell>Name</Table.HeadCell>
+                    <Table.HeadCell>Contact</Table.HeadCell>
+                    <Table.HeadCell>Email</Table.HeadCell>
+                  </Table.Head>
+                  <Table.Body className="divide-y">
+                    {quote.shipToAddress?.kci.map((kci, idx) => (
+                      <Table.Row
+                        key={kci.id}
+                        className={`${
+                          idx % 2 === 0 ? "bg-white" : "bg-gray-100"
+                        } dark:bg-gray-800`}
+                      >
+                        <Table.Cell>{idx + 1}</Table.Cell>
+                        <Table.Cell>{kci.name}</Table.Cell>
+                        <Table.Cell>{kci.contact}</Table.Cell>
+                        <Table.Cell>{kci.email}</Table.Cell>
+                      </Table.Row>
+                    ))}
+                  </Table.Body>
+                </Table>
+              </div>
             </div>
           </div>
 
