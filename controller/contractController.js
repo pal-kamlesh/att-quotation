@@ -18,6 +18,7 @@ const create = async (req, res, next) => {
     const { contract } = req.body;
     const {
       contractNo,
+      contractDate,
       salesPerson,
       billToAddress,
       shipToAddress,
@@ -38,6 +39,7 @@ const create = async (req, res, next) => {
     }
     const newContract = await Contract.create({
       contractNo,
+      contractDate: contractDate || Date.now(),
       salesPerson,
       billToAddress,
       shipToAddress,

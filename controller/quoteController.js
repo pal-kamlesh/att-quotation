@@ -273,7 +273,6 @@ const update = async (req, res, next) => {
     next(error);
   }
 };
-
 const docData = async (req, res, next) => {
   try {
     const { id } = req.params;

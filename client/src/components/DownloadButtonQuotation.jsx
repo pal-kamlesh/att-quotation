@@ -151,27 +151,27 @@ const QuotationGenerator = ({ id, color, onClick, text, annexure }) => {
         children.push(new Paragraph({ text: "" }));
         children.push(createQuoteInfoTableSupply(supply));
       }
-      children.push(
-        new Paragraph({
-          children: [
-            new TextRun({
-              text: "* Certified Member of IGBC (Indian Green Building Council).",
-              break: 1,
-              bold: true,
-            }),
-            new TextRun({
-              text: "* Authorised Applicator for Imidachloprid 30.5% SC 'PREMISE' Chemical.",
-              break: 1,
-              bold: true,
-            }),
-            new TextRun({
-              text: "* Active Member of IPCA and ENVU PEST Alliance.",
-              break: 1,
-              bold: true,
-            }),
-          ],
-        })
-      );
+      // children.push(
+      //   new Paragraph({
+      //     children: [
+      //       new TextRun({
+      //         text: "* Certified Member of IGBC (Indian Green Building Council).",
+      //         break: 1,
+      //         bold: true,
+      //       }),
+      //       new TextRun({
+      //         text: "* Authorised Applicator for Imidachloprid 30.5% SC 'PREMISE' Chemical.",
+      //         break: 1,
+      //         bold: true,
+      //       }),
+      //       new TextRun({
+      //         text: "* Active Member of IPCA and ENVU PEST Alliance.",
+      //         break: 1,
+      //         bold: true,
+      //       }),
+      //     ],
+      //   })
+      // );
       children.push(
         new Paragraph({ text: "" }),
         new Paragraph({
