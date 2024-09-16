@@ -106,7 +106,7 @@ const QuotationGenerator = ({ id, color, onClick, text, annexure }) => {
         new Paragraph({ text: "" }),
         createAddressTable(data.billToAddress, data.shipToAddress),
         new Paragraph({ text: "" }),
-        ...(data.kindAttention !== "" && data.kindAttention !== "NA"
+        ...(data.kindAttention.trim() !== "" && data.kindAttention !== "NA"
           ? [
               new Paragraph({
                 children: [

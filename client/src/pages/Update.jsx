@@ -70,6 +70,9 @@ function Update({ quoteId, onClose }) {
             [nestedKey]: value,
           },
         });
+      } else if (name === "kindAttentionPrefix" && value === "NA") {
+        setQuote((prev) => ({ ...prev, kindAttention: "NA", [name]: value }));
+        return;
       } else {
         setQuote({
           ...quote,
