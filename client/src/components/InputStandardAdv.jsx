@@ -37,6 +37,7 @@ function InputStandardAdv({ quote, setQuote }) {
     description: "",
   });
   const dispatch = useDispatch();
+  const [showForm, setShowForm] = useState(false);
 
   //effect to set the infoArray initially
   useEffect(() => {
@@ -117,6 +118,7 @@ function InputStandardAdv({ quote, setQuote }) {
     const info = infoArray.find((el) => el._id === id);
     setInfoObj(info);
     setInfoArray((prev) => prev.filter((info) => info._id !== id));
+    setShowForm(true);
   }
   function moreInfo() {
     if (
@@ -136,6 +138,7 @@ function InputStandardAdv({ quote, setQuote }) {
         chemical: "",
         description: "",
       });
+      setShowForm(false);
     } else {
       return toast.error("This much info is not sufficient.");
     }
@@ -143,110 +146,122 @@ function InputStandardAdv({ quote, setQuote }) {
 
   return (
     <div className="bg-lime-200 p-4 rounded-lg shadow-md">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-        <div className="border border-lime-400 p-3 rounded bg-lime-100">
-          <Label className="text-lime-700">Work Area Type: </Label>
-          <Select
-            name="workAreaType"
-            onChange={handleInfoChange}
-            value={infoObj.workAreaType}
-            className="bg-lime-50 border-lime-400 focus:border-lime-600 focus:ring-lime-600"
-          >
-            <option value=""></option>
-            <option>Basement Area</option>
-            <option>Retaining Wall</option>
-            <option>Raft</option>
-            <option>Plinth</option>
-            <option>Periphery</option>
-            <option>Floor</option>
-            <option>Basement Area (Horizontal)</option>
-            <option>Basement Area (Vertical)</option>
-          </Select>
-        </div>
-        <div className="border border-lime-400 p-3 rounded bg-lime-100">
-          <Label className="text-lime-700">Work Area: </Label>
-          <div className="flex gap-2">
-            <TextInput
-              name="workArea"
-              value={infoObj.workArea}
-              onChange={handleInfoChange}
-              className="flex-1 bg-lime-50 border-lime-400 focus:border-lime-600 focus:ring-lime-600"
-            />
-            <Select
-              name="workAreaUnit"
-              onChange={handleInfoChange}
-              value={infoObj.workAreaUnit}
-              className="flex-1 bg-lime-50 border-lime-400 focus:border-lime-600 focus:ring-lime-600"
-            >
-              <option value=""></option>
-              <option value="Sq.fts">Sq.fts</option>
-              <option value="Sq.mts">Sq.mts</option>
-              <option value="R.fts">R.fts</option>
-              <option value="R.mts">R.mts</option>
-            </Select>
+      {/* Toggle button to show/hide the form */}
+      <Button
+        gradientMonochrome="lime"
+        className="mb-2 border-2 border-lime-800"
+        onClick={() => setShowForm(!showForm)}
+      >
+        {showForm ? "Hide Form" : "Add Info"}
+      </Button>
+      {showForm && (
+        <div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+            <div className="border border-lime-400 p-3 rounded bg-lime-100">
+              <Label className="text-lime-700">Work Area Type: </Label>
+              <Select
+                name="workAreaType"
+                onChange={handleInfoChange}
+                value={infoObj.workAreaType}
+                className="bg-lime-50 border-lime-400 focus:border-lime-600 focus:ring-lime-600"
+              >
+                <option value=""></option>
+                <option>Basement Area</option>
+                <option>Retaining Wall</option>
+                <option>Raft</option>
+                <option>Plinth</option>
+                <option>Periphery</option>
+                <option>Floor</option>
+                <option>Basement Area (Horizontal)</option>
+                <option>Basement Area (Vertical)</option>
+              </Select>
+            </div>
+            <div className="border border-lime-400 p-3 rounded bg-lime-100">
+              <Label className="text-lime-700">Work Area: </Label>
+              <div className="flex gap-2">
+                <TextInput
+                  name="workArea"
+                  value={infoObj.workArea}
+                  onChange={handleInfoChange}
+                  className="flex-1 bg-lime-50 border-lime-400 focus:border-lime-600 focus:ring-lime-600"
+                />
+                <Select
+                  name="workAreaUnit"
+                  onChange={handleInfoChange}
+                  value={infoObj.workAreaUnit}
+                  className="flex-1 bg-lime-50 border-lime-400 focus:border-lime-600 focus:ring-lime-600"
+                >
+                  <option value=""></option>
+                  <option value="Sq.fts">Sq.fts</option>
+                  <option value="Sq.mts">Sq.mts</option>
+                  <option value="R.fts">R.fts</option>
+                  <option value="R.mts">R.mts</option>
+                </Select>
+              </div>
+            </div>
+            <div className="border border-lime-400 p-3 rounded bg-lime-100">
+              <Label className="text-lime-700">Service Rate: </Label>
+              <div className="flex gap-2">
+                <TextInput
+                  name="serviceRate"
+                  value={infoObj.serviceRate}
+                  onChange={handleInfoChange}
+                  className="flex-1 bg-lime-50 border-lime-400 focus:border-lime-600 focus:ring-lime-600"
+                />
+                <Select
+                  name="serviceRateUnit"
+                  onChange={handleInfoChange}
+                  value={infoObj.serviceRateUnit}
+                  className="flex-1 bg-lime-50 border-lime-400 focus:border-lime-600 focus:ring-lime-600"
+                >
+                  <option value=""></option>
+                  <option value="Per Sq.ft">Per Sq.ft</option>
+                  <option value="Per Sq.mt">Per Sq.mt</option>
+                  <option value="Per R.ft">Per R.ft</option>
+                  <option value="Per R.mt">Per R.mt</option>
+                  <option value="Lumpsum">Lumpsum</option>
+                </Select>
+              </div>
+            </div>
+            <div className="border border-lime-400 p-3 rounded bg-lime-100">
+              <Label className="text-lime-700">Chemical: </Label>
+              <div className="flex gap-2 items-center justify-center">
+                <Select
+                  name="chemical"
+                  onChange={handleInfoChange}
+                  value={infoObj.chemical}
+                  className="flex-1 bg-lime-50 border-lime-400 focus:border-lime-600 focus:ring-lime-600"
+                >
+                  <option value=""></option>
+                  {chemicalList?.map((chem, idx) => (
+                    <option key={idx}>{chem.chemical}</option>
+                  ))}
+                </Select>
+                <Button
+                  onClick={moreInfo}
+                  color={validInput ? "success" : "failure"}
+                  className="border flex items-center justify-center w-7 h-7"
+                >
+                  +
+                </Button>
+              </div>
+            </div>
+          </div>
+          <div className="w-full">
+            <div className="border border-lime-400 p-3 rounded bg-lime-100">
+              <Label className="text-lime-700">Description: </Label>
+              <div className="flex gap-2">
+                <Textarea
+                  name="description"
+                  value={infoObj.description}
+                  onChange={handleInfoChange}
+                  className="flex-1 bg-white border-lime-400 focus:border-lime-600 focus:ring-lime-600"
+                />
+              </div>
+            </div>
           </div>
         </div>
-        <div className="border border-lime-400 p-3 rounded bg-lime-100">
-          <Label className="text-lime-700">Service Rate: </Label>
-          <div className="flex gap-2">
-            <TextInput
-              name="serviceRate"
-              value={infoObj.serviceRate}
-              onChange={handleInfoChange}
-              className="flex-1 bg-lime-50 border-lime-400 focus:border-lime-600 focus:ring-lime-600"
-            />
-            <Select
-              name="serviceRateUnit"
-              onChange={handleInfoChange}
-              value={infoObj.serviceRateUnit}
-              className="flex-1 bg-lime-50 border-lime-400 focus:border-lime-600 focus:ring-lime-600"
-            >
-              <option value=""></option>
-              <option value="Per Sq.ft">Per Sq.ft</option>
-              <option value="Per Sq.mt">Per Sq.mt</option>
-              <option value="Per R.ft">Per R.ft</option>
-              <option value="Per R.mt">Per R.mt</option>
-              <option value="Lumpsum">Lumpsum</option>
-            </Select>
-          </div>
-        </div>
-        <div className="border border-lime-400 p-3 rounded bg-lime-100">
-          <Label className="text-lime-700">Chemical: </Label>
-          <div className="flex gap-2 items-center justify-center">
-            <Select
-              name="chemical"
-              onChange={handleInfoChange}
-              value={infoObj.chemical}
-              className="flex-1 bg-lime-50 border-lime-400 focus:border-lime-600 focus:ring-lime-600"
-            >
-              <option value=""></option>
-              {chemicalList?.map((chem, idx) => (
-                <option key={idx}>{chem.chemical}</option>
-              ))}
-            </Select>
-            <Button
-              onClick={moreInfo}
-              color={validInput ? "success" : "failure"}
-              className="border flex items-center justify-center w-7 h-7"
-            >
-              +
-            </Button>
-          </div>
-        </div>
-      </div>
-      <div className="w-full">
-        <div className="border border-lime-400 p-3 rounded bg-lime-100">
-          <Label className="text-lime-700">Description: </Label>
-          <div className="flex gap-2">
-            <Textarea
-              name="description"
-              value={infoObj.description}
-              onChange={handleInfoChange}
-              className="flex-1 bg-white border-lime-400 focus:border-lime-600 focus:ring-lime-600"
-            />
-          </div>
-        </div>
-      </div>
+      )}
       <div className="max-w-full overflow-x-auto mt-4">
         <Table hoverable={true} className="w-full">
           <Table.Head className="bg-lime-200 rounded-lg">

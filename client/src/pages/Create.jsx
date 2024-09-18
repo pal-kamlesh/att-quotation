@@ -185,7 +185,7 @@ export default function Create() {
                       } border-b-2`}
                     >
                       <Table.Cell>
-                        <div className="flex items-center justify-start w-full gap-1 ">
+                        <div className="flex items-center justify-start w-full gap-1 text-nowrap">
                           <PopUp
                             click={handleClick}
                             id={ticket._id}

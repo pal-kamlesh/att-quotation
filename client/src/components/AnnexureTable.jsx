@@ -41,11 +41,6 @@ const createQuoteInfoTableStandard = (quoteInfo) => {
                     }),
                   ],
                   alignment: AlignmentType.CENTER,
-                  // spacing: {
-                  //   before: 120, // Space before the paragraph (in twips)
-                  //   after: 120, // Space after the paragraph (in twips)
-                  //   line: 200, // Line spacing (1.5 line spacing in twips)
-                  // },
                 }),
               ],
               shading: { fill: "D3D3D3" },
@@ -68,11 +63,6 @@ const createQuoteInfoTableStandard = (quoteInfo) => {
                     new Paragraph({
                       text,
                       alignment: AlignmentType.CENTER,
-                      // spacing: {
-                      //   before: 120, // Space before the paragraph (in twips)
-                      //   after: 120, // Space after the paragraph (in twips)
-                      //   line: 200, // Line spacing (1.5 line spacing in twips)
-                      // },
                     }),
                   ],
                   verticalAlign: VerticalAlign.CENTER,
@@ -642,6 +632,19 @@ const generateSupplyApplyDoc = async (data) => {
               height: { size: 850, type: WidthType.DXA },
               children: [
                 new Paragraph({
+                  text: "Work Area",
+                  bold: true,
+                  alignment: AlignmentType.CENTER,
+                  spacing: { before: 200, after: 200 },
+                }),
+              ],
+              shading: { fill: "D3D3D3" },
+            }),
+            new TableCell({
+              width: { size: 1500, type: WidthType.DXA },
+              height: { size: 850, type: WidthType.DXA },
+              children: [
+                new Paragraph({
                   text: "Apply Rate",
                   bold: true,
                   alignment: AlignmentType.CENTER,
@@ -655,7 +658,7 @@ const generateSupplyApplyDoc = async (data) => {
               height: { size: 850, type: WidthType.DXA },
               children: [
                 new Paragraph({
-                  text: "Chem Qty",
+                  text: "Chemical Qty",
                   bold: true,
                   alignment: AlignmentType.CENTER,
                   spacing: { before: 200, after: 200 },
@@ -668,7 +671,7 @@ const generateSupplyApplyDoc = async (data) => {
               height: { size: 850, type: WidthType.DXA },
               children: [
                 new Paragraph({
-                  text: "Chem Rate",
+                  text: "Chemical Cost",
                   bold: true,
                   alignment: AlignmentType.CENTER,
                   spacing: { before: 200, after: 200 },
@@ -713,6 +716,17 @@ const generateSupplyApplyDoc = async (data) => {
             children: [
               new Paragraph({
                 text: item.description,
+                bold: true,
+                alignment: AlignmentType.LEFT,
+                spacing: { before: 200, after: 200 },
+              }),
+            ],
+          }),
+          new TableCell({
+            width: { size: 1500, type: WidthType.DXA },
+            children: [
+              new Paragraph({
+                text: `${item.workArea} ${item.workAreaUnit}`,
                 bold: true,
                 alignment: AlignmentType.LEFT,
                 spacing: { before: 200, after: 200 },
@@ -776,7 +790,7 @@ const generateSupplyApplyDoc = async (data) => {
           columnSpan: 6,
           children: [
             new Paragraph({
-              text: "(+) @ 18% As applicable",
+              text: "GST @ 18% As applicable",
               alignment: AlignmentType.LEFT,
               spacing: { before: 200, after: 200 },
             }),

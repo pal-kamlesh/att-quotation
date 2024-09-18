@@ -19,6 +19,7 @@ function KCI({ quote, setQuote, addressKey }) {
     contact: "",
     email: "",
   });
+  const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
     const isValid =
@@ -57,6 +58,7 @@ function KCI({ quote, setQuote, addressKey }) {
         contact: "",
         email: "",
       });
+      setShowForm(false);
     } else {
       toast.error("Please fill out all required fields.");
     }
@@ -67,37 +69,50 @@ function KCI({ quote, setQuote, addressKey }) {
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-bold">Key Contact Information (KCI)</h2>
         <Button
-          onClick={addKci}
-          gradientDuoTone={validKci ? "tealToLime" : "pinkToOrange"}
-          size="xs"
-          className="border"
+          gradientMonochrome="gray"
+          className="mb-2 border-2 border-gray-500"
+          onClick={() => setShowForm(!showForm)}
         >
-          + Add KCI
+          {showForm ? "Hide Form" : "Add Info"}
         </Button>
       </div>
-      <div className="grid grid-cols-3 gap-4 mb-4">
+      {showForm && (
         <div>
-          <Label htmlFor="name">Name:</Label>
-          <TextInput name="name" value={kciObj.name} onChange={handleKci} />
+          <div className="flex gap-4 mb-4">
+            <div>
+              <Label htmlFor="name">Name:</Label>
+              <TextInput name="name" value={kciObj.name} onChange={handleKci} />
+            </div>
+            <div>
+              <Label htmlFor="contact">Contact:</Label>
+              <TextInput
+                name="contact"
+                value={kciObj.contact}
+                onChange={handleKci}
+              />
+            </div>
+            <div>
+              <Label htmlFor="email">Email:</Label>
+              <TextInput
+                type="email"
+                name="email"
+                value={kciObj.email}
+                onChange={handleKci}
+              />
+            </div>
+            <div className="flex items-center justify-center mt-5">
+              <Button
+                onClick={addKci}
+                gradientDuoTone={validKci ? "tealToLime" : "pinkToOrange"}
+                size="xs"
+                className="border"
+              >
+                +
+              </Button>
+            </div>
+          </div>
         </div>
-        <div>
-          <Label htmlFor="contact">Contact:</Label>
-          <TextInput
-            name="contact"
-            value={kciObj.contact}
-            onChange={handleKci}
-          />
-        </div>
-        <div>
-          <Label htmlFor="email">Email:</Label>
-          <TextInput
-            type="email"
-            name="email"
-            value={kciObj.email}
-            onChange={handleKci}
-          />
-        </div>
-      </div>
+      )}
       <div className="overflow-x-auto">
         <Table hoverable className="w-full">
           <Table.Head>

@@ -82,10 +82,10 @@ function Update({ quoteId, onClose }) {
     }
   };
   async function handleSubmitApproved() {
-    if (message === "") {
-      toast.error("Please provide resion for Revision.");
-      return;
-    }
+    // if (message === "") {
+    //   toast.error("Please provide resion for Revision.");
+    //   return;
+    // }
     if (quote.quoteInfo.length <= 0) {
       toast.error("Please fill the number details.");
       return;

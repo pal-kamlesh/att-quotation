@@ -36,6 +36,7 @@ function InputSupplyAdv({ quote, setQuote }) {
     description: "",
   });
   const dispatch = useDispatch();
+  const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
     setInfoArray(quote.quoteInfo);
@@ -82,6 +83,7 @@ function InputSupplyAdv({ quote, setQuote }) {
     const info = infoArray.find((el) => el._id === id);
     setInfoObj(info);
     setInfoArray((prev) => prev.filter((info) => info._id !== id));
+    setShowForm(true);
   }
 
   function moreInfo() {
@@ -101,6 +103,7 @@ function InputSupplyAdv({ quote, setQuote }) {
         chemical: "",
         description: "",
       });
+      setShowForm(false);
     } else {
       return toast.error("This much info is not sufficient.");
     }
@@ -115,96 +118,107 @@ function InputSupplyAdv({ quote, setQuote }) {
 
   return (
     <div className="bg-yellow-200 p-4 rounded-lg shadow-md">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-        <div className="border border-yellow-400 p-3 rounded bg-yellow-100">
-          <Label className="text-yellow-700">Work Area Type: </Label>
-          <Select
-            name="workAreaType"
-            onChange={handleInfoChange}
-            value={infoObj.workAreaType}
-            className="bg-yellow-100 border-yellow-400 focus:border-yellow-600 focus:ring-yellow-600"
-          >
-            <option value=""></option>
-            <option value="Basement Area">Basement Area</option>
-            <option value="Retaining Wall">Retaining Wall</option>
-            <option value="Raft">Raft</option>
-            <option value="Plinth">Plinth</option>
-            <option value="Periphery">Periphery</option>
-            <option value="Floor">Floor</option>
-            <option value="Basement Area (Horizontal)">
-              Basement Area (Horizontal)
-            </option>
-            <option value="Basement Area (Vertical)">
-              Basement Area (Vertical)
-            </option>
-          </Select>
-        </div>
-        <div className="border border-yellow-400 p-3 rounded bg-yellow-100">
-          <Label className="text-yellow-700">Chemical Rate: </Label>
-          <div className="flex gap-2">
-            <TextInput
-              name="chemicalRate"
-              value={infoObj.chemicalRate}
-              onChange={handleInfoChange}
-              className="flex-1 bg-yellow-100 border-yellow-400 focus:border-yellow-600 focus:ring-yellow-600"
-            />
-            <Select
-              name="chemicalRateUnit"
-              onChange={handleInfoChange}
-              value={infoObj.chemicalRateUnit}
-              className="flex-1 bg-yellow-100 border-yellow-400 focus:border-yellow-600 focus:ring-yellow-600"
-            >
-              <option value=""></option>
-              <option value="Per Ltr.">Per Ltr.</option>
-              <option value="Lumpsum">Lumpsum</option>
-            </Select>
+      <Button
+        color="warning"
+        className="mb-2 border-2 border-yellow-800"
+        onClick={() => setShowForm(!showForm)}
+      >
+        {showForm ? "Hide Form" : "Add Info"}
+      </Button>
+      {showForm && (
+        <div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+            <div className="border border-yellow-400 p-3 rounded bg-yellow-100">
+              <Label className="text-yellow-700">Work Area Type: </Label>
+              <Select
+                name="workAreaType"
+                onChange={handleInfoChange}
+                value={infoObj.workAreaType}
+                className="bg-yellow-100 border-yellow-400 focus:border-yellow-600 focus:ring-yellow-600"
+              >
+                <option value=""></option>
+                <option value="Basement Area">Basement Area</option>
+                <option value="Retaining Wall">Retaining Wall</option>
+                <option value="Raft">Raft</option>
+                <option value="Plinth">Plinth</option>
+                <option value="Periphery">Periphery</option>
+                <option value="Floor">Floor</option>
+                <option value="Basement Area (Horizontal)">
+                  Basement Area (Horizontal)
+                </option>
+                <option value="Basement Area (Vertical)">
+                  Basement Area (Vertical)
+                </option>
+              </Select>
+            </div>
+            <div className="border border-yellow-400 p-3 rounded bg-yellow-100">
+              <Label className="text-yellow-700">Chemical Rate: </Label>
+              <div className="flex gap-2">
+                <TextInput
+                  name="chemicalRate"
+                  value={infoObj.chemicalRate}
+                  onChange={handleInfoChange}
+                  className="flex-1 bg-yellow-100 border-yellow-400 focus:border-yellow-600 focus:ring-yellow-600"
+                />
+                <Select
+                  name="chemicalRateUnit"
+                  onChange={handleInfoChange}
+                  value={infoObj.chemicalRateUnit}
+                  className="flex-1 bg-yellow-100 border-yellow-400 focus:border-yellow-600 focus:ring-yellow-600"
+                >
+                  <option value=""></option>
+                  <option value="Per Ltr.">Per Ltr.</option>
+                  <option value="Lumpsum">Lumpsum</option>
+                </Select>
+              </div>
+            </div>
+            <div className="border border-yellow-400 p-3 rounded bg-yellow-100">
+              <Label className="text-yellow-700">Chemical Quantity: </Label>
+              <TextInput
+                name="chemicalQuantity"
+                value={infoObj.chemicalQuantity}
+                onChange={handleInfoChange}
+                className="bg-yellow-100 border-yellow-400 focus:border-yellow-600 focus:ring-yellow-600"
+              />
+            </div>
+            <div className="border border-yellow-400 p-3 rounded bg-yellow-100">
+              <Label className="text-yellow-700">Chemical: </Label>
+              <div className="flex gap-2 items-center justify-center">
+                <Select
+                  name="chemical"
+                  onChange={handleInfoChange}
+                  value={infoObj.chemical}
+                  className="flex-1 bg-yellow-100 border-yellow-400 focus:border-yellow-600 focus:ring-yellow-600"
+                >
+                  <option value=""></option>
+                  {chemicalList?.map((chem, idx) => (
+                    <option key={idx}>{chem.chemical}</option>
+                  ))}
+                </Select>
+                <Button
+                  onClick={moreInfo}
+                  color={validInput ? "warning" : "failure"}
+                  size="xs"
+                  className="border flex items-center justify-center w-7 h-7"
+                >
+                  +
+                </Button>
+              </div>
+            </div>
+          </div>
+          <div className="w-full">
+            <div className="border border-yellow-400 p-3 rounded bg-yellow-100">
+              <Label className="text-yellow-700">Description: </Label>
+              <Textarea
+                name="description"
+                value={infoObj.description}
+                onChange={handleInfoChange}
+                className="bg-white border-yellow-400 focus:border-yellow-600 focus:ring-yellow-600"
+              />
+            </div>
           </div>
         </div>
-        <div className="border border-yellow-400 p-3 rounded bg-yellow-100">
-          <Label className="text-yellow-700">Chemical Quantity: </Label>
-          <TextInput
-            name="chemicalQuantity"
-            value={infoObj.chemicalQuantity}
-            onChange={handleInfoChange}
-            className="bg-yellow-100 border-yellow-400 focus:border-yellow-600 focus:ring-yellow-600"
-          />
-        </div>
-        <div className="border border-yellow-400 p-3 rounded bg-yellow-100">
-          <Label className="text-yellow-700">Chemical: </Label>
-          <div className="flex gap-2 items-center justify-center">
-            <Select
-              name="chemical"
-              onChange={handleInfoChange}
-              value={infoObj.chemical}
-              className="flex-1 bg-yellow-100 border-yellow-400 focus:border-yellow-600 focus:ring-yellow-600"
-            >
-              <option value=""></option>
-              {chemicalList?.map((chem, idx) => (
-                <option key={idx}>{chem.chemical}</option>
-              ))}
-            </Select>
-            <Button
-              onClick={moreInfo}
-              color={validInput ? "warning" : "failure"}
-              size="xs"
-              className="border flex items-center justify-center w-7 h-7"
-            >
-              +
-            </Button>
-          </div>
-        </div>
-      </div>
-      <div className="w-full">
-        <div className="border border-yellow-400 p-3 rounded bg-yellow-100">
-          <Label className="text-yellow-700">Description: </Label>
-          <Textarea
-            name="description"
-            value={infoObj.description}
-            onChange={handleInfoChange}
-            className="bg-white border-yellow-400 focus:border-yellow-600 focus:ring-yellow-600"
-          />
-        </div>
-      </div>
+      )}
       <div className="max-w-full overflow-x-auto mt-4">
         <Table hoverable={true} className="w-full">
           <Table.Head className="bg-yellow-200 rounded-lg">
