@@ -602,23 +602,6 @@ function NewQuote({ onClose }) {
               placeholder="Reference"
             />
           </div>
-          <div className=" col-span-3 max-w-full">
-            <div className="mb-2 block">
-              <Label htmlFor="specification" value="Specification">
-                <span>Specification</span>
-                <span className="text-red-500">*</span>
-              </Label>
-            </div>
-            <Select
-              name="specification"
-              value={quote.specification}
-              onChange={handleQuoteChange}
-            >
-              <option></option>
-              <option>As per IS 6313 (Part 2):2013 & 2022</option>
-              <option>As per IS 6313 (Part 2):2013</option>
-            </Select>
-          </div>
           <div className=" col-span-4 gap-4 mb-4 ">
             <div className="col-span-4 border p-1">
               <div className="col-span-2">
@@ -669,6 +652,23 @@ function NewQuote({ onClose }) {
                 </fieldset>
               </div>
             </div>
+          </div>
+          <div className=" col-span-3 max-w-full">
+            <div className="mb-2 block">
+              <Label htmlFor="specification" value="Specification">
+                <span>Specification</span>
+                <span className="text-red-500">*</span>
+              </Label>
+            </div>
+            <Select
+              name="specification"
+              value={quote.specification}
+              onChange={handleQuoteChange}
+            >
+              <option></option>
+              <option>As per IS 6313 (Part 2):2013 & 2022</option>
+              <option>As per IS 6313 (Part 2):2013</option>
+            </Select>
           </div>
         </div>
 
