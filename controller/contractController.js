@@ -13,6 +13,9 @@ import {
   createContractArchiveEntry,
 } from "../utils/functions.js";
 
+import fs from "fs";
+import ExcelJS from "exceljs";
+
 const create = async (req, res, next) => {
   try {
     const { contract } = req.body;
@@ -300,6 +303,7 @@ const update = async (req, res, next) => {
     // Update the quotation with the new quoteInfo ids
     contract.quoteInfo = updatedQuoteInfoIds;
     await contract.save();
+    await contract.reviseContractNo();
 
     // Fetch the updated quotation with populated quoteInfo & send resposnse
     const finalContract = await Contract.findById(contractId)
@@ -593,6 +597,55 @@ const getArchive = async (req, res, next) => {
   }
 };
 
+const genReport = async (req, res, next) => {
+  try {
+    const data = await Contract.find({}, "contractNo approved _id");
+    const excelBuffer = await generateExcel(data);
+    fs.writeFileSync("Contract_List.xlsx", excelBuffer);
+
+    // Set response headers and send the file
+    res.setHeader(
+      "Content-Disposition",
+      "attachment; filename=Contract_List.xlsx"
+    );
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+    res.send(excelBuffer);
+  } catch (error) {
+    next(error);
+  }
+};
+
+async function generateExcel(data) {
+  try {
+    // Create a new workbook and a worksheet
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Contracts");
+
+    // Add header row
+    worksheet.columns = [
+      { header: "ContractNo", key: "contractNo", width: 15 },
+      { header: "Approved", key: "approved", width: 15 },
+    ];
+
+    // Add a row with the data
+    data.forEach((contract) => {
+      worksheet.addRow({
+        contractNo: contract.contractNo ? contract.contractNo : contract._id,
+        approved: contract.approved ? "✓" : "✗",
+      });
+    });
+
+    // Write to file
+    const buffer = await workbook.xlsx.writeBuffer();
+    return buffer;
+  } catch (error) {
+    console.log("WE encounter error");
+  }
+}
+
 export {
   create,
   contracts,
@@ -613,4 +666,5 @@ export {
   getChemical,
   deletedContract,
   getArchive,
+  genReport,
 };

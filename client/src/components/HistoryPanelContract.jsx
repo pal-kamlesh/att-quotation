@@ -72,9 +72,7 @@ function HistoryPanelContract({ contractId }) {
               key={index}
               revision={revision}
               onClick={handleCardClick}
-              active={
-                revision.state.quotationNo === revisionDetails?.quotationNo
-              }
+              active={revision.state.contractNo === revisionDetails?.contractNo}
             />
           ))}
         </div>

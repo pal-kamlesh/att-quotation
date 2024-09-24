@@ -134,7 +134,7 @@ function InputSupplyAdv({ quote, setQuote }) {
                 name="workAreaType"
                 onChange={handleInfoChange}
                 value={infoObj.workAreaType}
-                className="bg-yellow-100 border-yellow-400 focus:border-yellow-600 focus:ring-yellow-600"
+                className="flex-1 bg-yellow-100 border-yellow-400 focus:border-yellow-600 focus:ring-yellow-600"
               >
                 <option value=""></option>
                 <option value="Basement Area">Basement Area</option>
@@ -236,8 +236,8 @@ function InputSupplyAdv({ quote, setQuote }) {
             <Table.HeadCell className="text-yellow-700">
               Chemical
             </Table.HeadCell>
-            <Table.HeadCell className="text-yellow-700">Delete</Table.HeadCell>
             <Table.HeadCell className="text-yellow-700">Edit</Table.HeadCell>
+            <Table.HeadCell className="text-yellow-700">Delete</Table.HeadCell>
           </Table.Head>
           <Table.Body className="divide-y divide-yellow-400">
             {infoArray.length > 0 &&
@@ -255,20 +255,20 @@ function InputSupplyAdv({ quote, setQuote }) {
                   <Table.Cell>
                     <div className="flex items-center justify-center">
                       <button
-                        className="bg-red-500 rounded-full hover:bg-red-700 text-white p-1"
-                        onClick={() => deleteInfo(info._id)}
+                        className="bg-green-500 hover:bg-green-700 rounded-full text-white p-1"
+                        onClick={() => editInfo(info._id)}
                       >
-                        <GiCancel className="w-5 h-5" />
+                        <FaEdit className="w-5 h-5" />
                       </button>
                     </div>
                   </Table.Cell>
                   <Table.Cell>
                     <div className="flex items-center justify-center">
                       <button
-                        className="bg-green-500 hover:bg-green-700 rounded-full text-white p-1"
-                        onClick={() => editInfo(info._id)}
+                        className="bg-red-500 rounded-full hover:bg-red-700 text-white p-1"
+                        onClick={() => deleteInfo(info._id)}
                       >
-                        <FaEdit className="w-5 h-5" />
+                        <GiCancel className="w-5 h-5" />
                       </button>
                     </div>
                   </Table.Cell>

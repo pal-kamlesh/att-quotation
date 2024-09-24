@@ -1,9 +1,10 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useState } from "react";
-import { Button, Label, Table, TextInput } from "flowbite-react";
+import { Button, Label, Table, TableCell, TextInput } from "flowbite-react";
 import { GiCancel } from "react-icons/gi";
 import { customAlphabet } from "nanoid";
 import { toast } from "react-toastify";
+import { FaEdit } from "react-icons/fa";
 
 const nanoid = customAlphabet(
   "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
@@ -20,6 +21,11 @@ function KCI({ quote, setQuote, addressKey }) {
     email: "",
   });
   const [showForm, setShowForm] = useState(false);
+  const [kciArray, setKciArray] = useState(quote[String(addressKey)]?.kci);
+
+  useEffect(() => {
+    setKciArray(quote[String(addressKey)]?.kci);
+  }, [addressKey, quote]);
 
   useEffect(() => {
     const isValid =
@@ -27,30 +33,27 @@ function KCI({ quote, setQuote, addressKey }) {
     setValidKci(isValid);
   }, [kciObj]);
 
+  useEffect(() => {
+    setQuote((prev) => ({
+      ...prev,
+      [addressKey]: {
+        ...prev[addressKey],
+        kci: kciArray,
+      },
+    }));
+  }, [addressKey, kciArray, setQuote]);
   function handleKci(e) {
     const { name, value } = e.target;
     setKciObj((prev) => ({ ...prev, [name]: value }));
   }
 
   function deleteKci(id) {
-    setQuote((prev) => ({
-      ...prev,
-      [addressKey]: {
-        ...prev[addressKey],
-        kci: prev[addressKey].kci.filter((obj) => obj.id !== id),
-      },
-    }));
+    setKciArray((prev) => prev.filter((kci) => kci._Id !== id));
   }
 
   function addKci() {
     if (kciObj.name !== "" && (kciObj.contact !== "" || kciObj.email !== "")) {
-      setQuote((prev) => ({
-        ...prev,
-        [addressKey]: {
-          ...prev[addressKey],
-          kci: [...prev[addressKey].kci, kciObj],
-        },
-      }));
+      setKciArray((prev) => [...prev, kciObj]);
       setKciObj({
         id: nanoid(),
         name: "",
@@ -63,9 +66,15 @@ function KCI({ quote, setQuote, addressKey }) {
       toast.error("Please fill out all required fields.");
     }
   }
+  function editKCI(id) {
+    const kci = quote[String(addressKey)].kci.find((el) => el._id !== id);
+    setKciObj(kci);
+    setKciArray((prev) => prev.filter((info) => info._id === id));
+    setShowForm(true);
+  }
 
   return (
-    <div className="border rounded p-4 mt-1">
+    <div className="bg-[#C8A1E0] border rounded-lg shadow-md p-4 mt-1">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-bold">Key Contact Information (KCI)</h2>
         <Button
@@ -116,32 +125,43 @@ function KCI({ quote, setQuote, addressKey }) {
       <div className="overflow-x-auto">
         <Table hoverable className="w-full">
           <Table.Head>
-            <Table.HeadCell>Sr.No</Table.HeadCell>
             <Table.HeadCell>Name</Table.HeadCell>
             <Table.HeadCell>Contact</Table.HeadCell>
             <Table.HeadCell>Email</Table.HeadCell>
+            <Table.HeadCell>Edit</Table.HeadCell>
             <Table.HeadCell>Delete</Table.HeadCell>
           </Table.Head>
           <Table.Body className="divide-y">
-            {quote[addressKey]?.kci.map((kci, idx) => (
+            {kciArray.map((kci, idx) => (
               <Table.Row
                 key={kci.id}
                 className={`${
                   idx % 2 === 0 ? "bg-white" : "bg-gray-100"
                 } dark:bg-gray-800`}
               >
-                <Table.Cell>{idx + 1}</Table.Cell>
                 <Table.Cell>{kci.name}</Table.Cell>
                 <Table.Cell>{kci.contact}</Table.Cell>
                 <Table.Cell>{kci.email}</Table.Cell>
-                <Table.Cell>
-                  <Button
-                    onClick={() => deleteKci(kci.id)}
+
+                <TableCell>
+                  <button
+                    onClick={() => editKCI(kci.id)}
                     size="xs"
-                    className="bg-red-400 hover:bg-red-600"
+                    className="bg-green-500 rounded-full hover:bg-green-700  text-white p-1"
                   >
-                    <GiCancel className="text-white" />
-                  </Button>
+                    <FaEdit className="text-white w-5 h-5" />
+                  </button>
+                </TableCell>
+                <Table.Cell>
+                  <div className="flex items-center justify-center">
+                    <button
+                      onClick={() => deleteKci(kci.id)}
+                      size="xs"
+                      className="bg-red-500 rounded-full hover:bg-red-700 text-white p-1"
+                    >
+                      <GiCancel className="text-white w-5 h-5" />
+                    </button>
+                  </div>
                 </Table.Cell>
               </Table.Row>
             ))}

@@ -170,6 +170,32 @@ contractSchema.statics.isApproved = async function (id) {
   return doc ? doc.approved : false;
 };
 
+contractSchema.methods.reviseContractNo = async function () {
+  if (!this.approved) {
+    return;
+  } else {
+    const currentContractNo = this.contractNo;
+    // Process the existing quotationNo
+    const parts = currentContractNo.split("/");
+    let newContractNo;
+    if (parts.length === 4 && parts[3].startsWith("R")) {
+      // If already revised, increment the revision number
+      const revisionNumber = parseInt(parts[3].substring(1)) + 1;
+      parts[3] = `R${revisionNumber}`;
+      newContractNo = parts.join("/");
+    } else if (parts.length === 3) {
+      // If first revision, add /R1
+      newContractNo = `${currentContractNo}/R1`;
+    } else {
+      // Unexpected format, just append /R1
+      newContractNo = `${currentContractNo}/R1`;
+    }
+    this.contractNo = newContractNo;
+    console.log(newContractNo);
+    return this.save();
+  }
+};
+
 contractSchema.pre("findOneAndDelete", async function (next) {
   try {
     // Get the document that is about to be deleted

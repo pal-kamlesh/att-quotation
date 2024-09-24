@@ -345,8 +345,8 @@ function InputSupplyApplyAdv({ quote, setQuote }) {
               Chemical Rate Unit
             </Table.HeadCell>
             <Table.HeadCell className="text-blue-700">Chemical</Table.HeadCell>
-            <Table.HeadCell className="text-blue-700">Delete</Table.HeadCell>
             <Table.HeadCell className="text-blue-700">Edit</Table.HeadCell>
+            <Table.HeadCell className="text-blue-700">Delete</Table.HeadCell>
           </Table.Head>
           <Table.Body className="divide-y divide-blue-200">
             {infoArray.length > 0 &&
@@ -367,18 +367,18 @@ function InputSupplyApplyAdv({ quote, setQuote }) {
                   <Table.Cell>{info.chemical}</Table.Cell>
                   <Table.Cell>
                     <button
-                      className="bg-red-500 rounded-full hover:bg-red-700 text-white p-1"
-                      onClick={() => deleteInfo(info._id)}
-                    >
-                      <GiCancel className="w-5 h-5" />
-                    </button>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <button
                       className="bg-green-500 hover:bg-green-700 rounded-full text-white p-1"
                       onClick={() => editInfo(info._id)}
                     >
                       <FaEdit className="w-5 h-5" />
+                    </button>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <button
+                      className="bg-red-500 rounded-full hover:bg-red-700 text-white p-1"
+                      onClick={() => deleteInfo(info._id)}
+                    >
+                      <GiCancel className="w-5 h-5" />
                     </button>
                   </Table.Cell>
                 </Table.Row>

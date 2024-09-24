@@ -163,7 +163,7 @@ function InputStandardAdv({ quote, setQuote }) {
                 name="workAreaType"
                 onChange={handleInfoChange}
                 value={infoObj.workAreaType}
-                className="bg-lime-50 border-lime-400 focus:border-lime-600 focus:ring-lime-600"
+                className="bg-lime-50 border-lime-400 focus:border-lime-600 focus:ring-lime-600 flex-1"
               >
                 <option value=""></option>
                 <option>Basement Area</option>
@@ -278,7 +278,8 @@ function InputStandardAdv({ quote, setQuote }) {
             </Table.HeadCell>
             <Table.HeadCell className="text-lime-700">Unit</Table.HeadCell>
             <Table.HeadCell className="text-lime-700">Chemical</Table.HeadCell>
-            <Table.HeadCell className="text-lime-700">Actions</Table.HeadCell>
+            <Table.HeadCell className="text-lime-700">Edit</Table.HeadCell>
+            <Table.HeadCell className="text-lime-700">Delete</Table.HeadCell>
           </Table.Head>
           <Table.Body className="divide-y divide-lime-400">
             {infoArray.length > 0 &&
@@ -297,16 +298,20 @@ function InputStandardAdv({ quote, setQuote }) {
                   <Table.Cell>
                     <div className="flex items-center justify-center gap-2">
                       <button
-                        className="bg-red-500 rounded-full hover:bg-red-700 text-white p-1"
-                        onClick={() => deleteInfo(info._id)}
-                      >
-                        <GiCancel className="w-5 h-5" />
-                      </button>
-                      <button
                         className="bg-green-500 hover:bg-green-700 rounded-full text-white p-1"
                         onClick={() => editInfo(info._id)}
                       >
                         <FaEdit className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <div>
+                      <button
+                        className="bg-red-500 rounded-full hover:bg-red-700 text-white p-1"
+                        onClick={() => deleteInfo(info._id)}
+                      >
+                        <GiCancel className="w-5 h-5" />
                       </button>
                     </div>
                   </Table.Cell>
