@@ -62,6 +62,7 @@ const getInitialQuoteState = () => {
     quotationNo: "",
     docType: "standard",
     quoteInfo: [],
+    paymentTerms: "",
   };
 };
 // eslint-disable-next-line react/prop-types
@@ -75,6 +76,7 @@ function NewQuote({ onClose }) {
   const [areaTypeModel, setAreaTypeModel] = useState(false);
   const dispatch = useDispatch();
   const { initials } = useSelector((state) => state.user);
+  const [subPaymentTerm, setSubPaymentTerm] = useState("");
 
   // Load data from local storage on component mount
   useEffect(() => {
@@ -103,7 +105,7 @@ function NewQuote({ onClose }) {
       setDisableRadio(true);
       setQuote((prev) => ({ ...prev, docType: doc }));
     }
-  }, [doc, quote.quoteInfo.length]);
+  }, [doc, quote?.quoteInfo.length]);
   function handleQuoteChange(e) {
     const { name, value } = e.target;
     if (name === "kindAttentionPrefix" && value === "NA") {
@@ -141,42 +143,46 @@ function NewQuote({ onClose }) {
     }
   }
 
-  // function dummyQuote() {
-  //   const data = {
-  //     quote: {
-  //       billToAddress: {
-  //         prefix: "M/s.",
-  //         name: "KEC International Ltd.",
-  //         a1: "Raghuram Heights",
-  //         a2: "463",
-  //         a3: "Dr Annie Besant Raod",
-  //         a4: "Worli",
-  //         a5: "Opposite Hell",
-  //         city: "Mumbai",
-  //         pincode: "400030",
-  //         kci: [],
-  //       },
-  //       shipToAddress: {
-  //         projectName: "Prestige City Rehab Project",
-  //         a1: "Raghuram Heights",
-  //         a2: "463",
-  //         a3: "Dr Annie Besant Raod",
-  //         a4: "Worli",
-  //         a5: "Opposite Hell",
-  //         city: "Mumbai",
-  //         pincode: "400030",
-  //         kci: [],
-  //       },
-  //       kindAttentionPrefix: "Mr.",
-  //       kindAttention: "Malahari Naik",
-  //       reference: "Our earlier quotation No EPPL/ATT/QTN/401",
-  //       specification: "As per IS 6313 (Part 2):2013",
-  //       note: "",
-  //       quoteInfo: [],
-  //     },
-  //   };
-  //   setQuote(data.quote);
-  // }
+  useEffect(() => {
+    setQuote((prev) => ({ ...prev, paymentTerms: subPaymentTerm }));
+  }, [subPaymentTerm]);
+
+  function dummyQuote() {
+    const data = {
+      quote: {
+        billToAddress: {
+          prefix: "M/s.",
+          name: "KEC International Ltd.",
+          a1: "Raghuram Heights",
+          a2: "463",
+          a3: "Dr Annie Besant Raod",
+          a4: "Worli",
+          a5: "Opposite Hell",
+          city: "Mumbai",
+          pincode: "400030",
+          kci: [],
+        },
+        shipToAddress: {
+          projectName: "Prestige City Rehab Project",
+          a1: "Raghuram Heights",
+          a2: "463",
+          a3: "Dr Annie Besant Raod",
+          a4: "Worli",
+          a5: "Opposite Hell",
+          city: "Mumbai",
+          pincode: "400030",
+          kci: [],
+        },
+        kindAttentionPrefix: "Mr.",
+        kindAttention: "Malahari Naik",
+        reference: "Our earlier quotation No EPPL/ATT/QTN/401",
+        specification: "As per IS 6313 (Part 2):2013",
+        note: "",
+        quoteInfo: [],
+      },
+    };
+    setQuote(data.quote);
+  }
   function handleSubRef(e) {
     const { value } = e.target;
     setSubRef(value);
@@ -295,6 +301,23 @@ function NewQuote({ onClose }) {
                 ))}
             </Select>
           </div>
+          <div className=" col-span-3 max-w-full">
+            <div className="mb-2 block">
+              <Label htmlFor="specification" value="Specification">
+                <span>Specification</span>
+                <span className="text-red-500">*</span>
+              </Label>
+            </div>
+            <Select
+              name="specification"
+              value={quote.specification}
+              onChange={handleQuoteChange}
+            >
+              <option></option>
+              <option>As per IS 6313 (Part 2):2013 & 2022</option>
+              <option>As per IS 6313 (Part 2):2013</option>
+            </Select>
+          </div>
           <div className="col-span-5">
             <div className="mb-2 block">
               <Label htmlFor="emailTo">
@@ -317,9 +340,9 @@ function NewQuote({ onClose }) {
           >
             Copy BillTo/ShipTo
           </Button>
-          {/* <Button outline gradientMonochrome="cyan" onClick={dummyQuote}>
+          <Button outline gradientMonochrome="cyan" onClick={dummyQuote}>
             Dummy Quote
-          </Button> */}
+          </Button>
         </div>
         <div className="grid grid-cols-8 gap-4 border mb-4 rounded-md">
           <div className=" p-4 col-span-4">
@@ -565,7 +588,7 @@ function NewQuote({ onClose }) {
           </div>
         </div>
         <div className="grid grid-cols-12 gap-4 mb-4">
-          <div className=" col-span-5 max-w-full border p-1">
+          <div className=" col-span-4 max-w-full border p-1">
             <div className="mb-2 block">
               <Label htmlFor="reference" className="grid grid-cols-12">
                 <span className=" col-span-2">
@@ -574,7 +597,7 @@ function NewQuote({ onClose }) {
                 <Select
                   name="subRef"
                   onChange={handleSubRef}
-                  className="col-span-9"
+                  className="col-span-10"
                   value={subRef}
                 >
                   <option></option>
@@ -583,16 +606,6 @@ function NewQuote({ onClose }) {
                   <option>Your email enquiry from _____ Dated **/**/**</option>
                   <option>Your enquiry & our discussion had with </option>
                 </Select>
-                <div className="col-span-1 flex items-center justify-end">
-                  <Button
-                    onClick={() => setAreaTypeModel(true)}
-                    gradientDuoTone="tealToLime"
-                    size="xs"
-                    className=" col-span-1"
-                  >
-                    +
-                  </Button>
-                </div>
               </Label>
             </div>
             <TextInput
@@ -653,22 +666,32 @@ function NewQuote({ onClose }) {
               </div>
             </div>
           </div>
-          <div className=" col-span-3 max-w-full">
-            <div className="mb-2 block">
-              <Label htmlFor="specification" value="Specification">
-                <span>Specification</span>
-                <span className="text-red-500">*</span>
-              </Label>
+          <div className="col-span-4 gap-4 mb-4 border-1 border-gray-200 rounded-md">
+            <div className="max-w-full">
+              <div className="mb-2 block">
+                <Label htmlFor="paymentTerms" className="grid grid-cols-12">
+                  <span className=" col-span-2">
+                    Payment Terms: <span className="text-red-500">*</span>
+                  </span>
+                  <Select
+                    name="paymentTerms"
+                    onChange={(e) => setSubPaymentTerm(e.target.value)}
+                    className="col-span-10"
+                    value={subPaymentTerm}
+                  >
+                    <option></option>
+                    <option>
+                      Within 15 days from the date of submission of bill.
+                    </option>
+                  </Select>
+                </Label>
+              </div>
+              <TextInput
+                name="paymentTerms"
+                value={quote.paymentTerms}
+                onChange={handleQuoteChange}
+              />
             </div>
-            <Select
-              name="specification"
-              value={quote.specification}
-              onChange={handleQuoteChange}
-            >
-              <option></option>
-              <option>As per IS 6313 (Part 2):2013 & 2022</option>
-              <option>As per IS 6313 (Part 2):2013</option>
-            </Select>
           </div>
         </div>
 

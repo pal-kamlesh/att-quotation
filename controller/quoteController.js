@@ -23,6 +23,7 @@ const create = async (req, res, next) => {
       quotationNo,
       docType,
       emailTo,
+      paymentTerms,
     } = quote;
     const { projectName } = shipToAddress;
     if (!projectName || !specification) {
@@ -56,6 +57,7 @@ const create = async (req, res, next) => {
       quotationNo,
       emailTo,
       docType,
+      paymentTerms,
     });
 
     const populatedQuotation = await newQuotation.populate(

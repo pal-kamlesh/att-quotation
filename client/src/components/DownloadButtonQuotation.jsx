@@ -48,6 +48,7 @@ const QuotationGenerator = ({ id, color, onClick, text, annexure }) => {
       let standard = [];
       let applySupply = [];
       let supply = [];
+
       if (data.docType) {
         result.result.docType === "standard"
           ? (standard = data.quoteInfo)
@@ -459,6 +460,10 @@ const QuotationGenerator = ({ id, color, onClick, text, annexure }) => {
     });
   };
   const createInfoTable = (data, sL, aL) => {
+    const paymentTermsArray = data.paymentTerms
+      .split(".")
+      .filter((v) => v.trim() !== "");
+
     const commonFields = [
       { label: "Subject:", value: data.subject + " " + data.shipToAddress.a4 },
       { label: "Reference:", value: data.reference },
@@ -467,7 +472,7 @@ const QuotationGenerator = ({ id, color, onClick, text, annexure }) => {
         value: data.treatmentType + "  [Sac-code ... 998531]",
       },
       { label: "Specification:", value: data.specification },
-      { label: "Payment Terms:", value: data.paymentTerms },
+      { label: "Payment Terms:", value: paymentTermsArray },
       { label: "Taxation:", value: data.taxation },
     ];
 
