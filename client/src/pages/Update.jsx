@@ -170,6 +170,23 @@ function Update({ quoteId, onClose }) {
             value={quote.emailTo}
           />
         </div>
+        <div className="max-w-full">
+          <div className="mb-2 block">
+            <Label htmlFor="specification" value="Specification">
+              <span>Specification</span>
+              <span className="text-red-500">*</span>
+            </Label>
+          </div>
+          <Select
+            name="specification"
+            onChange={handleChange}
+            value={quote.specification}
+          >
+            <option></option>
+            <option>As per IS 6313 (Part 2):2013 & 2022</option>
+            <option>As per IS 6313 (Part 2):2013</option>
+          </Select>
+        </div>
       </div>
       <div className="flex items-center justify-center w-full">
         <Button
@@ -456,22 +473,17 @@ function Update({ quoteId, onClose }) {
             placeholder="Reference"
           />
         </div>
-        <div className="max-w-full">
-          <div className="mb-2 block">
-            <Label htmlFor="specification" value="Specification">
-              <span>Specification</span>
-              <span className="text-red-500">*</span>
-            </Label>
+        <div className="max-w-full gap-4 mb-2">
+          <div className="max-w-full">
+            <div className="mb-2 block">
+              <Label htmlFor="paymentTerms" value="Payment Terms" />
+            </div>
+            <TextInput
+              name="paymentTerms"
+              value={quote.paymentTerms}
+              onChange={handleChange}
+            />
           </div>
-          <Select
-            name="specification"
-            onChange={handleChange}
-            value={quote.specification}
-          >
-            <option></option>
-            <option>As per IS 6313 (Part 2):2013 & 2022</option>
-            <option>As per IS 6313 (Part 2):2013</option>
-          </Select>
         </div>
       </div>
 
