@@ -10,7 +10,7 @@ import Cards from "./Cards";
 import Reports from "./Reports";
 import WorkLog from "./WorkLog";
 import WorkLogDash from "./WorkLogDash";
-import PrintWorkLogs from "./PrintWorkLogs";
+import PrintWorkLogs from "../components/PrintWorkLogs";
 
 export {
   User,
