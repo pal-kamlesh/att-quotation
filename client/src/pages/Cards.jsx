@@ -15,6 +15,7 @@ import { useNavigate } from "react-router-dom";
 import { createContractCard } from "../components/AnnexureTable";
 import { unwrapResult } from "@reduxjs/toolkit";
 import debounce from "lodash.debounce";
+
 function Cards() {
   const { cards = [], showMore, loading } = useSelector((state) => state.card);
   const { currentUser } = useSelector((state) => state.user);
@@ -27,7 +28,7 @@ function Cards() {
   useEffect(() => {
     if (cards.length <= 0) {
       dispatch(getInitials());
-      dispatch(searchCards("&approved=true"));
+      dispatch(searchCards());
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

@@ -237,13 +237,21 @@ function InputStandardAdv({ quote, setQuote }) {
                     <option key={idx}>{chem.chemical}</option>
                   ))}
                 </Select>
-                <Button
-                  onClick={moreInfo}
-                  color={validInput ? "success" : "failure"}
-                  className="border flex items-center justify-center w-7 h-7"
-                >
-                  +
-                </Button>
+                <div className="flex items-center justify-center">
+                  <Button
+                    onClick={moreInfo}
+                    color={validInput ? "success" : "failure"}
+                    size="xs"
+                    className={`border ${
+                      validInput
+                        ? "animate-pulse shadow-red-500 shadow-lg"
+                        : "opacity-50 cursor-not-allowed"
+                    }`}
+                    disabled={!validInput} // Disable the button if not valid
+                  >
+                    ok
+                  </Button>
+                </div>
               </div>
             </div>
           </div>

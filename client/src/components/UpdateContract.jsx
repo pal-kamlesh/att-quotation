@@ -181,7 +181,6 @@ function UpdateContract({ onClose, activeId = null }) {
     parts[0] = docType;
     setContract((prev) => ({ ...prev, contractNo: parts.join("/") }));
   }, [docType]);
-  console.log(docType);
 
   async function handleSubmitApproved(e) {
     e.preventDefault();
@@ -242,45 +241,49 @@ function UpdateContract({ onClose, activeId = null }) {
       <form className="">
         <div className="flex items-center justify-evenly gap-4 mb-4 flex-wrap">
           <div className="max-w-full p-4">
-            <div className="mb-2">
-              <Label htmlFor="contractNo" value="Contract No" />
-              <TextInput
-                id="contractNo"
-                name="contractNo"
-                value={contract?.contractNo}
-                onChange={handleContractChange}
-                className="mt-1"
-                disabled
-              />
-            </div>
-            <div className="w-full border border-gray-300 p-1 rounded-lg">
-              <div className="flex gap-4 mt-1 w-full">
-                <div className="flex items-center">
-                  <Radio
-                    id="os"
-                    name="notype"
-                    value="OS"
-                    checked={docType === "OS"}
-                    onChange={(e) => handleDoctype(e)}
-                  />
-                  <label htmlFor="os" className="ml-2">
-                    OS
-                  </label>
-                </div>
-                <div className="flex items-center">
-                  <Radio
-                    id="pre"
-                    name="notype"
-                    value="PRE"
-                    checked={docType === "PRE"}
-                    onChange={(e) => handleDoctype(e)}
-                  />
-                  <label htmlFor="pre" className="ml-2">
-                    PRE
-                  </label>
+            {contract?.contractNo ? (
+              <div className="mb-2">
+                <Label htmlFor="contractNo" value="Contract No" />
+                <TextInput
+                  id="contractNo"
+                  name="contractNo"
+                  value={contract?.contractNo}
+                  onChange={handleContractChange}
+                  className="mt-1"
+                  disabled
+                />
+              </div>
+            ) : null}
+            {contract?.contractNo ? (
+              <div className="w-full border border-gray-300 p-1 rounded-lg">
+                <div className="flex gap-4 mt-1 w-full">
+                  <div className="flex items-center">
+                    <Radio
+                      id="os"
+                      name="notype"
+                      value="OS"
+                      checked={docType === "OS"}
+                      onChange={(e) => handleDoctype(e)}
+                    />
+                    <label htmlFor="os" className="ml-2">
+                      OS
+                    </label>
+                  </div>
+                  <div className="flex items-center">
+                    <Radio
+                      id="pre"
+                      name="notype"
+                      value="PRE"
+                      checked={docType === "PRE"}
+                      onChange={(e) => handleDoctype(e)}
+                    />
+                    <label htmlFor="pre" className="ml-2">
+                      PRE
+                    </label>
+                  </div>
                 </div>
               </div>
-            </div>
+            ) : null}
           </div>
 
           <div className="max-w-full">

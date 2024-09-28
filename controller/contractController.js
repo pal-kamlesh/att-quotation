@@ -216,7 +216,8 @@ const singleContract = async (req, res, next) => {
     const { id } = req.params;
     const contract = await Contract.findById(id)
       .populate("quoteInfo")
-      .populate("salesPerson");
+      .populate({ path: "salesPerson", select: "-password" })
+      .populate({ path: "createdBy", select: "-password" });
     if (!contract) {
       res.status(400).json({ message: "No such Contract" });
       return;

@@ -116,7 +116,7 @@ export default function Create() {
 
   async function handleContractify(id) {
     try {
-      if (!currentUser.rights.createContract) {
+      if (!currentUser.rights.createContract && !currentUser.rights.admin) {
         toast.error("Not allowed!");
         return;
       }

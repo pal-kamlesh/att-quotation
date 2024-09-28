@@ -112,11 +112,16 @@ function KCI({ quote, setQuote, addressKey }) {
             <div className="flex items-center justify-center mt-5">
               <Button
                 onClick={addKci}
-                gradientDuoTone={validKci ? "tealToLime" : "pinkToOrange"}
+                color={validKci ? "success" : "failure"}
                 size="xs"
-                className="border"
+                className={`border ${
+                  validKci
+                    ? "animate-pulse shadow-red-500 shadow-lg"
+                    : "opacity-50 cursor-not-allowed"
+                }`}
+                disabled={!validKci} // Disable the button if not valid
               >
-                +
+                ok
               </Button>
             </div>
           </div>

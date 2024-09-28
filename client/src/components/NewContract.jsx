@@ -177,6 +177,7 @@ function NewContract({ onClose }) {
       contract.billToAddress.a4 === "" ||
       contract.billToAddress.a5 === "" ||
       contract.billToAddress.city === "" ||
+      contract.billToAddress.kci.length < 1 ||
       contract.shipToAddress.name === "" ||
       contract.shipToAddress.a1 === "" ||
       contract.shipToAddress.pincode === "" ||
@@ -185,7 +186,8 @@ function NewContract({ onClose }) {
       contract.shipToAddress.a4 === "" ||
       contract.shipToAddress.a5 === "" ||
       contract.shipToAddress.city === "" ||
-      contract.shipToAddress.pincode === ""
+      contract.shipToAddress.pincode === "" ||
+      contract.shipToAddress.kci.length < 1
     ) {
       toast.error("BillTo/ShipTo Information is incomplete!");
       return;

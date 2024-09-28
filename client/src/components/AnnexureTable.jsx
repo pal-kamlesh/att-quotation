@@ -823,7 +823,7 @@ const generateStandardContractAdv = async (data, annexure) => {
     const day = date.getDate().toString().padStart(2, "0");
     const month = (date.getMonth() + 1).toString().padStart(2, "0");
     const year = date.getFullYear();
-    return `${day}.${month}.${year}`;
+    return dateStr ? `${day}.${month}.${year}` : "";
   };
   const paymentTermsArray = paymentTerms
     .split(".")
@@ -945,23 +945,19 @@ const generateStandardContractAdv = async (data, annexure) => {
                           }),
                         ],
                       }),
-                      ...(gstNo && gstNo.trim() !== ""
-                        ? [
-                            new Paragraph({
-                              children: [
-                                new TextRun({
-                                  text: "[GST No.",
-                                  bold: true,
-                                }),
-                                new TextRun({
-                                  text: `${gstNo}]`,
-                                  bold: true,
-                                }),
-                              ],
-                              alignment: AlignmentType.LEFT,
-                            }),
-                          ]
-                        : []),
+                      new Paragraph({
+                        children: [
+                          new TextRun({
+                            text: "[GST No.",
+                            bold: true,
+                          }),
+                          new TextRun({
+                            text: `${gstNo ? gstNo : ""}]`,
+                            bold: true,
+                          }),
+                        ],
+                        alignment: AlignmentType.LEFT,
+                      }),
                     ],
                   }),
                   new TableCell({
@@ -996,32 +992,27 @@ const generateStandardContractAdv = async (data, annexure) => {
                         ],
                       }),
                       new Paragraph({ text: "" }),
-                      ...(workOrderNo
-                        ? [
-                            new Paragraph({
-                              children: [
-                                new TextRun({
-                                  text: `Work Order No: ${workOrderNo}`,
-                                  bold: true,
-                                }),
-                              ],
-                            }),
-                          ]
-                        : []),
-                      ...(workOrderNo
-                        ? [
-                            new Paragraph({
-                              children: [
-                                new TextRun({
-                                  text: `Work Order Date: ${formatDate(
-                                    workOrderDate
-                                  )}`,
-                                  bold: true,
-                                }),
-                              ],
-                            }),
-                          ]
-                        : []),
+                      new Paragraph({
+                        children: [
+                          new TextRun({
+                            text: `Work Order No: ${
+                              workOrderNo ? workOrderNo : ""
+                            }`,
+                            bold: true,
+                          }),
+                        ],
+                      }),
+
+                      new Paragraph({
+                        children: [
+                          new TextRun({
+                            text: `Work Order Date: ${formatDate(
+                              workOrderDate
+                            )}`,
+                            bold: true,
+                          }),
+                        ],
+                      }),
                     ],
                   }),
                 ],
@@ -1177,11 +1168,15 @@ const generateStandardContractAdv = async (data, annexure) => {
                             bold: true,
                           }),
                           ...paymentTermsArray.map((v, idx) => {
-                            if (idx === 0) {
+                            if (idx === 0 && paymentTermsArray.length !== 1) {
                               return new TextRun({
                                 text: `\t${idx === 0 ? ":" : ""} ${
                                   idx + 1
                                 } ${v}`,
+                              });
+                            } else {
+                              return new TextRun({
+                                text: `\t${idx === 0 ? ":" : ""} ${v}`,
                               });
                             }
                           }),
@@ -1837,7 +1832,6 @@ const workLogdocx = async (data) => {
   // Return the tables and divider
   return { firstTable, divider, secondTable };
 };
-
 // Function to create the Contract Card
 const createContractCard = async (data) => {
   const { contractNo, billToAddress, shipToAddress, quoteInfo, _id } = data;
@@ -2036,7 +2030,18 @@ const createContractCard = async (data) => {
                     ],
                   }),
                   new TableCell({
-                    width: { size: 30, type: WidthType.PERCENTAGE }, // Width in centimeters for the image column
+                    children: [
+                      new Paragraph({
+                        children: [
+                          new TextRun({
+                            text: "",
+                          }),
+                        ],
+                      }),
+                    ],
+                  }),
+                  new TableCell({
+                    width: { size: 20, type: WidthType.PERCENTAGE }, // Width in centimeters for the image column
                     children: [
                       new Paragraph({
                         children: [
