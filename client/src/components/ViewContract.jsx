@@ -94,7 +94,7 @@ const ViewContract = forwardRef((props) => {
                   width="600"
                   height="75"
                   alt=""
-                  className="mx-auto"
+                  className="mx-auto w-full"
                 />
               </div>
               <p className="text-center font-semibold text-lg mt-4 mb-4">

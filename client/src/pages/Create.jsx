@@ -180,8 +180,8 @@ export default function Create() {
                       key={ticket._id}
                       className={`transition-all duration-700 ease-in-out ${
                         quoteId === ticket._id
-                          ? "bg-blue-100 border-green-500 text-green-700"
-                          : "bg-white border-blue-200 text-gray-700"
+                          ? "bg-blue-100  border-green-500 text-green-700"
+                          : "bg-white border-blue-300 text-gray-700"
                       } border-b-2`}
                     >
                       <Table.Cell>

@@ -291,12 +291,14 @@ const docData = async (req, res, next) => {
     next(error);
   }
 };
-const approve = async (req, res, next) => {
+const approving = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const data = await Quotation.findByIdAndUpdate(id)
+    const data = await Quotation.findById(id)
       .populate("quoteInfo")
-      .populate("createdBy");
+      .populate({ path: "salesPerson", select: "-password" })
+      .populate({ path: "createdBy", select: "-password" });
+
     if (data.approved) {
       res.status(404).json({ message: "Quotation Already approved" });
       return;
@@ -309,6 +311,7 @@ const approve = async (req, res, next) => {
       result: data,
     });
   } catch (error) {
+    console.log(error);
     next(error);
   }
 };
@@ -388,7 +391,7 @@ export {
   singleQuote,
   docData,
   update,
-  approve,
+  approving,
   getArchive,
   similarProjects,
 };

@@ -42,6 +42,7 @@ function HistoryPanelContract({ contractId }) {
   useEffect(() => {
     if (archive?.length > 0) {
       const modifiedKeys = getModifiedKeys(archive[0].state, latest);
+      console.log(modifiedKeys);
     }
   }, [latest, archive]);
 

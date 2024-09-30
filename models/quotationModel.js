@@ -175,10 +175,7 @@ quotationSchema.methods.approve = async function () {
   this.quotationNo = await this.constructor.generateQuotationNo();
   return this.save();
 };
-quotationSchema.statics.isApproved = async function (id) {
-  const doc = await this.findById(id, "approved");
-  return doc ? doc.approved : false;
-};
+
 quotationSchema.methods.reviseQuotationNo = async function () {
   if (!this.approved) {
     return;
@@ -202,6 +199,10 @@ quotationSchema.methods.reviseQuotationNo = async function () {
     this.quotationNo = newQuotationNo;
     return this.save();
   }
+};
+quotationSchema.statics.isApproved = async function (id) {
+  const doc = await this.findById(id, "approved");
+  return doc ? doc.approved : false;
 };
 quotationSchema.statics.generateQuotationNo = async function () {
   try {

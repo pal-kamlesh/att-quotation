@@ -6,9 +6,9 @@ import {
   singleQuote,
   docData,
   update,
-  approve,
   getArchive,
   similarProjects,
+  approving,
 } from "../controller/quoteController.js";
 import { verifyToken } from "../middleware/verifyUser.js";
 
@@ -20,6 +20,6 @@ router.post("/similarPorjects", similarProjects);
 router.get("/:id", verifyToken, singleQuote);
 router.post("/:id", verifyToken, update);
 router.get("/docx/:id", verifyToken, docData);
-router.get("/approve/:id", verifyToken, approve);
+router.get("/approve/:id", verifyToken, approving);
 router.get("/archive/:id", verifyToken, getArchive);
 export default router;

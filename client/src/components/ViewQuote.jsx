@@ -1,31 +1,21 @@
+/* eslint-disable react/prop-types */
 import { unwrapResult } from "@reduxjs/toolkit";
 import { useReactToPrint } from "react-to-print";
 import { forwardRef, useEffect, useRef, useState } from "react";
-import { getSingleQuote } from "../redux/quote/quoteSlice";
+import { docxData } from "../redux/quote/quoteSlice";
 import { useDispatch, useSelector } from "react-redux";
 import Loading from "./Loading";
 import { saprateQuoteInfo } from "../funtions/funtion.js";
-import { Button, Table } from "flowbite-react";
+import { Button } from "flowbite-react";
+import headerImage from "../images/header.png";
+import footerImage from "../images/footer.png";
+import stamp from "../images/stamp.png";
 
-function longestKey() {
-  return Math.max(
-    "Quotation No".length,
-    "Date".length,
-    "Subject".length,
-    "Reference".length,
-    "Treatment Type".length,
-    "Specification".length,
-    "Equipments".length,
-    "Payment Terms".length,
-    "Taxation".length,
-    "Kind Attention".length
-  );
-}
 // eslint-disable-next-line react/prop-types, react/display-name
 const ViewQuote = forwardRef((props) => {
   {
     // eslint-disable-next-line react/prop-types
-    const { quoteId } = props;
+    const { quoteId, data } = props;
     const dispatch = useDispatch();
     const [quote, setQuote] = useState({});
     const [standard, setStandard] = useState([]);
@@ -36,7 +26,7 @@ const ViewQuote = forwardRef((props) => {
 
     useEffect(() => {
       async function fn() {
-        const actionResult = await dispatch(getSingleQuote(quoteId));
+        const actionResult = await dispatch(docxData(quoteId));
         const result = unwrapResult(actionResult);
         setQuote(result.result);
         if (result.result.docType) {
@@ -53,8 +43,21 @@ const ViewQuote = forwardRef((props) => {
           setApplySupply(a2);
         }
       }
-      fn();
-    }, [dispatch, quoteId]);
+      if (quoteId) {
+        fn();
+      } else {
+        if (data?.docType) {
+          data.docType === "standard"
+            ? setStandard(data.quoteInfo)
+            : data.docType === "supply/apply"
+            ? setApplySupply(data.quoteInfo)
+            : data.docType === "supply"
+            ? setSupply(data.quoteInfo)
+            : null;
+        }
+        setQuote(data ? data : []);
+      }
+    }, [data, dispatch, quoteId]);
     const handlePrint = useReactToPrint({
       content: () => componentRef.current,
       onAfterPrint: async () => {
@@ -66,254 +69,168 @@ const ViewQuote = forwardRef((props) => {
     });
     return (
       <>
+        {loading && <Loading />}
         <div
           ref={componentRef}
-          className="max-w-4xl mx-auto my-8 p-6 bg-white shadow-md rounded-lg"
+          className="max-w-7xl mx-auto my-1 p-4 bg-white shadow-md rounded-lg flex items-center justify-center border"
         >
-          <div className="mb-6 flex justify-between">
-            <div>
-              <h1 className="text-3xl font-bold mb-2">Quotation</h1>
+          <div className="word-section1 p-4 w-full">
+            {/* Header Image */}
+            <div className="flex justify-center">
+              <img src={headerImage} alt="Header Image" className="w-full " />
             </div>
-            {loading && <Loading />}
-            <div className="text-right">
-              <p className="text-gray-600">
-                <span
-                  className="font-semibold mr-2"
-                  style={{ minWidth: `${longestKey + 2}ch` }}
-                >
-                  Quotation No:
-                </span>
-                {quote.quotationNo}
-              </p>
-              <p className="text-gray-600">
-                <span
-                  className="font-semibold mr-2"
-                  style={{ minWidth: `${longestKey + 2}ch` }}
-                >
-                  Date:
-                </span>
-                {new Date(quote.quotationDate).toLocaleDateString("en-GB")}
-              </p>
-            </div>
-          </div>
 
-          <div className="grid grid-cols-2 gap-6 mb-6">
-            <div>
-              <h2 className="text-lg font-semibold mb-2">Bill To:</h2>
-              <p className="text-gray-600">
-                {quote.billToAddress?.frefix} {quote.billToAddress?.name}
+            {/* Quotation Title */}
+            <p className="text-center text-lg font-bold mt-4">Quotation</p>
+
+            {/* Quotation Information */}
+            <div className="mt-4">
+              <p className="text-sm font-bold">Quotation No: EPPL/ATT/QTN/26</p>
+              <p className="text-sm font-bold">Date: 28/09/2024</p>
+            </div>
+
+            {/* Bill To and Ship To Information */}
+            <div className="mt-4 flex flex-col md:flex-row">
+              <div className="w-full md:w-1/2 p-2">
+                <p className="font-bold">Bill To:</p>
+                <p className="font-bold">
+                  {`${quote?.billToAddress?.prefix} ${quote?.billToAddress?.name}`}
+                </p>
+                <p>{`${quote?.billToAddress?.a1} ${quote?.billToAddress?.a2},`}</p>
+                <p>{`${quote?.billToAddress?.a3},`}</p>
+                <p>{`${quote?.billToAddress?.a4},`}</p>
+                <p>{`${quote?.billToAddress?.city} - ${quote?.billToAddress?.pincode},`}</p>
+                <p>{`${quote?.billToAddress?.a5}.`}</p>
+              </div>
+              <div className="w-full md:w-1/2 p-2">
+                <p className="font-bold">Ship To:</p>
+                <p className="font-bold">{quote?.shipToAddress?.projectName}</p>
+                <p>{`${quote?.shipToAddress?.a1} ${quote?.shipToAddress?.a2},`}</p>
+                <p>{`${quote?.shipToAddress?.a3},`}</p>
+                <p>{`${quote?.shipToAddress?.a4},`}</p>
+                <p>{`${quote?.shipToAddress?.city} - ${quote?.shipToAddress?.pincode},`}</p>
+                <p>{`${quote?.shipToAddress?.a5}.`}</p>
+              </div>
+            </div>
+
+            {/* Kind Attention */}
+            <div className="mt-4">
+              <p className="font-bold">
+                Kind Attention:{" "}
+                {`${quote?.kindAttentionPrefix} ${quote?.kindAttention}`}
               </p>
-              <p className="text-gray-600">
-                {quote.billToAddress?.a1}
-                {quote.billToAddress?.a2}
+            </div>
+
+            {/* Quotation Description */}
+            <div className="mt-4">
+              <p className="font-bold">
+                {quote?.salesPerson?.initials === "SALES"
+                  ? "We thank you for your enquiry and the opportunity given to us to quote our rates, Further to your instructions, we are pleased to submit our quotation as below"
+                  : `We thank for your enquiry & the time given to our Representative ${quote?.salesPerson?.prefix} ${quote?.salesPerson?.username}`}
               </p>
-              <p className="text-gray-600">{quote.billToAddress?.a3}</p>
-              <p className="text-gray-600">{quote.billToAddress?.a4}</p>
-              <p className="text-gray-600">{quote.billToAddress?.a5}</p>
-              <p className="text-gray-600">
-                {quote.billToAddress?.city} - {quote.billToAddress?.pincode}
-              </p>
-              <div className="overflow-x-auto mt-2 mb-2">
-                <Table hoverable className="w-full">
-                  <Table.Head>
-                    <Table.HeadCell>Sr.No</Table.HeadCell>
-                    <Table.HeadCell>Name</Table.HeadCell>
-                    <Table.HeadCell>Contact</Table.HeadCell>
-                    <Table.HeadCell>Email</Table.HeadCell>
-                  </Table.Head>
-                  <Table.Body className="divide-y">
-                    {quote.billToAddress?.kci.map((kci, idx) => (
-                      <Table.Row
-                        key={kci.id}
-                        className={`${
-                          idx % 2 === 0 ? "bg-white" : "bg-gray-100"
-                        } dark:bg-gray-800`}
-                      >
-                        <Table.Cell>{idx + 1}</Table.Cell>
-                        <Table.Cell>{kci.name}</Table.Cell>
-                        <Table.Cell>{kci.contact}</Table.Cell>
-                        <Table.Cell>{kci.email}</Table.Cell>
-                      </Table.Row>
+            </div>
+
+            {/* Quotation Details Table */}
+            <table className="w-full mt-4">
+              <tbody>
+                <tr className="">
+                  <td className="w-1/4 p-2  font-bold">Subject:</td>
+                  <td className="w-3/4 p-2 ">{quote?.subject}</td>
+                </tr>
+                <tr className="">
+                  <td className="w-1/4 p-2  font-bold">Reference:</td>
+                  <td className="w-3/4 p-2 ">
+                    {quote?.reference?.map((ref, idx) => (
+                      <div key={idx}>
+                        <span className=" font-bold ">
+                          {quote.reference.length > 1 && idx + 1}
+                        </span>
+                        {ref}
+                      </div>
                     ))}
-                  </Table.Body>
-                </Table>
-              </div>
-            </div>
-            <div>
-              <h2 className="text-lg font-semibold mb-2">Ship To:</h2>
-              <p className="text-gray-600">
-                {quote.shipToAddress?.projectName}
-              </p>
-              <p className="text-gray-600">
-                {quote.shipToAddress?.a1}
-                {quote.shipToAddress?.a2}
-              </p>
-              <p className="text-gray-600">{quote.shipToAddress?.a3}</p>
-              <p className="text-gray-600">{quote.shipToAddress?.a4}</p>
-              <p className="text-gray-600">{quote.shipToAddress?.a5}</p>
-              <p className="text-gray-600">
-                {quote.shipToAddress?.city} - {quote.shipToAddress?.pincode}
-              </p>
-              <div className="overflow-x-auto mt-2 mb-2">
-                <Table hoverable className="w-full">
-                  <Table.Head>
-                    <Table.HeadCell>Sr.No</Table.HeadCell>
-                    <Table.HeadCell>Name</Table.HeadCell>
-                    <Table.HeadCell>Contact</Table.HeadCell>
-                    <Table.HeadCell>Email</Table.HeadCell>
-                  </Table.Head>
-                  <Table.Body className="divide-y">
-                    {quote.shipToAddress?.kci.map((kci, idx) => (
-                      <Table.Row
-                        key={kci.id}
-                        className={`${
-                          idx % 2 === 0 ? "bg-white" : "bg-gray-100"
-                        } dark:bg-gray-800`}
-                      >
-                        <Table.Cell>{idx + 1}</Table.Cell>
-                        <Table.Cell>{kci.name}</Table.Cell>
-                        <Table.Cell>{kci.contact}</Table.Cell>
-                        <Table.Cell>{kci.email}</Table.Cell>
-                      </Table.Row>
-                    ))}
-                  </Table.Body>
-                </Table>
-              </div>
-            </div>
-          </div>
+                  </td>
+                </tr>
+                <tr className="">
+                  <td className="w-1/4 p-2  font-bold">Treatment Type:</td>
+                  <td className="w-3/4 p-2 ">
+                    {quote?.treatmentType + " [Sac-code ... 998531]"}
+                  </td>
+                </tr>
+                <tr className="">
+                  <td className="w-1/4 p-2  font-bold">Specification:</td>
+                  <td className="w-3/4 p-2 ">{quote?.specification}</td>
+                </tr>
+                <tr className="">
+                  <td className="w-1/4 p-2  font-bold">Payment Terms:</td>
+                  <td className="w-3/4 p-2 ">
+                    {String(quote?.paymentTerms)
+                      .split(".")
+                      .filter((v) => v.trim() !== "")
+                      .map((ref, idx) => (
+                        <div key={idx}>
+                          <span className=" font-bold ">
+                            {String(quote.paymentTerms)
+                              .split(".")
+                              .filter((v) => v.trim() !== "").length > 1 &&
+                              idx + 1}
+                          </span>
+                          {ref}
+                        </div>
+                      ))}
+                  </td>
+                </tr>
+                <tr className="">
+                  <td className="w-1/4 p-2  font-bold">Taxation:</td>
+                  <td className="w-3/4 p-2 ">{quote?.taxation}</td>
+                </tr>
+                <tr className="">
+                  <td className="w-1/4 p-2  font-bold">Equipments:</td>
+                  <td className="w-3/4 p-2 ">{quote?.equipments}</td>
+                </tr>
+                <tr className="">
+                  <td className="w-1/4 p-2  font-bold">Service Warranty:</td>
+                  <td className="w-3/4 p-2 text-justify ">
+                    10 Years In case of subterranean or ground dwelling of
+                    termite infestation during the guarantee period, we
+                    undertake to treat the same and eradicate the termite
+                    infestation without any extra cost to you. This guarantee
+                    will be forwarded on stamp paper.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
 
-          {quote.kindAttention === "NA" || quote.kindAttention === "" ? null : (
-            <div className="mb-6 flex items-center">
-              <div
-                className="text-lg font-semibold mr-2"
-                style={{ minWidth: `${longestKey() + 2}ch` }}
-              >
-                Kind Attention:
-              </div>
-              <p className="text-gray-600 whitespace-pre-line">
-                {quote.kindAttentionPrefix} {quote.kindAttention}
-              </p>
-            </div>
-          )}
-
-          <div className="mb-6 flex">
-            <div
-              className="font-semibold mr-2"
-              style={{ minWidth: `${longestKey() + 2}ch` }}
-            >
-              Subject:
-            </div>
-            <div className="w-2/3 text-gray-600">{quote.subject}</div>
-          </div>
-
-          <div className="mb-6 flex">
-            <div
-              className="font-semibold mr-2"
-              style={{ minWidth: `${longestKey() + 2}ch` }}
-            >
-              Reference:
-            </div>
-            <div className="w-2/3 text-gray-600">
-              {quote?.reference?.map((ref, idx) => (
-                <div key={idx}>
-                  <span className=" font-bold ">{idx + 1}</span>
-                  {ref}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="mb-6 flex">
-            <div
-              className="font-semibold mr-2"
-              style={{ minWidth: `${longestKey() + 2}ch` }}
-            >
-              Treatment Type:
-            </div>
-            <div className="w-2/3 text-gray-600">
-              {quote.treatmentType + " [Sac-code ... 998531]"}
-            </div>
-          </div>
-
-          <div className="mb-6 flex">
-            <div
-              className="font-semibold mr-2"
-              style={{ minWidth: `${longestKey() + 2}ch` }}
-            >
-              Specification:
-            </div>
-            <div className="w-2/3 text-gray-600">{quote.specification}</div>
-          </div>
-
-          <div className="mb-6 flex">
-            <div
-              className="font-semibold mr-2"
-              style={{ minWidth: `${longestKey() + 2}ch` }}
-            >
-              Equipments:
-            </div>
-            <div className="w-2/3 text-gray-600">{quote.equipments}</div>
-          </div>
-
-          <div className="mb-6 flex">
-            <div
-              className="font-semibold mr-2"
-              style={{ minWidth: `${longestKey() + 2}ch` }}
-            >
-              Payment Terms:
-            </div>
-            <div className="w-2/3 text-gray-600">{quote.paymentTerms}</div>
-          </div>
-
-          <div className="mb-6 flex">
-            <div
-              className="font-semibold mr-2"
-              style={{ minWidth: `${longestKey() + 2}ch` }}
-            >
-              Taxation:
-            </div>
-            <div className="w-2/3 text-gray-600">{quote.taxation}</div>
-          </div>
-
-          {quote.note !== "" ? (
-            <div className="mb-6">
-              <div
-                className="font-semibold mb-2"
-                style={{ minWidth: `${longestKey() + 2}ch` }}
-              >
-                Note:
-              </div>
-              <p className="text-gray-600 whitespace-pre-line">{quote.note}</p>
-            </div>
-          ) : null}
-
-          <div>
-            <h2 className="text-lg font-semibold mb-4">Quote Information:</h2>
-            {standard.length > 0 && (
-              <div className="mb-6">
-                <div className="border border-gray-300 rounded-lg overflow-hidden">
-                  <table className="w-full table-auto">
-                    <thead>
-                      <tr className="bg-gray-100">
-                        <th className="px-4 py-2">Work Area Type</th>
-                        <th className="px-4 py-2">Work Area</th>
-                        <th className="px-4 py-2">Service Rate</th>
-                        <th className="px-4 py-2">Chemical</th>
+            {/* Quote Information */}
+            <div className="mt-4">
+              <p className="font-bold">Quote Information:</p>
+              {standard.length > 0 && (
+                <div>
+                  <table className="min-w-full  border border-black">
+                    <thead className="bg-gray-300">
+                      <tr>
+                        <th className="border border-black p-1 text-center font-bold">
+                          Work Area Type
+                        </th>
+                        <th className="border border-black p-1 text-center font-bold">
+                          Work Area
+                        </th>
+                        <th className="border border-black p-1 text-center font-bold">
+                          Service Rate
+                        </th>
+                        <th className="border border-black p-1 text-center font-bold">
+                          Chemical
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
                       {standard.map((info) => (
-                        <tr key={info._id} className="odd:bg-gray-50">
-                          <td className="px-4 py-2 border-b border-gray-200">
+                        <tr key={info._id} className="border-t border-black">
+                          <td className="border border-black p-1 text-center">
                             {info.workAreaType}
                           </td>
-                          <td className="px-4 py-2 border-b border-gray-200">
-                            {info.workArea} {info.workAreaUnit}
-                          </td>
-                          <td className="px-4 py-2 border-b border-gray-200">
-                            {`₹ ${info.serviceRate} ${info.serviceRateUnit}`}
-                          </td>
-                          <td className="px-4 py-2 border-b border-gray-200">
+                          <td className="border border-black p-1 text-center">{`${info.workArea} ${info.workAreaUnit}`}</td>
+                          <td className="border border-black p-1 text-center">{`₹ ${info.serviceRate} ${info.serviceRateUnit}`}</td>
+                          <td className="border border-black p-1 text-center">
                             {info.chemical}
                           </td>
                         </tr>
@@ -321,41 +238,44 @@ const ViewQuote = forwardRef((props) => {
                     </tbody>
                   </table>
                 </div>
-              </div>
-            )}
-            {applySupply.length > 0 && (
-              <div className="mb-6">
-                <div className="border border-gray-300 rounded-lg overflow-hidden">
-                  <table className="w-full table-auto">
-                    <thead>
-                      <tr className="bg-gray-100">
-                        <th className="px-4 py-2">Work Area Type</th>
-                        <th className="px-4 py-2">Work Area</th>
-                        <th className="px-4 py-2">Apply Rate</th>
-                        <th className="px-4 py-2">Chemical Quantity</th>
-                        <th className="px-4 py-2">Chemical Rate</th>
-                        <th className="px-4 py-2">Chemical</th>
+              )}
+
+              {applySupply.length > 0 && (
+                <div>
+                  <table className="min-w-full  border border-black">
+                    <thead className="bg-gray-300">
+                      <tr>
+                        <th className="border border-black p-2 text-center font-bold">
+                          Work Area Type
+                        </th>
+                        <th className="border border-black p-2 text-center font-bold">
+                          Work Area
+                        </th>
+                        <th className="border border-black p-2 text-center font-bold">
+                          Apply Rate
+                        </th>
+                        <th className="border border-black p-2 text-center font-bold">
+                          Chemical Quantity
+                        </th>
+                        <th className="border border-black p-2 text-center font-bold">
+                          Chemical Rate
+                        </th>
+                        <th className="border border-black p-2 text-center font-bold">
+                          Chemical
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
                       {applySupply.map((info) => (
-                        <tr key={info._id} className="odd:bg-gray-50">
-                          <td className="px-4  py-2 border-b border-gray-200">
+                        <tr key={info._id} className="border-t border-black">
+                          <td className="border border-black p-2 text-center">
                             {info.workAreaType}
                           </td>
-                          <td className="px-4  py-2 border-b border-gray-200">
-                            {info.workArea} {info.workAreaUnit}
-                          </td>
-                          <td className="px-4  py-2 border-b border-gray-200">
-                            {`₹ ${info.applyRate} ${info.applyRateUnit}`}
-                          </td>
-                          <td className="px-4  py-2 border-b border-gray-200">
-                            {`${info.chemicalQuantity} Ltr.`}
-                          </td>
-                          <td className="px-4  py-2 border-b border-gray-200">
-                            {info.chemicalRate} {info.chemicalRateUnit}
-                          </td>
-                          <td className="px-4  py-2 border-b border-gray-200">
+                          <td className="border border-black p-2 text-center">{`${info.workArea} ${info.workAreaUnit}`}</td>
+                          <td className="border border-black p-2 text-center">{`₹ ${info.applyRate} ${info.applyRateUnit}`}</td>
+                          <td className="border border-black p-2 text-center">{`${info.chemicalQuantity} Ltr.`}</td>
+                          <td className="border border-black p-2 text-center">{`${info.chemicalRate} ${info.chemicalRateUnit}`}</td>
+                          <td className="border border-black p-2 text-center">
                             {info.chemical}
                           </td>
                         </tr>
@@ -363,33 +283,36 @@ const ViewQuote = forwardRef((props) => {
                     </tbody>
                   </table>
                 </div>
-              </div>
-            )}
-            {supply.length > 0 && (
-              <div className="mb-6">
-                <div className="border border-gray-300 rounded-lg overflow-hidden">
-                  <table className="w-full table-auto">
-                    <thead>
-                      <tr className="bg-gray-100">
-                        <th className="px-4 py-2">Work Area Type</th>
-                        <th className="px-4 py-2">Chemical Quantity</th>
-                        <th className="px-4 py-2">Chemical Rate</th>
-                        <th className="px-4 py-2">Chemical</th>
+              )}
+
+              {supply.length > 0 && (
+                <div>
+                  <table className="min-w-full  border border-black">
+                    <thead className="bg-gray-300">
+                      <tr>
+                        <th className="border border-black p-2 text-center font-bold">
+                          Work Area Type
+                        </th>
+                        <th className="border border-black p-2 text-center font-bold">
+                          Chemical Quantity
+                        </th>
+                        <th className="border border-black p-2 text-center font-bold">
+                          Chemical Rate
+                        </th>
+                        <th className="border border-black p-2 text-center font-bold">
+                          Chemical
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
                       {supply.map((info) => (
-                        <tr key={info._id} className="odd:bg-gray-50">
-                          <td className="px-4 py-2 border-b border-gray-200">
+                        <tr key={info._id} className="border-t border-black">
+                          <td className="border border-black p-2 text-center">
                             {info.workAreaType}
                           </td>
-                          <td className="px-4 py-2 border-b border-gray-200">
-                            {`${info.chemicalQuantity} Ltr.`}
-                          </td>
-                          <td className="px-4 py-2 border-b border-gray-200">
-                            {`₹ ${info.chemicalRate} ${info.chemicalRateUnit}`}
-                          </td>
-                          <td className="px-4 py-2 border-b border-gray-200">
+                          <td className="border border-black p-2 text-center">{`${info.chemicalQuantity} Ltr.`}</td>
+                          <td className="border border-black p-2 text-center">{`₹ ${info.chemicalRate} ${info.chemicalRateUnit}`}</td>
+                          <td className="border border-black p-2 text-center">
                             {info.chemical}
                           </td>
                         </tr>
@@ -397,8 +320,41 @@ const ViewQuote = forwardRef((props) => {
                     </tbody>
                   </table>
                 </div>
+              )}
+            </div>
+
+            {/* Closing Notes */}
+            <div className="mt-4">
+              <p>
+                We hope you will accept the same and will give us the
+                opportunity to be of service to you.
+              </p>
+              <p className=" text-xs">
+                Please call us for clarification if any.
+              </p>
+            </div>
+
+            {/* Signature */}
+            <div className="mt-4">
+              <p>Thanking you,</p>
+              <p>Yours faithfully,</p>
+              <p>For EXPRESS PESTICIDES PVT. LTD.</p>
+              <div className="mt-1 flex justify-start">
+                <img src={stamp} alt="Signature" className="w-12 h-10" />
               </div>
-            )}
+              <p>Authorized Signatory</p>
+              <p>{`${quote?.createdBy?.initials}/
+                    ${quote?.salesPerson?.initials}`}</p>
+            </div>
+
+            {/* Footer Image */}
+            <div className="flex justify-center mt-4">
+              <img
+                src={footerImage}
+                alt="Footer Image"
+                className="w-full max-w-lg"
+              />
+            </div>
           </div>
         </div>
         <div className="flex items-center justify-center mt-2">
