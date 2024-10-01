@@ -1,10 +1,11 @@
 /* eslint-disable react/prop-types */
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button, Label, Table, TableCell, TextInput } from "flowbite-react";
 import { GiCancel } from "react-icons/gi";
 import { customAlphabet } from "nanoid";
 import { toast } from "react-toastify";
 import { FaEdit } from "react-icons/fa";
+import { info } from "autoprefixer";
 
 const nanoid = customAlphabet(
   "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
@@ -21,39 +22,44 @@ function KCI({ quote, setQuote, addressKey }) {
     email: "",
   });
   const [showForm, setShowForm] = useState(false);
-  const [kciArray, setKciArray] = useState(quote[String(addressKey)]?.kci);
+  const kciArrayRef = useRef(quote[String(addressKey)]?.kci || []);
 
   useEffect(() => {
-    setKciArray(quote[String(addressKey)]?.kci);
+    kciArrayRef.current = quote[String(addressKey)]?.kci;
+    console.log("Runing 1");
   }, [addressKey, quote]);
-
-  useEffect(() => {
-    const isValid =
-      kciObj.name !== "" && (kciObj.contact !== "" || kciObj.email !== "");
-    setValidKci(isValid);
-  }, [kciObj]);
 
   useEffect(() => {
     setQuote((prev) => ({
       ...prev,
       [addressKey]: {
         ...prev[addressKey],
-        kci: kciArray,
+        kci: kciArrayRef.current,
       },
     }));
-  }, [addressKey, kciArray, setQuote]);
+    console.log("Runing 3");
+  }, [addressKey, setQuote]);
+
+  useEffect(() => {
+    const isValid =
+      kciObj.name !== "" && (kciObj.contact !== "" || kciObj.email !== "");
+    setValidKci(isValid);
+    console.log("Runing 2");
+  }, [kciObj]);
+
   function handleKci(e) {
     const { name, value } = e.target;
     setKciObj((prev) => ({ ...prev, [name]: value }));
   }
 
   function deleteKci(id) {
-    setKciArray((prev) => prev.filter((kci) => kci._Id !== id));
+    kciArrayRef.current = kciArrayRef.current.filter((kci) => kci.id !== id);
+    setQuote((prev) => ({ ...prev }));
   }
 
   function addKci() {
     if (kciObj.name !== "" && (kciObj.contact !== "" || kciObj.email !== "")) {
-      setKciArray((prev) => [...prev, kciObj]);
+      kciArrayRef.current = [...kciArrayRef.current, kciObj];
       setKciObj({
         id: nanoid(),
         name: "",
@@ -62,17 +68,46 @@ function KCI({ quote, setQuote, addressKey }) {
         email: "",
       });
       setShowForm(false);
+      // Trigger a re-render
+      setQuote((prev) => ({
+        ...prev,
+        [addressKey]: {
+          ...prev[addressKey],
+          kci: kciArrayRef.current,
+        },
+      }));
     } else {
       toast.error("Please fill out all required fields.");
     }
   }
   function editKCI(id) {
-    const kci = quote[String(addressKey)].kci.find((el) => el._id !== id);
-    setKciObj(kci);
-    setKciArray((prev) => prev.filter((info) => info._id === id));
-    setShowForm(true);
-  }
+    // Find the KCI entry using 'id'
+    const kci = kciArrayRef.current.find((el) => el.id === id);
 
+    if (kci) {
+      // Set the found KCI object to kciObj state
+      setKciObj(kci);
+
+      // Remove the entry from kciArrayRef using 'id'
+      kciArrayRef.current = kciArrayRef.current.filter(
+        (info) => info.id !== id
+      );
+
+      // Update the quote state to trigger a re-render
+      setQuote((prev) => ({
+        ...prev,
+        [addressKey]: {
+          ...prev[addressKey],
+          kci: kciArrayRef.current,
+        },
+      }));
+
+      // Show the form for editing
+      setShowForm(true);
+    } else {
+      console.error(`KCI with id ${id} not found`);
+    }
+  }
   return (
     <div className="bg-[#C8A1E0] border rounded-lg shadow-md p-4 mt-1">
       <div className="flex justify-between items-center mb-4">
@@ -137,7 +172,7 @@ function KCI({ quote, setQuote, addressKey }) {
             <Table.HeadCell>Delete</Table.HeadCell>
           </Table.Head>
           <Table.Body className="divide-y">
-            {kciArray.map((kci, idx) => (
+            {kciArrayRef.current.map((kci, idx) => (
               <Table.Row
                 key={kci.id}
                 className={`${

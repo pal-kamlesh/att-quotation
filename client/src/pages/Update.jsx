@@ -21,6 +21,7 @@ function Update({ quoteId, onClose }) {
   // eslint-disable-next-line no-unused-vars
   const [subRef, setSubRef] = useState();
   const { loading } = useSelector((state) => state.quote);
+  const { initials } = useSelector((state) => state.user);
 
   useEffect(() => {
     async function fetchQuote() {
@@ -120,7 +121,7 @@ function Update({ quoteId, onClose }) {
       }));
     }
   }
-
+  console.log(quote?.salePerson);
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex items-center justify-evenly gap-4 mb-4 flex-wrap">
@@ -156,6 +157,32 @@ function Update({ quoteId, onClose }) {
               value={quote.kindAttention}
             />
           </div>
+        </div>
+        <div className="max-w-full">
+          {!quote.approved ? (
+            <>
+              <div className="mb-2 block">
+                <Label htmlFor="salePerson">
+                  <span>Sale Person: </span>
+                  <span className=" text-red-500">*</span>
+                </Label>
+              </div>
+
+              <Select name="salePerson">
+                <option></option>
+                {initials.length > 0 &&
+                  initials.map((initial) => (
+                    <option
+                      selected={quote?.salesPerson === initial._id}
+                      value={initial._id}
+                      key={initial._id}
+                    >
+                      {initial.initials} {initial.username}
+                    </option>
+                  ))}
+              </Select>
+            </>
+          ) : null}
         </div>
         <div className="col-span-5">
           <div className="mb-2 block">

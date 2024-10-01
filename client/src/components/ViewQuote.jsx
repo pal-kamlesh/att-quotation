@@ -67,6 +67,7 @@ const ViewQuote = forwardRef((props) => {
         // close();
       },
     });
+    console.log(quote?.kindAttention?.trim());
     return (
       <>
         {loading && <Loading />}
@@ -85,8 +86,24 @@ const ViewQuote = forwardRef((props) => {
 
             {/* Quotation Information */}
             <div className="mt-4">
-              <p className="text-sm font-bold">Quotation No: EPPL/ATT/QTN/26</p>
-              <p className="text-sm font-bold">Date: 28/09/2024</p>
+              <p className="text-sm font-bold">
+                <span>
+                  {`Quotation No:  
+                ${quote.quotationNo ? quote.quotationNo : quote._id}`}
+                </span>
+              </p>
+              <p className="text-sm font-bold">
+                <span>
+                  {`
+               Date:   
+                ${
+                  quote?.quotationDate
+                    ? new Date(quote?.quotationDate).toLocaleDateString("en-GB")
+                    : new Date(quote?.createdAt).toLocaleDateString("en-GB")
+                }
+               `}
+                </span>
+              </p>
             </div>
 
             {/* Bill To and Ship To Information */}
@@ -114,12 +131,14 @@ const ViewQuote = forwardRef((props) => {
             </div>
 
             {/* Kind Attention */}
-            <div className="mt-4">
-              <p className="font-bold">
-                Kind Attention:{" "}
-                {`${quote?.kindAttentionPrefix} ${quote?.kindAttention}`}
-              </p>
-            </div>
+            {quote?.kindAttention && quote?.kindAttention?.trim() !== "NA" ? (
+              <div className="mt-4">
+                <p className="font-bold">
+                  Kind Attention:
+                  {`${quote?.kindAttentionPrefix} ${quote?.kindAttention}`}
+                </p>
+              </div>
+            ) : null}
 
             {/* Quotation Description */}
             <div className="mt-4">

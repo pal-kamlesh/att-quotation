@@ -54,7 +54,7 @@ export default function Dashboard() {
           <p className="text-3xl font-bold text-red-500">{approvedCount}</p>
         </div>
         <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold mb-2">Pending Aprovel</h2>
+          <h2 className="text-xl font-semibold mb-2">Pending Approvel</h2>
           <p className="text-3xl font-bold text-yellow-500">{approvePending}</p>
         </div>
       </div>
@@ -79,7 +79,7 @@ export default function Dashboard() {
           <p className="text-3xl font-bold text-red-500">{acContract}</p>
         </div>
         <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold mb-2">Pending Aprovel</h2>
+          <h2 className="text-xl font-semibold mb-2">Pending Approvel</h2>
           <p className="text-3xl font-bold text-yellow-500">{apContract}</p>
         </div>
       </div>
