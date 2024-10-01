@@ -124,7 +124,7 @@ function Update({ quoteId, onClose }) {
   console.log(quote?.salePerson);
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="flex items-center justify-evenly gap-4 mb-4 flex-wrap">
+      <div className="flex items-center justify-evenly gap-2 mb-4 flex-wrap">
         <div className="max-w-full grid grid-cols-6">
           <div className="col-span-1">
             <div className="mb-2 ">
@@ -158,7 +158,7 @@ function Update({ quoteId, onClose }) {
             />
           </div>
         </div>
-        <div className="max-w-full">
+        <div className="">
           {!quote.approved ? (
             <>
               <div className="mb-2 block">
@@ -184,7 +184,7 @@ function Update({ quoteId, onClose }) {
             </>
           ) : null}
         </div>
-        <div className="col-span-5">
+        <div>
           <div className="mb-2 block">
             <Label htmlFor="emailTo">
               <span>Email To: </span>
@@ -197,7 +197,7 @@ function Update({ quoteId, onClose }) {
             value={quote.emailTo}
           />
         </div>
-        <div className="max-w-full">
+        <div className="">
           <div className="mb-2 block">
             <Label htmlFor="specification" value="Specification">
               <span>Specification</span>

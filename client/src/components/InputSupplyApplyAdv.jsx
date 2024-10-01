@@ -335,23 +335,16 @@ function InputSupplyApplyAdv({ quote, setQuote }) {
             </Table.HeadCell>
             <Table.HeadCell className="text-blue-700">Work Area</Table.HeadCell>
             <Table.HeadCell className="text-blue-700">
-              Work Area Unit
-            </Table.HeadCell>
-            <Table.HeadCell className="text-blue-700">
               Apply Rate
             </Table.HeadCell>
-            <Table.HeadCell className="text-blue-700">
-              Apply Rate Unit
-            </Table.HeadCell>
+
             <Table.HeadCell className="text-blue-700">
               Chemical Quantity
             </Table.HeadCell>
             <Table.HeadCell className="text-blue-700">
               Chemical Rate
             </Table.HeadCell>
-            <Table.HeadCell className="text-blue-700">
-              Chemical Rate Unit
-            </Table.HeadCell>
+
             <Table.HeadCell className="text-blue-700">Chemical</Table.HeadCell>
             <Table.HeadCell className="text-blue-700">Edit</Table.HeadCell>
             <Table.HeadCell className="text-blue-700">Delete</Table.HeadCell>
@@ -364,15 +357,16 @@ function InputSupplyApplyAdv({ quote, setQuote }) {
                   className="bg-blue-100 hover:bg-blue-200"
                 >
                   <Table.Cell>{idx + 1}</Table.Cell>
-                  <Table.Cell>{info.workAreaType}</Table.Cell>
-                  <Table.Cell>{info.workArea}</Table.Cell>
-                  <Table.Cell>{info.workAreaUnit}</Table.Cell>
-                  <Table.Cell>{info.applyRate}</Table.Cell>
-                  <Table.Cell>{info.applyRateUnit}</Table.Cell>
-                  <Table.Cell>{info.chemicalQuantity}</Table.Cell>
-                  <Table.Cell>{info.chemicalRate}</Table.Cell>
-                  <Table.Cell>{info.chemicalRateUnit}</Table.Cell>
-                  <Table.Cell>{info.chemical}</Table.Cell>
+                  <Table.Cell className="text-nowrap">
+                    {info.workAreaType}
+                  </Table.Cell>
+                  <Table.Cell className="text-nowrap">{`${info.workArea} ${info.workAreaUnit}`}</Table.Cell>
+                  <Table.Cell className="text-nowrap">{`${info.applyRate} ${info.applyRateUnit}`}</Table.Cell>
+                  <Table.Cell className="text-nowrap">{`${info.chemicalQuantity} Ltr`}</Table.Cell>
+                  <Table.Cell className="text-nowrap">{`${info.chemicalRate} ${info.chemicalRateUnit}`}</Table.Cell>
+                  <Table.Cell className="text-nowrap">
+                    {info.chemical}
+                  </Table.Cell>
                   <Table.Cell>
                     <button
                       className="bg-green-500 hover:bg-green-700 rounded-full text-white p-1"

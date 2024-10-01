@@ -236,7 +236,6 @@ function InputSupplyAdv({ quote, setQuote }) {
             <Table.HeadCell className="text-yellow-700">
               Chemical Rate
             </Table.HeadCell>
-            <Table.HeadCell className="text-yellow-700">Unit</Table.HeadCell>
             <Table.HeadCell className="text-yellow-700">
               Chemical Quantity
             </Table.HeadCell>
@@ -254,12 +253,15 @@ function InputSupplyAdv({ quote, setQuote }) {
                   className="bg-yellow-100 hover:bg-yellow-200"
                 >
                   <Table.Cell>{idx + 1}</Table.Cell>
-                  <Table.Cell>{info.workAreaType}</Table.Cell>
-                  <Table.Cell>{info.chemicalRate}</Table.Cell>
-                  <Table.Cell>{info.chemicalRateUnit}</Table.Cell>
-                  <Table.Cell>{info.chemicalQuantity}</Table.Cell>
-                  <Table.Cell>{info.chemical}</Table.Cell>
-                  <Table.Cell>
+                  <Table.Cell className="text-nowrap">
+                    {info.workAreaType}
+                  </Table.Cell>
+                  <Table.Cell className="text-nowrap">{`${info.chemicalRate} ${info.chemicalRateUnit}`}</Table.Cell>
+                  <Table.Cell className="text-nowrap">{`${info.chemicalQuantity} Ltr`}</Table.Cell>
+                  <Table.Cell className="text-nowrap">
+                    {info.chemical}
+                  </Table.Cell>
+                  <Table.Cell className="text-nowrap">
                     <div className="flex items-center justify-center">
                       <button
                         className="bg-green-500 hover:bg-green-700 rounded-full text-white p-1"

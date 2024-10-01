@@ -279,12 +279,8 @@ function InputStandardAdv({ quote, setQuote }) {
             </Table.HeadCell>
             <Table.HeadCell className="text-lime-700">Work Area</Table.HeadCell>
             <Table.HeadCell className="text-lime-700">
-              Work Area Unit
-            </Table.HeadCell>
-            <Table.HeadCell className="text-lime-700">
               Service Rate
             </Table.HeadCell>
-            <Table.HeadCell className="text-lime-700">Unit</Table.HeadCell>
             <Table.HeadCell className="text-lime-700">Chemical</Table.HeadCell>
             <Table.HeadCell className="text-lime-700">Edit</Table.HeadCell>
             <Table.HeadCell className="text-lime-700">Delete</Table.HeadCell>
@@ -297,12 +293,14 @@ function InputStandardAdv({ quote, setQuote }) {
                   className="bg-lime-100 hover:bg-lime-200"
                 >
                   <Table.Cell>{idx + 1}</Table.Cell>
-                  <Table.Cell>{info.workAreaType}</Table.Cell>
-                  <Table.Cell>{info.workArea}</Table.Cell>
-                  <Table.Cell>{info.workAreaUnit}</Table.Cell>
-                  <Table.Cell>{info.serviceRate}</Table.Cell>
-                  <Table.Cell>{info.serviceRateUnit}</Table.Cell>
-                  <Table.Cell>{info.chemical}</Table.Cell>
+                  <Table.Cell className="text-nowrap">
+                    {info.workAreaType}
+                  </Table.Cell>
+                  <Table.Cell className="text-nowrap">{`${info.workArea} ${info.workAreaUnit}`}</Table.Cell>
+                  <Table.Cell className="text-nowrap">{`${info.serviceRate} ${info.serviceRateUnit}`}</Table.Cell>
+                  <Table.Cell className="text-nowrap">
+                    {info.chemical}
+                  </Table.Cell>
                   <Table.Cell>
                     <div className="flex items-center justify-center gap-2">
                       <button

@@ -5,7 +5,6 @@ import { GiCancel } from "react-icons/gi";
 import { customAlphabet } from "nanoid";
 import { toast } from "react-toastify";
 import { FaEdit } from "react-icons/fa";
-import { info } from "autoprefixer";
 
 const nanoid = customAlphabet(
   "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
@@ -26,7 +25,6 @@ function KCI({ quote, setQuote, addressKey }) {
 
   useEffect(() => {
     kciArrayRef.current = quote[String(addressKey)]?.kci;
-    console.log("Runing 1");
   }, [addressKey, quote]);
 
   useEffect(() => {
@@ -37,14 +35,12 @@ function KCI({ quote, setQuote, addressKey }) {
         kci: kciArrayRef.current,
       },
     }));
-    console.log("Runing 3");
   }, [addressKey, setQuote]);
 
   useEffect(() => {
     const isValid =
       kciObj.name !== "" && (kciObj.contact !== "" || kciObj.email !== "");
     setValidKci(isValid);
-    console.log("Runing 2");
   }, [kciObj]);
 
   function handleKci(e) {
@@ -179,10 +175,9 @@ function KCI({ quote, setQuote, addressKey }) {
                   idx % 2 === 0 ? "bg-white" : "bg-gray-100"
                 } dark:bg-gray-800`}
               >
-                <Table.Cell>{kci.name}</Table.Cell>
-                <Table.Cell>{kci.contact}</Table.Cell>
-                <Table.Cell>{kci.email}</Table.Cell>
-
+                <Table.Cell className="text-nowrap">{kci.name}</Table.Cell>
+                <Table.Cell className="text-nowrap">{kci.contact}</Table.Cell>
+                <Table.Cell className="text-nowrap">{kci.email}</Table.Cell>
                 <TableCell>
                   <button
                     onClick={() => editKCI(kci.id)}
