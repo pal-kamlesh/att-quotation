@@ -61,7 +61,8 @@ const contractSchema = mongoose.Schema(
           email: {
             type: String,
             set: (value) => {
-              value ? value.trim().toLowerCase() : "";
+              if (value === "") return ""; // Allow empty string
+              return value.trim().toLowerCase(); // Trim and lowercase
             },
           },
         },
@@ -102,8 +103,10 @@ const contractSchema = mongoose.Schema(
     workOrderDate: { type: Date },
     gstNo: {
       type: String,
+      default: "",
       set: (value) => {
-        value ? value.trim().toUpperCase() : "";
+        if (value === "") return "";
+        return value.trim().toUpperCase();
       },
     },
     quoteInfo: [{ type: mongoose.Schema.Types.ObjectId, ref: "QuoteInfo" }],

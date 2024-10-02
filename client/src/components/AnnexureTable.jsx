@@ -1652,7 +1652,10 @@ const generateStandardContractAdv = async (data, annexure) => {
   });
 
   const blob = await Packer.toBlob(doc);
-  saveAs(blob, `Contract_${data.contractNo ? data.contractNo : data._id}.docx`);
+  saveAs(
+    blob,
+    `${data.billToAddress.name}-${data.shipToAddress.projectName}-${data.contractNo}.docx`
+  );
 };
 const workLogdocx = async (data) => {
   const { contractNo, billToAddress, shipToAddress, _id } = data;

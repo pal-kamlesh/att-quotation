@@ -177,7 +177,7 @@ const ViewContract = forwardRef((props) => {
                       {kci.name}
                     </div>
                     <div className="border-r border-black p-1 text-center">
-                      {kci.phone}
+                      {kci.contact}
                     </div>
                     <div className="border-r border-black p-1 text-center">
                       {kci.email}
@@ -405,7 +405,7 @@ const ViewContract = forwardRef((props) => {
                       {kci.name}
                     </div>
                     <div className="border-r border-black p-1 text-center">
-                      {kci.phone}
+                      {kci.contact}
                     </div>
                     <div className="border-r border-black p-1 text-center">
                       {kci.email}
