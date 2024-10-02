@@ -235,6 +235,7 @@ function UpdateContract({ onClose, activeId = null }) {
     await unwrapResult(actionResult);
     onClose();
   }
+  console.log(contract);
   return (
     <div>
       {loading ? <Loading /> : null}
@@ -319,7 +320,7 @@ function UpdateContract({ onClose, activeId = null }) {
               {initials.length > 0 &&
                 initials.map((initial) => (
                   <option
-                    selected={contract?.salesPerson === initial._id}
+                    selected={contract?.salesPerson?._id === initial._id}
                     key={initial._id}
                     value={initial._id}
                   >
