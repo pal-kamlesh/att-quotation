@@ -67,7 +67,6 @@ const ViewQuote = forwardRef((props) => {
         // close();
       },
     });
-    console.log(quote?.kindAttention?.trim());
     return (
       <>
         {loading && <Loading />}
@@ -86,13 +85,13 @@ const ViewQuote = forwardRef((props) => {
 
             {/* Quotation Information */}
             <div className="mt-4">
-              <p className="text-sm font-bold">
+              <p className={`text-sm font-bold `}>
                 <span>
                   {`Quotation No:  
                 ${quote.quotationNo ? quote.quotationNo : quote._id}`}
                 </span>
               </p>
-              <p className="text-sm font-bold">
+              <p className={`text-sm font-bold `}>
                 <span>
                   {`
                Date:   

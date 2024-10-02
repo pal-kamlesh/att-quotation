@@ -1,3 +1,4 @@
+import { diff } from "deep-object-diff";
 import { QuoteArchive } from "../models/index.js";
 
 function differenceBetweenArrays(A, B) {
@@ -40,10 +41,16 @@ async function createContractArchiveEntry(contractId, state, author, message) {
   }
 }
 
+function getModifiedKeys(oldObj, newObj) {
+  const difference = diff(oldObj, newObj);
+  return Object.keys(difference);
+}
+
 export {
   differenceBetweenArrays,
   removeIdFromDocuments,
   remove_IdFromObj,
   createQuoteArchiveEntry,
   createContractArchiveEntry,
+  getModifiedKeys,
 };

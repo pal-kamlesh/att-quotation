@@ -5,6 +5,7 @@ import {
   remove_IdFromObj,
   differenceBetweenArrays,
   createQuoteArchiveEntry,
+  getModifiedKeys,
 } from "../utils/functions.js";
 
 const create = async (req, res, next) => {
@@ -201,9 +202,24 @@ const update = async (req, res, next) => {
       const author = req.user.id;
       rest.createdBy = req.user.id;
       rest.quotationDate = new Date();
+      const modifiedFields = getModifiedKeys(state, updatedData);
+      console.log("Modified Array");
+      console.log(modifiedFields);
+      // console.log("Old Data");
+      // console.log(state);
+      // console.log("New Data");
+      // console.log(updatedData);
+      // const valus = getValuesFromObjects(state, updatedData, modifiedFields);
+      // console.log(valus);
       await createQuoteArchiveEntry(quotationId, state, author, message);
     }
-
+    function getValuesFromObjects(obj1, obj2, keys) {
+      return keys.map((key) => ({
+        key: key,
+        valueFromObj1: obj1.hasOwnProperty(key) ? obj1[key] : undefined,
+        valueFromObj2: obj2.hasOwnProperty(key) ? obj2[key] : undefined,
+      }));
+    }
     // Fetch the existing quotation document
     const quotation = await Quotation.findById(quotationId);
     if (!quotation) {

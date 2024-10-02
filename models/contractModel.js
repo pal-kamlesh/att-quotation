@@ -34,7 +34,13 @@ const contractSchema = mongoose.Schema(
           name: String,
           designation: String,
           contact: String,
-          email: String,
+          email: {
+            type: String,
+            set: (value) => {
+              if (value === "") return "";
+              return value.trim().toLowerCase();
+            },
+          },
         },
       ],
     },
@@ -54,7 +60,9 @@ const contractSchema = mongoose.Schema(
           contact: String,
           email: {
             type: String,
-            set: (value) => value.trim().toLowerCase(),
+            set: (value) => {
+              value ? value.trim().toLowerCase() : "";
+            },
           },
         },
       ],
@@ -94,7 +102,9 @@ const contractSchema = mongoose.Schema(
     workOrderDate: { type: Date },
     gstNo: {
       type: String,
-      set: (value) => value.trim().toUpperCase(),
+      set: (value) => {
+        value ? value.trim().toUpperCase() : "";
+      },
     },
     quoteInfo: [{ type: mongoose.Schema.Types.ObjectId, ref: "QuoteInfo" }],
     dcs: [{ type: mongoose.Schema.Types.ObjectId, ref: "DC" }],

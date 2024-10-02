@@ -3,7 +3,6 @@ import { useDispatch } from "react-redux";
 import { archiveData } from "../redux/quote/quoteSlice.js";
 import { useEffect, useState } from "react";
 import { unwrapResult } from "@reduxjs/toolkit";
-import { diff } from "deep-object-diff";
 import { Loading, RevisionHistoryCard, ViewQuote } from "./index.js";
 
 function HistoryPanelQuote({ quoteId }) {
@@ -26,7 +25,7 @@ function HistoryPanelQuote({ quoteId }) {
           message: "",
           author: rest.createdBy,
           _id: rest._id,
-          timestamp: rest.updatedAt,
+          timestamp: rest.createdAt,
         };
         setLatest(rest);
         setArchive(() => [obj, ...(history?.revisions ?? [])]);
@@ -38,18 +37,6 @@ function HistoryPanelQuote({ quoteId }) {
 
     fetchData();
   }, [dispatch, quoteId]);
-
-  useEffect(() => {
-    if (archive?.length > 0) {
-      const modifiedKeys = getModifiedKeys(archive[1].state, latest);
-      console.log(modifiedKeys);
-    }
-  }, [latest, archive]);
-
-  function getModifiedKeys(oldObj, newObj) {
-    const difference = diff(oldObj, newObj);
-    return Object.keys(difference);
-  }
 
   const handleCardClick = (revision) => {
     setSelectedRevision(revision);
