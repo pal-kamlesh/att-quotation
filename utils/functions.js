@@ -1,4 +1,3 @@
-import { diff } from "deep-object-diff";
 import { QuoteArchive } from "../models/index.js";
 
 function differenceBetweenArrays(A, B) {
@@ -13,15 +12,22 @@ const remove_IdFromObj = (obj) => {
   return rest;
 };
 
-async function createQuoteArchiveEntry(quoteId, state, author, message) {
+async function createQuoteArchiveEntry(
+  quoteId,
+  state,
+  author,
+  message,
+  changes
+) {
+  console.log(state);
   const theArchive = await QuoteArchive.findOne({ quotationId: quoteId });
   if (theArchive) {
-    theArchive.revisions.push({ state, author, message });
+    theArchive.revisions.push({ state, author, message, changes });
     await theArchive.save();
   } else {
     const newArchive = new QuoteArchive({
       quotationId: quoteId,
-      revisions: [{ state, author, message }],
+      revisions: [{ state, author, message, changes }],
     });
     await newArchive.save();
   }
@@ -41,16 +47,10 @@ async function createContractArchiveEntry(contractId, state, author, message) {
   }
 }
 
-function getModifiedKeys(oldObj, newObj) {
-  const difference = diff(oldObj, newObj);
-  return Object.keys(difference);
-}
-
 export {
   differenceBetweenArrays,
   removeIdFromDocuments,
   remove_IdFromObj,
   createQuoteArchiveEntry,
   createContractArchiveEntry,
-  getModifiedKeys,
 };

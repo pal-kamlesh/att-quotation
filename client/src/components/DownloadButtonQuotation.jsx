@@ -315,7 +315,11 @@ const QuotationGenerator = ({ id, color, onClick, text, annexure }) => {
       const blob = await Packer.toBlob(doc);
       saveAs(
         blob,
-        `${data.billToAddress.name}-${data.shipToAddress.projectName}-${data.shipToAddress.a4}-${data.shipToAddress.city}-${data.quotationNo}.docx`
+        `${data.billToAddress.name}-${data.shipToAddress.projectName}-${
+          data.shipToAddress.a4
+        }-${data.shipToAddress.city}-${
+          data.quotationNo ? data.quotationNo : data._id
+        }.docx`
       );
     } catch (err) {
       console.log(err);

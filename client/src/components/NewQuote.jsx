@@ -18,7 +18,6 @@ import {
   InputStandardAdv,
   InputSupplyAdv,
   InputSupplyApplyAdv,
-  CustomModal,
 } from "./index.js";
 import { duplicateBillToShipTo } from "../funtions/funtion";
 
@@ -73,10 +72,10 @@ function NewQuote({ onClose }) {
   const [subRef, setSubRef] = useState("");
   const [doc, setDoc] = useState(quote.docType);
   const [disableRadio, setDisableRadio] = useState(false);
-  const [areaTypeModel, setAreaTypeModel] = useState(false);
   const dispatch = useDispatch();
   const { initials } = useSelector((state) => state.user);
   const [subPaymentTerm, setSubPaymentTerm] = useState("");
+  const [error, setError] = useState("");
 
   // Load data from local storage on component mount
   useEffect(() => {
@@ -198,44 +197,58 @@ function NewQuote({ onClose }) {
   async function handleSubmit(e) {
     e.preventDefault();
     if (
-      quote.billToAddress.name === "" ||
-      quote.billToAddress.a1 === "" ||
-      quote.billToAddress.a2 === "" ||
-      quote.billToAddress.a3 === "" ||
-      quote.billToAddress.a4 === "" ||
-      quote.billToAddress.a5 === "" ||
-      quote.billToAddress.city === "" ||
-      quote.shipToAddress.name === "" ||
-      quote.shipToAddress.a1 === "" ||
-      quote.shipToAddress.pincode === "" ||
-      quote.shipToAddress.a2 === "" ||
-      quote.shipToAddress.a3 === "" ||
-      quote.shipToAddress.a4 === "" ||
-      quote.shipToAddress.a5 === "" ||
-      quote.shipToAddress.city === "" ||
-      quote.shipToAddress.pincode === ""
+      (quote.kindAttention === "" && !setError("kindAttention")) ||
+      (quote.kindAttentionPrefix === "" && !setError("kindAttentionPrefix"))
+    ) {
+      toast.error("Please enter Kind Attn: value!");
+      return;
+    }
+    if (quote.salePerson === "") {
+      setError("salePerson");
+      toast.error("Please select salePerson!");
+      return;
+    }
+    if (quote.specification === "") {
+      setError("specification");
+      toast.error("Please enter Specification!");
+      return;
+    }
+    if (
+      (quote.billToAddress.prefix === "" &&
+        !setError("billToAddress.prefix")) ||
+      (quote.billToAddress.name === "" && !setError("billToAddress.name")) ||
+      (quote.billToAddress.a1 === "" && !setError("billToAddress.a1")) ||
+      (quote.billToAddress.a2 === "" && !setError("billToAddress.a2")) ||
+      (quote.billToAddress.a3 === "" && !setError("billToAddress.a3")) ||
+      (quote.billToAddress.a4 === "" && !setError("billToAddress.a4")) ||
+      (quote.billToAddress.a5 === "" && !setError("billToAddress.a5")) ||
+      (quote.billToAddress.city === "" && !setError("billToAddress.city")) ||
+      (quote.billToAddress.pincode === "" &&
+        !setError("billToAddress.pincode")) ||
+      (quote.shipToAddress.projectName === "" &&
+        !setError("shipToAddress.projectName")) ||
+      (quote.shipToAddress.a1 === "" && !setError("shipToAddress.a1")) ||
+      (quote.shipToAddress.a4 === "" && !setError("shipToAddress.a4")) ||
+      (quote.shipToAddress.city === "" && !setError("shipToAddress.city")) ||
+      (quote.shipToAddress.pincode === "") & !setError("shipToAddress.pincode")
     ) {
       toast.error("BillTo/ShipTo Information is incomplete!");
       return;
     }
+
     if (quote.reference === "") {
+      setError("reference");
       toast.error("Please enter Reference!");
       return;
     }
-    if (quote.specification === "") {
-      toast.error("Please enter Specification!");
+    if (quote.paymentTerms === "") {
+      setError("paymentTerms");
+      toast.error("Please enter Payment Terms");
       return;
     }
-    if (quote.salePerson === "") {
-      toast.error("Please select salePerson!");
-      return;
-    }
+
     if (quote.quoteInfo.length <= 0) {
       toast.error("Please fill the number details.");
-      return;
-    }
-    if (quote.kindAttention === "" || quote.kindAttentionPrefix === "") {
-      toast.error("Please enter Kind Attn: value!");
       return;
     }
     const data = { quote };
@@ -256,13 +269,18 @@ function NewQuote({ onClose }) {
               <div className="mb-2 ">
                 <Label htmlFor="kindAttentionPrefix">
                   <span>Prefix</span>
-                  <span className=" text-red-500">*</span>
+                  <span className=" text-red-500 text-xl">*</span>
                 </Label>
               </div>
               <Select
                 name="kindAttentionPrefix"
                 value={quote.kindAttentionPrefix}
                 onChange={handleQuoteChange}
+                className={`${
+                  error === "kindAttentionPrefix"
+                    ? "border border-red-500 rounded-lg bg-red-300 "
+                    : null
+                }`}
               >
                 <option></option>
                 <option value="Mr.">Mr.</option>
@@ -281,6 +299,11 @@ function NewQuote({ onClose }) {
                 name="kindAttention"
                 onChange={handleQuoteChange}
                 value={quote.kindAttention}
+                className={`${
+                  error === "kindAttention"
+                    ? "border border-red-500 rounded-lg bg-red-300 "
+                    : null
+                }`}
               />
             </div>
           </div>
@@ -291,7 +314,15 @@ function NewQuote({ onClose }) {
                 <span className=" text-red-500">*</span>
               </Label>
             </div>
-            <Select name="salePerson" onChange={handleQuoteChange}>
+            <Select
+              name="salePerson"
+              onChange={handleQuoteChange}
+              className={`${
+                error === "salePerson"
+                  ? "border border-red-500 rounded-lg bg-red-300 "
+                  : null
+              }`}
+            >
               <option></option>
               {initials.length > 0 &&
                 initials.map((initial) => (
@@ -305,13 +336,18 @@ function NewQuote({ onClose }) {
             <div className="mb-2 block">
               <Label htmlFor="specification" value="Specification">
                 <span>Specification</span>
-                <span className="text-red-500">*</span>
+                <span className="text-red-500 text-xl">*</span>
               </Label>
             </div>
             <Select
               name="specification"
               value={quote.specification}
               onChange={handleQuoteChange}
+              className={`${
+                error === "specification"
+                  ? "border border-red-500 rounded-lg bg-red-300 "
+                  : null
+              }`}
             >
               <option></option>
               <option>As per IS 6313 (Part 2):2013 & 2022</option>
@@ -329,6 +365,11 @@ function NewQuote({ onClose }) {
               name="emailTo"
               onChange={handleQuoteChange}
               value={quote.emailTo}
+              className={`${
+                error === "emailTo"
+                  ? "border border-red-500 rounded-lg bg-red-300 "
+                  : null
+              }`}
             />
           </div>
         </div>
@@ -351,8 +392,17 @@ function NewQuote({ onClose }) {
               <div className="col-span-1">
                 <div className="mb-2">
                   <Label htmlFor="billToAddress.prefix" value="Prefix" />
+                  <span className="text-red-500 text-xl">*</span>
                 </div>
-                <Select name="billToAddress.prefix" onChange={handleAddress}>
+                <Select
+                  name="billToAddress.prefix"
+                  className={`${
+                    error === "billToAddress.prefix"
+                      ? "border border-red-500 rounded-lg bg-red-300 "
+                      : null
+                  }`}
+                  onChange={handleAddress}
+                >
                   <option></option>
                   <option value="M/s.">M/s.</option>
                   <option value="Mr.">Mr.</option>
@@ -363,7 +413,7 @@ function NewQuote({ onClose }) {
                 <div className="mb-2">
                   <Label htmlFor="billToAddress.name">
                     <span>Name</span>
-                    <span className="text-red-500">*</span>
+                    <span className="text-red-500 text-xl">*</span>
                   </Label>
                 </div>
                 <TextInput
@@ -371,6 +421,11 @@ function NewQuote({ onClose }) {
                   name="billToAddress.name"
                   value={quote.billToAddress.name}
                   onChange={handleAddress}
+                  className={`${
+                    error === "billToAddress.name"
+                      ? "border border-red-500 rounded-lg bg-red-300 "
+                      : null
+                  }`}
                 />
               </div>
             </div>
@@ -378,7 +433,7 @@ function NewQuote({ onClose }) {
               <div className="mb-2 block">
                 <Label htmlFor="a1">
                   <span>A1</span>
-                  <span className="text-red-500">*</span>
+                  <span className="text-red-500 text-xl">*</span>
                 </Label>
               </div>
               <TextInput
@@ -386,13 +441,18 @@ function NewQuote({ onClose }) {
                 onChange={handleAddress}
                 value={quote.billToAddress.a1}
                 placeholder="Building/Office name"
+                className={`${
+                  error === "billToAddress.a1"
+                    ? "border border-red-500 rounded-lg bg-red-300 "
+                    : null
+                }`}
               />
             </div>
             <div className="max-w-full">
               <div className="mb-2 block">
                 <Label htmlFor="a2">
                   <span>A2</span>
-                  <span className="text-red-500">*</span>
+                  <span className="text-red-500 text-xl">*</span>
                 </Label>
               </div>
               <TextInput
@@ -400,13 +460,18 @@ function NewQuote({ onClose }) {
                 onChange={handleAddress}
                 value={quote.billToAddress.a2}
                 placeholder="Flat/Office No"
+                className={`${
+                  error === "billToAddress.a2"
+                    ? "border border-red-500 rounded-lg bg-red-300 "
+                    : null
+                }`}
               />
             </div>
             <div className="max-w-full">
               <div className="mb-2 block">
                 <Label htmlFor="a3">
                   <span>A3</span>
-                  <span className="text-red-500">*</span>
+                  <span className="text-red-500 text-xl">*</span>
                 </Label>
               </div>
               <TextInput
@@ -414,13 +479,18 @@ function NewQuote({ onClose }) {
                 onChange={handleAddress}
                 value={quote.billToAddress.a3}
                 placeholder="Road/Lanename"
+                className={`${
+                  error === "billToAddress.a3"
+                    ? "border border-red-500 rounded-lg bg-red-300 "
+                    : null
+                }`}
               />
             </div>
             <div className="max-w-full">
               <div className="mb-2 block">
                 <Label htmlFor="a4">
                   <span>A4</span>
-                  <span className="text-red-500">*</span>
+                  <span className="text-red-500 text-xl">*</span>
                 </Label>
               </div>
               <TextInput
@@ -428,13 +498,18 @@ function NewQuote({ onClose }) {
                 onChange={handleAddress}
                 value={quote.billToAddress.a4}
                 placeholder="Location"
+                className={`${
+                  error === "billToAddress.a4"
+                    ? "border border-red-500 rounded-lg bg-red-300 "
+                    : null
+                }`}
               />
             </div>
             <div className="max-w-full">
               <div className="mb-2 block">
                 <Label htmlFor="a5">
                   <span>A5</span>
-                  <span className="text-red-500">*</span>
+                  <span className="text-red-500 text-xl">*</span>
                 </Label>
               </div>
               <TextInput
@@ -442,44 +517,59 @@ function NewQuote({ onClose }) {
                 onChange={handleAddress}
                 value={quote.billToAddress.a5}
                 placeholder="NearBy: Landmark"
+                className={`${
+                  error === "billToAddress.a5"
+                    ? "border border-red-500 rounded-lg bg-red-300 "
+                    : null
+                }`}
               />
             </div>
             <div className="max-w-full">
               <div className="mb-2 block">
                 <Label htmlFor="billToAddress.city">
                   <span>City</span>
-                  <span className="text-red-500">*</span>
+                  <span className="text-red-500 text-xl">*</span>
                 </Label>
               </div>
               <TextInput
                 name="billToAddress.city"
                 value={quote.billToAddress.city}
                 onChange={handleAddress}
+                className={`${
+                  error === "billToAddress.city"
+                    ? "border border-red-500 rounded-lg bg-red-300 "
+                    : null
+                }`}
               />
             </div>
             <div className="max-w-full">
               <div className="mb-2 block">
                 <Label htmlFor="billToAddress.pincode">
                   <span>Pincode: </span>
-                  <span className="text-red-500">*</span>
+                  <span className="text-red-500 text-xl">*</span>
                 </Label>
               </div>
               <TextInput
                 name="billToAddress.pincode"
                 onChange={handleAddress}
                 value={quote.billToAddress.pincode}
+                className={`${
+                  error === "billToAddress.pincode"
+                    ? "border border-red-500 rounded-lg bg-red-300 "
+                    : null
+                }`}
               />
             </div>
 
             <KCI quote={quote} setQuote={setQuote} addressKey="billToAddress" />
           </div>
           <div className="p-4 col-span-4">
-            <h3>Ship To Address</h3>
+            <h2>Ship To Address</h2>
             <div className="max-w-full">
               <div className="mb-2 block">
                 <Label htmlFor="shipToAddress.projectName">
                   <span>Project Name</span>
-                  <span className="text-red-500">*</span>
+                  <span className="text-red-500 text-xl">*</span>
                 </Label>
               </div>
               <TextInput
@@ -487,14 +577,19 @@ function NewQuote({ onClose }) {
                 onChange={handleAddress}
                 value={quote.shipToAddress.projectName}
                 type="text"
+                className={`${
+                  error === "shipToAddress.projectName"
+                    ? "border border-red-500 rounded-lg bg-red-300 "
+                    : null
+                }`}
               />
             </div>
 
-            <div className="max-w-full">
+            <div className={`max-w-full `}>
               <div className="mb-2 block">
                 <Label htmlFor="shipToAddress.a1">
                   <span>A1</span>
-                  <span className=" text-red-500">*</span>
+                  <span className=" text-red-500 text-xl">*</span>
                 </Label>
               </div>
               <TextInput
@@ -502,13 +597,17 @@ function NewQuote({ onClose }) {
                 onChange={handleAddress}
                 value={quote.shipToAddress.a1}
                 placeholder="Building/Office name"
+                className={`${
+                  error === "shipToAddress.a1"
+                    ? "border border-red-500 rounded-lg bg-red-300 "
+                    : null
+                }`}
               />
             </div>
             <div className="max-w-full">
               <div className="mb-2 block">
                 <Label htmlFor="shipToAddress.a2">
                   <span>A2</span>
-                  <span className="text-red-500">*</span>
                 </Label>
               </div>
               <TextInput
@@ -516,13 +615,17 @@ function NewQuote({ onClose }) {
                 onChange={handleAddress}
                 value={quote.shipToAddress.a2}
                 placeholder="Flat/Office No"
+                className={`${
+                  error === "shipToAddress.a2"
+                    ? "border border-red-500 rounded-lg bg-red-300 "
+                    : null
+                }`}
               />
             </div>
             <div className="max-w-full">
               <div className="mb-2 block">
                 <Label htmlFor="shipToAddress.a3">
                   <span>A3</span>
-                  <span className="text-red-500">*</span>
                 </Label>
               </div>
               <TextInput
@@ -530,13 +633,18 @@ function NewQuote({ onClose }) {
                 onChange={handleAddress}
                 value={quote.shipToAddress.a3}
                 placeholder="Road/Lanename"
+                className={`${
+                  error === "shipToAddress.a3"
+                    ? "border border-red-500 rounded-lg bg-red-300 "
+                    : null
+                }`}
               />
             </div>
             <div className="max-w-full">
               <div className="mb-2 block">
                 <Label htmlFor="shipToAddress.a4">
                   <span>A4</span>
-                  <span className="text-red-500">*</span>
+                  <span className="text-red-500 text-xl">*</span>
                 </Label>
               </div>
               <TextInput
@@ -544,13 +652,17 @@ function NewQuote({ onClose }) {
                 onChange={handleAddress}
                 value={quote.shipToAddress.a4}
                 placeholder="Location"
+                className={`${
+                  error === "shipToAddress.a4"
+                    ? "border border-red-500 rounded-lg bg-red-300 "
+                    : null
+                }`}
               />
             </div>
             <div className="max-w-full">
               <div className="mb-2 block">
                 <Label htmlFor="shipToAddress.a5">
                   <span>A5</span>
-                  <span className="text-red-500">*</span>
                 </Label>
               </div>
               <TextInput
@@ -558,30 +670,45 @@ function NewQuote({ onClose }) {
                 onChange={handleAddress}
                 value={quote.shipToAddress.a5}
                 placeholder="NearBy: Landmark"
+                className={`${
+                  error === "shipToAddress.a5"
+                    ? "border border-red-500 rounded-lg bg-red-300 "
+                    : null
+                }`}
               />
             </div>
             <div className="max-w-full">
               <div className="mb-2 block">
                 <span>City</span>
-                <span className="text-red-500">*</span>
+                <span className="text-red-500 text-xl">*</span>
               </div>
               <TextInput
                 name="shipToAddress.city"
                 value={quote.shipToAddress.city}
                 onChange={handleAddress}
+                className={`${
+                  error === "shipToAddress.city"
+                    ? "border border-red-500 rounded-lg bg-red-300 "
+                    : null
+                }`}
               />
             </div>
             <div className="max-w-full">
               <div className="mb-2 block">
                 <Label htmlFor="shipToAddress.pincode">
                   <span>Pincode: </span>
-                  <span className="text-red-500">*</span>
+                  <span className="text-red-500 text-xl">*</span>
                 </Label>
               </div>
               <TextInput
                 name="shipToAddress.pincode"
                 value={quote.shipToAddress.pincode}
                 onChange={handleAddress}
+                className={`${
+                  error === "shipToAddress.pincode"
+                    ? "border border-red-500 rounded-lg bg-red-300 "
+                    : null
+                }`}
               />
             </div>
             <KCI quote={quote} setQuote={setQuote} addressKey="shipToAddress" />
@@ -592,7 +719,7 @@ function NewQuote({ onClose }) {
             <div className="mb-2 block">
               <Label htmlFor="reference" className="grid grid-cols-12">
                 <span className=" col-span-2">
-                  Ref: <span className="text-red-500">*</span>
+                  Ref: <span className="text-red-500 text-xl">*</span>
                 </span>
                 <Select
                   name="subRef"
@@ -613,6 +740,11 @@ function NewQuote({ onClose }) {
               onChange={handleQuoteChange}
               value={quote.reference}
               placeholder="Reference"
+              className={`${
+                error === "reference"
+                  ? "border border-red-500 rounded-lg bg-red-300 "
+                  : null
+              }`}
             />
           </div>
           <div className=" col-span-4 gap-4 mb-4 ">
@@ -671,7 +803,8 @@ function NewQuote({ onClose }) {
               <div className="mb-2 block">
                 <Label htmlFor="paymentTerms" className="grid grid-cols-12">
                   <span className=" col-span-2">
-                    Payment Terms: <span className="text-red-500">*</span>
+                    Payment Terms:
+                    <span className="text-red-500 text-xl">*</span>
                   </span>
                   <Select
                     name="paymentTerms"
@@ -690,6 +823,11 @@ function NewQuote({ onClose }) {
                 name="paymentTerms"
                 value={quote.paymentTerms}
                 onChange={handleQuoteChange}
+                className={`${
+                  error === "paymentTerms"
+                    ? "border border-red-500 rounded-lg bg-red-300 "
+                    : null
+                }`}
               />
             </div>
           </div>
@@ -717,13 +855,6 @@ function NewQuote({ onClose }) {
           Submit
         </Button>
       </form>
-      <CustomModal
-        isOpen={areaTypeModel}
-        onClose={() => setAreaTypeModel(!areaTypeModel)}
-        heading="New Work Area Type"
-      >
-        <h1>Hey Hey!</h1>
-      </CustomModal>
     </div>
   );
 }

@@ -5,7 +5,6 @@ import {
   remove_IdFromObj,
   differenceBetweenArrays,
   createQuoteArchiveEntry,
-  getModifiedKeys,
 } from "../utils/functions.js";
 
 const create = async (req, res, next) => {
@@ -185,13 +184,12 @@ const singleQuote = async (req, res, next) => {
 const update = async (req, res, next) => {
   try {
     const quotationId = req.params.id;
-    const { message, quote: updatedData } = req.body;
+    const { message, quote: updatedData, modified } = req.body;
     const { quoteInfo, ...otherFields } = updatedData;
     const { reference } = otherFields;
     const referenceArray = String(reference).split(">.");
     otherFields.reference = referenceArray;
     const { _id, ...rest } = otherFields;
-
     const isapproved = await Quotation.isApproved(quotationId);
     if (isapproved) {
       const { _id, ...state } = await Quotation.findById(quotationId)
@@ -202,23 +200,13 @@ const update = async (req, res, next) => {
       const author = req.user.id;
       rest.createdBy = req.user.id;
       rest.quotationDate = new Date();
-      const modifiedFields = getModifiedKeys(state, updatedData);
-      console.log("Modified Array");
-      console.log(modifiedFields);
-      // console.log("Old Data");
-      // console.log(state);
-      // console.log("New Data");
-      // console.log(updatedData);
-      // const valus = getValuesFromObjects(state, updatedData, modifiedFields);
-      // console.log(valus);
-      await createQuoteArchiveEntry(quotationId, state, author, message);
-    }
-    function getValuesFromObjects(obj1, obj2, keys) {
-      return keys.map((key) => ({
-        key: key,
-        valueFromObj1: obj1.hasOwnProperty(key) ? obj1[key] : undefined,
-        valueFromObj2: obj2.hasOwnProperty(key) ? obj2[key] : undefined,
-      }));
+      await createQuoteArchiveEntry(
+        quotationId,
+        state,
+        author,
+        message,
+        modified
+      );
     }
     // Fetch the existing quotation document
     const quotation = await Quotation.findById(quotationId);
@@ -313,7 +301,8 @@ const approving = async (req, res, next) => {
     const data = await Quotation.findById(id)
       .populate("quoteInfo")
       .populate({ path: "salesPerson", select: "-password" })
-      .populate({ path: "createdBy", select: "-password" });
+      .populate({ path: "createdBy", select: "-password" })
+      .lean();
 
     if (data.approved) {
       res.status(404).json({ message: "Quotation Already approved" });
@@ -321,10 +310,14 @@ const approving = async (req, res, next) => {
     }
     const author = req.user.id;
     await createQuoteArchiveEntry(id, data, author, "Approved");
-    await data.approve();
+    const finalData = await Quotation.findById(id)
+      .populate("quoteInfo")
+      .populate({ path: "salesPerson", select: "-password" })
+      .populate({ path: "createdBy", select: "-password" });
+    await finalData.approve();
     res.status(200).json({
       message: "Quotation Approved.",
-      result: data,
+      result: finalData,
     });
   } catch (error) {
     console.log(error);

@@ -340,7 +340,7 @@ const approve = async (req, res, next) => {
     const { id } = req.params;
     const data = await Contract.findByIdAndUpdate(id)
       .populate("quoteInfo")
-      .populate("createdBy");
+      .populate({ path: "createdBy", select: "-password" });
     await data.approve();
     await data.generateContractNo();
     res.status(200).json({

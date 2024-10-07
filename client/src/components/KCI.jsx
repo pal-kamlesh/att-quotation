@@ -5,13 +5,14 @@ import { GiCancel } from "react-icons/gi";
 import { customAlphabet } from "nanoid";
 import { toast } from "react-toastify";
 import { FaEdit } from "react-icons/fa";
+import { getValueFromNestedObject } from "../funtions/funtion";
 
 const nanoid = customAlphabet(
   "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
   21
 );
 
-function KCI({ quote, setQuote, addressKey }) {
+function KCI({ quote, setQuote, addressKey, changedFileds, orignalQuote }) {
   const [validKci, setValidKci] = useState(false);
   const [kciObj, setKciObj] = useState({
     id: nanoid(),
@@ -45,9 +46,31 @@ function KCI({ quote, setQuote, addressKey }) {
 
   function handleKci(e) {
     const { name, value } = e.target;
+    const dataId = e.target.getAttribute("data-id");
+    const modifiedString = `${addressKey}.kci.${dataId}.${name}`;
+
+    const oldValue = orignalQuote
+      ? getValueFromNestedObject(orignalQuote.current, modifiedString)
+      : null;
+    if (oldValue) {
+      if (
+        oldValue.trim() !== value.trim() &&
+        !changedFileds.current.includes(String(modifiedString))
+      ) {
+        changedFileds.current = [...changedFileds.current, modifiedString];
+      } else if (
+        oldValue.trim() === value.trim() &&
+        changedFileds.current.includes(String(modifiedString))
+      ) {
+        changedFileds.current = changedFileds.current.filter(
+          (keys) => keys !== modifiedString
+        );
+      }
+    }
+
     setKciObj((prev) => ({ ...prev, [name]: value }));
   }
-
+  console.log(changedFileds.current);
   function deleteKci(id) {
     kciArrayRef.current = kciArrayRef.current.filter((kci) => kci.id !== id);
     setQuote((prev) => ({ ...prev }));
@@ -121,7 +144,12 @@ function KCI({ quote, setQuote, addressKey }) {
           <div className="flex gap-4 mb-4">
             <div>
               <Label htmlFor="name">Name:</Label>
-              <TextInput name="name" value={kciObj.name} onChange={handleKci} />
+              <TextInput
+                name="name"
+                value={kciObj.name}
+                onChange={handleKci}
+                data-id={kciObj?.id}
+              />
             </div>
             <div>
               <Label htmlFor="contact">Contact:</Label>
@@ -129,6 +157,7 @@ function KCI({ quote, setQuote, addressKey }) {
                 name="contact"
                 value={kciObj.contact}
                 onChange={handleKci}
+                data-id={kciObj?.id}
               />
             </div>
             <div>
@@ -138,6 +167,7 @@ function KCI({ quote, setQuote, addressKey }) {
                 name="email"
                 value={kciObj.email}
                 onChange={handleKci}
+                data-id={kciObj?.id}
               />
             </div>
             <div className="flex items-center justify-center mt-5">

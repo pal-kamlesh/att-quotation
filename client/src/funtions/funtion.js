@@ -93,6 +93,42 @@ async function base64Url(id) {
   }
 }
 
+const getValueFromNestedObject = (obj, name) => {
+  const keys = Array.isArray(name) ? name : name.split(".");
+  let result = obj;
+
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[i];
+    if (!result) return undefined;
+
+    if (
+      key.includes("kci") &&
+      (keys[i - 1] === "billToAddress" || keys[i - 1] === "shipToAddress")
+    ) {
+      const kciId = keys[i + 1];
+      const kciField = keys[i + 2];
+
+      // Find the KCI object with the matching ID
+      const kciObject = result.kci.find((item) => item._id === kciId);
+
+      // If found, set result to the specified field, otherwise set to undefined
+      result = kciObject ? kciObject[kciField] : undefined;
+
+      // Skip the next two keys as we've already processed them
+      i += 2;
+    } else if (key.includes("quoteInfo")) {
+      const infoId = keys[i + 1];
+      const infoField = keys[i + 2];
+      const infoObj = result.quoteInfo.find((item) => item._id === infoId);
+      result = infoObj ? infoObj[infoField] : undefined;
+      i += 2;
+    } else {
+      result = result[key];
+    }
+  }
+
+  return result;
+};
 export {
   saprateQuoteInfo,
   getDotColor,
@@ -101,4 +137,5 @@ export {
   getChemicalRatio,
   qrCodeUint8Arrayfn,
   base64Url,
+  getValueFromNestedObject,
 };

@@ -1,17 +1,19 @@
 /* eslint-disable react/prop-types */
 const RevisionHistoryCard = ({ revision, onClick, active }) => {
-  const { author, state, timestamp } = revision;
-  const { quotationNo, shipToAddress } = state;
+  const { author, state, timestamp, changes } = revision;
+  const { quotationNo, shipToAddress, _id } = state;
   const formattedDate = new Date(timestamp).toLocaleDateString("en-GB");
   const formattedTime = new Date(timestamp).toLocaleTimeString();
   const cardStyles = active
-    ? "w-sm bg-blue-100 shadow-lg rounded-lg overflow-hidden mb-4 border-2 border-blue-500"
+    ? "w-sm bg-red-200 shadow-lg rounded-lg overflow-hidden mb-4 border-2 border-red-500"
     : "w-sm bg-white shadow-lg rounded-lg overflow-hidden mb-4";
 
   return (
-    <div onClick={() => onClick(state)} className={cardStyles}>
+    <div onClick={() => onClick({ state, changes })} className={cardStyles}>
       <div className="bg-gray-800 text-white text-center py-2">
-        <h2 className="text-xl font-bold">Quotation No: {quotationNo}</h2>
+        <h2 className="text-xl font-bold">
+          Quotation No: {quotationNo ? quotationNo : _id}
+        </h2>
       </div>
       <div className="p-4">
         <div className="mb-2">

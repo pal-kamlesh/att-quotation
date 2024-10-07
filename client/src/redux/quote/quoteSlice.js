@@ -183,12 +183,12 @@ export const archiveData = createAsyncThunk(
 export const updateQuote = createAsyncThunk(
   "update/quote",
   async (data, { rejectWithValue }) => {
-    const { id, quote, message } = data;
+    const { id, quote, message, modified } = data;
     try {
       const response = await fetch(`/api/v1/quotation/${id}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ quote, message }),
+        body: JSON.stringify({ quote, message, modified }),
       });
       if (!response.ok) {
         const errorData = await response.json();

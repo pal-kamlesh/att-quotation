@@ -26,6 +26,10 @@ const quoteArchiveSchema = mongoose.Schema({
         ref: "User",
         required: true,
       },
+      changes: {
+        type: [String],
+        default: [],
+      },
     },
   ],
 });

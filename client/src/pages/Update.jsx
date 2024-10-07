@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getSingleQuote, updateQuote } from "../redux/quote/quoteSlice";
 import { unwrapResult } from "@reduxjs/toolkit";
@@ -11,17 +11,23 @@ import {
 } from "../components";
 import { Button, Label, Select, Textarea, TextInput } from "flowbite-react";
 import { toast } from "react-toastify";
-import { duplicateBillToShipTo } from "../funtions/funtion";
+import {
+  duplicateBillToShipTo,
+  getValueFromNestedObject,
+} from "../funtions/funtion";
 
 // eslint-disable-next-line react/prop-types
 function Update({ quoteId, onClose }) {
   const dispatch = useDispatch();
   const [quote, setQuote] = useState(null);
+  const orignalQuote = useRef({});
   const [message, setMessage] = useState("");
+  const changedFileds = useRef([]);
   // eslint-disable-next-line no-unused-vars
   const [subRef, setSubRef] = useState();
   const { loading } = useSelector((state) => state.quote);
   const { initials } = useSelector((state) => state.user);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     async function fetchQuote() {
@@ -30,10 +36,10 @@ function Update({ quoteId, onClose }) {
       const output = result.result;
       output.reference = output.reference.join(">.");
       setQuote(output);
+      orignalQuote.current = output;
     }
     fetchQuote();
   }, [dispatch, quoteId]);
-
   if (loading) {
     return <Loading />;
   }
@@ -43,6 +49,7 @@ function Update({ quoteId, onClose }) {
   }
   const handleChange = (e) => {
     const { name, value, dataset } = e.target;
+
     const { id } = dataset; // Accessing data-id attribute
 
     if (name.startsWith("quoteInfo")) {
@@ -80,6 +87,36 @@ function Update({ quoteId, onClose }) {
           [name]: value,
         });
       }
+      const oldValue = getValueFromNestedObject(orignalQuote.current, name);
+      if (name.includes(".")) {
+        if (
+          oldValue.trim() !== value.trim() &&
+          !changedFileds.current.includes(String(name))
+        ) {
+          changedFileds.current = [...changedFileds.current, name];
+        } else if (
+          oldValue.trim() === value.trim() &&
+          changedFileds.current.includes(String(name))
+        ) {
+          changedFileds.current = changedFileds.current.filter(
+            (keys) => keys !== name
+          );
+        }
+      } else {
+        if (
+          value.trim() !== quote[String(name)].trim() &&
+          !changedFileds.current.includes(String(name))
+        ) {
+          changedFileds.current = [...changedFileds.current, name];
+        } else if (
+          oldValue.trim() === value.trim() &&
+          changedFileds.current.includes(String(name))
+        ) {
+          changedFileds.current = changedFileds.current.filter(
+            (keys) => keys !== name
+          );
+        }
+      }
     }
   };
   async function handleSubmitApproved() {
@@ -91,7 +128,12 @@ function Update({ quoteId, onClose }) {
       toast.error("Please fill the number details.");
       return;
     }
-    const data = { id: quoteId, quote, message };
+    const data = {
+      id: quoteId,
+      quote,
+      message,
+      modified: changedFileds.current,
+    };
     const actionResult = await dispatch(updateQuote(data));
     // eslint-disable-next-line no-unused-vars
     const result = unwrapResult(actionResult);
@@ -101,6 +143,28 @@ function Update({ quoteId, onClose }) {
     const data = { id: quoteId, quote, message };
     if (quote.quoteInfo.length <= 0) {
       toast.error("Please fill the number details.");
+      return;
+    }
+    if (
+      (quote.billToAddress.prefix === "" &&
+        !setError("billToAddress.prefix")) ||
+      (quote.billToAddress.name === "" && !setError("billToAddress.name")) ||
+      (quote.billToAddress.a1 === "" && !setError("billToAddress.a1")) ||
+      (quote.billToAddress.a2 === "" && !setError("billToAddress.a2")) ||
+      (quote.billToAddress.a3 === "" && !setError("billToAddress.a3")) ||
+      (quote.billToAddress.a4 === "" && !setError("billToAddress.a4")) ||
+      (quote.billToAddress.a5 === "" && !setError("billToAddress.a5")) ||
+      (quote.billToAddress.city === "" && !setError("billToAddress.city")) ||
+      (quote.billToAddress.pincode === "" &&
+        !setError("billToAddress.pincode")) ||
+      (quote.shipToAddress.projectName === "" &&
+        !setError("shipToAddress.projectName")) ||
+      (quote.shipToAddress.a1 === "" && !setError("shipToAddress.a1")) ||
+      (quote.shipToAddress.a4 === "" && !setError("shipToAddress.a4")) ||
+      (quote.shipToAddress.city === "" && !setError("shipToAddress.city")) ||
+      (quote.shipToAddress.pincode === "") & !setError("shipToAddress.pincode")
+    ) {
+      toast.error("BillTo/ShipTo Information is incomplete!");
       return;
     }
     const actionResult = await dispatch(updateQuote(data));
@@ -121,7 +185,6 @@ function Update({ quoteId, onClose }) {
       }));
     }
   }
-  console.log(quote?.salePerson);
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex items-center justify-evenly gap-2 mb-4 flex-wrap">
@@ -137,6 +200,11 @@ function Update({ quoteId, onClose }) {
               name="kindAttentionPrefix"
               value={quote.kindAttentionPrefix}
               onChange={handleChange}
+              className={`${
+                error === "kindAttentionPrefix"
+                  ? "border border-red-500 rounded-lg bg-red-300 "
+                  : null
+              }`}
             >
               <option></option>
               <option value="Mr.">Mr.</option>
@@ -155,6 +223,11 @@ function Update({ quoteId, onClose }) {
               name="kindAttention"
               onChange={handleChange}
               value={quote.kindAttention}
+              className={`${
+                error === "kindAttention"
+                  ? "border border-red-500 rounded-lg bg-red-300 "
+                  : null
+              }`}
             />
           </div>
         </div>
@@ -168,7 +241,14 @@ function Update({ quoteId, onClose }) {
                 </Label>
               </div>
 
-              <Select name="salePerson">
+              <Select
+                name="salePerson"
+                className={`${
+                  error === "salePerson"
+                    ? "border border-red-500 rounded-lg bg-red-300 "
+                    : null
+                }`}
+              >
                 <option></option>
                 {initials.length > 0 &&
                   initials.map((initial) => (
@@ -195,6 +275,11 @@ function Update({ quoteId, onClose }) {
             name="emailTo"
             onChange={handleChange}
             value={quote.emailTo}
+            className={`${
+              error === "emailTo"
+                ? "border border-red-500 rounded-lg bg-red-300 "
+                : null
+            }`}
           />
         </div>
         <div className="">
@@ -208,6 +293,11 @@ function Update({ quoteId, onClose }) {
             name="specification"
             onChange={handleChange}
             value={quote.specification}
+            className={`${
+              error === "specification"
+                ? "border border-red-500 rounded-lg bg-red-300 "
+                : null
+            }`}
           >
             <option></option>
             <option>As per IS 6313 (Part 2):2013 & 2022</option>
@@ -236,6 +326,11 @@ function Update({ quoteId, onClose }) {
                 name="billToAddress.prefix"
                 value={quote.billToAddress.prefix}
                 onChange={handleChange}
+                className={`${
+                  error === "billToAddress.prefix"
+                    ? "border border-red-500 rounded-lg bg-red-300 "
+                    : null
+                }`}
               ></TextInput>
             </div>
             <div className=" col-span-5">
@@ -250,6 +345,11 @@ function Update({ quoteId, onClose }) {
                 name="billToAddress.name"
                 value={quote.billToAddress?.name}
                 onChange={handleChange}
+                className={`${
+                  error === "billToAddress.name"
+                    ? "border border-red-500 rounded-lg bg-red-300 "
+                    : null
+                }`}
               />
             </div>
           </div>
@@ -266,6 +366,11 @@ function Update({ quoteId, onClose }) {
               value={quote.billToAddress?.a1}
               placeholder="Building/Office name"
               onChange={handleChange}
+              className={`${
+                error === "billToAddress.a1"
+                  ? "border border-red-500 rounded-lg bg-red-300 "
+                  : null
+              }`}
             />
           </div>
           <div className="max-w-full">
@@ -280,6 +385,11 @@ function Update({ quoteId, onClose }) {
               value={quote.billToAddress?.a2}
               placeholder="Flat/Office No"
               onChange={handleChange}
+              className={`${
+                error === "billToAddress.a2"
+                  ? "border border-red-500 rounded-lg bg-red-300 "
+                  : null
+              }`}
             />
           </div>
           <div className="max-w-full">
@@ -294,6 +404,11 @@ function Update({ quoteId, onClose }) {
               value={quote.billToAddress?.a3}
               placeholder="Road/Lanename"
               onChange={handleChange}
+              className={`${
+                error === "billToAddress.a3"
+                  ? "border border-red-500 rounded-lg bg-red-300 "
+                  : null
+              }`}
             />
           </div>
           <div className="max-w-full">
@@ -308,6 +423,11 @@ function Update({ quoteId, onClose }) {
               value={quote.billToAddress?.a4}
               placeholder="Location"
               onChange={handleChange}
+              className={`${
+                error === "billToAddress.a4"
+                  ? "border border-red-500 rounded-lg bg-red-300 "
+                  : null
+              }`}
             />
           </div>
           <div className="max-w-full">
@@ -322,6 +442,11 @@ function Update({ quoteId, onClose }) {
               value={quote.billToAddress?.a5}
               placeholder="NearBy: Landmark"
               onChange={handleChange}
+              className={`${
+                error === "billToAddress.a5"
+                  ? "border border-red-500 rounded-lg bg-red-300 "
+                  : null
+              }`}
             />
           </div>
           <div className="max-w-full">
@@ -335,6 +460,11 @@ function Update({ quoteId, onClose }) {
               name="billToAddress.city"
               value={quote.billToAddress?.city}
               onChange={handleChange}
+              className={`${
+                error === "billToAddress.city"
+                  ? "border border-red-500 rounded-lg bg-red-300 "
+                  : null
+              }`}
             />
           </div>
           <div className="max-w-full">
@@ -348,9 +478,20 @@ function Update({ quoteId, onClose }) {
               name="billToAddress.pincode"
               value={quote.billToAddress?.pincode}
               onChange={handleChange}
+              className={`${
+                error === "billToAddress.pincode"
+                  ? "border border-red-500 rounded-lg bg-red-300 "
+                  : null
+              }`}
             />
           </div>
-          <KCI quote={quote} setQuote={setQuote} addressKey="billToAddress" />
+          <KCI
+            quote={quote}
+            setQuote={setQuote}
+            addressKey="billToAddress"
+            changedFileds={changedFileds}
+            orignalQuote={orignalQuote}
+          />
         </div>
         <div className="p-4 col-span-4">
           <h3>Ship To Address</h3>
@@ -366,6 +507,11 @@ function Update({ quoteId, onClose }) {
               value={quote.shipToAddress?.projectName}
               onChange={handleChange}
               type="text"
+              className={`${
+                error === "shipToAddress.projectName"
+                  ? "border border-red-500 rounded-lg bg-red-300 "
+                  : null
+              }`}
             />
           </div>
 
@@ -381,13 +527,17 @@ function Update({ quoteId, onClose }) {
               value={quote.shipToAddress?.a1}
               placeholder="Building/Office name"
               onChange={handleChange}
+              className={`${
+                error === "shipToAddress.a1"
+                  ? "border border-red-500 rounded-lg bg-red-300 "
+                  : null
+              }`}
             />
           </div>
           <div className="max-w-full">
             <div className="mb-2 block">
               <Label htmlFor="shipToAddress.a2">
                 <span>A2</span>
-                <span className="text-red-500">*</span>
               </Label>
             </div>
             <TextInput
@@ -395,13 +545,17 @@ function Update({ quoteId, onClose }) {
               value={quote.shipToAddress?.a2}
               placeholder="Flat/Office No"
               onChange={handleChange}
+              className={`${
+                error === "shipToAddress?.a2"
+                  ? "border border-red-500 rounded-lg bg-red-300 "
+                  : null
+              }`}
             />
           </div>
           <div className="max-w-full">
             <div className="mb-2 block">
               <Label htmlFor="shipToAddress.a3">
                 <span>A3</span>
-                <span className="text-red-500">*</span>
               </Label>
             </div>
             <TextInput
@@ -409,6 +563,11 @@ function Update({ quoteId, onClose }) {
               value={quote.shipToAddress?.a3}
               placeholder="Road/Lanename"
               onChange={handleChange}
+              className={`${
+                error === "shipToAddress?.a3"
+                  ? "border border-red-500 rounded-lg bg-red-300 "
+                  : null
+              }`}
             />
           </div>
           <div className="max-w-full">
@@ -423,13 +582,17 @@ function Update({ quoteId, onClose }) {
               value={quote.shipToAddress?.a4}
               placeholder="Location"
               onChange={handleChange}
+              className={`${
+                error === "shipToAddress.a4"
+                  ? "border border-red-500 rounded-lg bg-red-300 "
+                  : null
+              }`}
             />
           </div>
           <div className="max-w-full">
             <div className="mb-2 block">
               <Label htmlFor="shipToAddress.a5">
                 <span>A5</span>
-                <span className="text-red-500">*</span>
               </Label>
             </div>
             <TextInput
@@ -437,6 +600,11 @@ function Update({ quoteId, onClose }) {
               value={quote.shipToAddress?.a5}
               placeholder="NearBy: Landmark"
               onChange={handleChange}
+              className={`${
+                error === "shipToAddress.a5"
+                  ? "border border-red-500 rounded-lg bg-red-300 "
+                  : null
+              }`}
             />
           </div>
           <div className="max-w-full">
@@ -448,6 +616,11 @@ function Update({ quoteId, onClose }) {
               name="shipToAddress.city"
               value={quote.shipToAddress?.city}
               onChange={handleChange}
+              className={`${
+                error === "shipToAddress.city"
+                  ? "border border-red-500 rounded-lg bg-red-300 "
+                  : null
+              }`}
             />
           </div>
           <div className="max-w-full">
@@ -461,9 +634,20 @@ function Update({ quoteId, onClose }) {
               name="shipToAddress.pincode"
               value={quote.shipToAddress?.pincode}
               onChange={handleChange}
+              className={`${
+                error === "shipToAddress.pincode"
+                  ? "border border-red-500 rounded-lg bg-red-300 "
+                  : null
+              }`}
             />
           </div>
-          <KCI quote={quote} setQuote={setQuote} addressKey="shipToAddress" />
+          <KCI
+            quote={quote}
+            setQuote={setQuote}
+            addressKey="shipToAddress"
+            changedFileds={changedFileds}
+            orignalQuote={orignalQuote}
+          />
         </div>
       </div>
 
@@ -498,6 +682,11 @@ function Update({ quoteId, onClose }) {
             onChange={handleChange}
             value={quote.reference}
             placeholder="Reference"
+            className={`${
+              error === "reference"
+                ? "border border-red-500 rounded-lg bg-red-300 "
+                : null
+            }`}
           />
         </div>
         <div className="max-w-full gap-4 mb-2">
@@ -509,13 +698,23 @@ function Update({ quoteId, onClose }) {
               name="paymentTerms"
               value={quote.paymentTerms}
               onChange={handleChange}
+              className={`${
+                error === "paymentTerms"
+                  ? "border border-red-500 rounded-lg bg-red-300 "
+                  : null
+              }`}
             />
           </div>
         </div>
       </div>
 
       {quote.docType === "standard" && (
-        <InputStandardAdv quote={quote} setQuote={setQuote} />
+        <InputStandardAdv
+          quote={quote}
+          setQuote={setQuote}
+          changedFileds={changedFileds}
+          orignalQuote={orignalQuote}
+        />
       )}
 
       {quote.docType === "supply" && (

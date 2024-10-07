@@ -10,6 +10,7 @@ function HistoryPanelQuote({ quoteId }) {
   const [latest, setLatest] = useState({});
   const [archive, setArchive] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [changes, setChanges] = useState([]);
   const [selectedRevision, setSelectedRevision] = useState(null);
 
   useEffect(() => {
@@ -28,7 +29,7 @@ function HistoryPanelQuote({ quoteId }) {
           timestamp: rest.createdAt,
         };
         setLatest(rest);
-        setArchive(() => [obj, ...(history?.revisions ?? [])]);
+        setArchive(() => [...(history?.revisions ?? []), obj]);
         setLoading(false);
       } catch (error) {
         setLoading(false);
@@ -39,9 +40,10 @@ function HistoryPanelQuote({ quoteId }) {
   }, [dispatch, quoteId]);
 
   const handleCardClick = (revision) => {
-    setSelectedRevision(revision);
+    const { state, changes } = revision;
+    setSelectedRevision(state);
+    setChanges(changes);
   };
-
   const revisionDetails = selectedRevision || latest;
   return (
     <div className="p-4 flex h-screen overflow-hidden">
@@ -53,16 +55,19 @@ function HistoryPanelQuote({ quoteId }) {
         </h2>
         {/* Make the header sticky */}
         <div className="mt-2 flex flex-col gap-4">
-          {archive?.map((revision, index) => (
-            <RevisionHistoryCard
-              key={index}
-              revision={revision}
-              onClick={handleCardClick}
-              active={
-                revision.state.quotationNo === revisionDetails?.quotationNo
-              }
-            />
-          ))}
+          {archive
+            ?.slice()
+            .reverse()
+            .map((revision, index) => (
+              <RevisionHistoryCard
+                key={index}
+                revision={revision}
+                onClick={handleCardClick}
+                active={
+                  revision.state.quotationNo === revisionDetails?.quotationNo
+                }
+              />
+            ))}
         </div>
       </div>
 
@@ -70,7 +75,9 @@ function HistoryPanelQuote({ quoteId }) {
 
       <div className="w-3/4 overflow-y-auto h-[calc(100vh-2rem)]">
         {loading && <Loading />}
-        {revisionDetails && <ViewQuote data={revisionDetails} />}
+        {revisionDetails && (
+          <ViewQuote data={revisionDetails} changes={changes} />
+        )}
       </div>
     </div>
   );

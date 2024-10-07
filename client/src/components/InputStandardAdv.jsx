@@ -16,13 +16,14 @@ import { FaEdit } from "react-icons/fa";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { getChemicals } from "../redux/contract/contractSlice";
 import { useDispatch } from "react-redux";
+import { getValueFromNestedObject } from "../funtions/funtion";
 
 const nanoid = customAlphabet(
   "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
   21
 );
 
-function InputStandardAdv({ quote, setQuote }) {
+function InputStandardAdv({ quote, setQuote, changedFileds, orignalQuote }) {
   const [validInput, setValidInput] = useState(false);
   const [infoArray, setInfoArray] = useState(quote.quoteInfo);
   const [chemicalList, setChemicalList] = useState([]);
@@ -109,6 +110,26 @@ function InputStandardAdv({ quote, setQuote }) {
 
   function handleInfoChange(e) {
     const { name, value } = e.target;
+    const dataId = e.target.getAttribute("data-id");
+    const modifiedString = `quoteInfo.${dataId}.${name}`;
+    const oldValue = orignalQuote
+      ? getValueFromNestedObject(orignalQuote.current, modifiedString)
+      : null;
+    if (oldValue) {
+      if (
+        oldValue.trim() !== value.trim() &&
+        !changedFileds.current.includes(String(modifiedString))
+      ) {
+        changedFileds.current = [...changedFileds.current, modifiedString];
+      } else if (
+        oldValue.trim() === value.trim() &&
+        changedFileds.current.includes(String(modifiedString))
+      ) {
+        changedFileds.current = changedFileds.current.filter(
+          (keys) => keys !== modifiedString
+        );
+      }
+    }
     setInfoObj((prev) => ({ ...prev, [name]: value }));
   }
   function deleteInfo(id) {
@@ -163,6 +184,7 @@ function InputStandardAdv({ quote, setQuote }) {
                 name="workAreaType"
                 onChange={handleInfoChange}
                 value={infoObj.workAreaType}
+                data-id={infoObj?._id}
                 className="bg-lime-50 border-lime-400 focus:border-lime-600 focus:ring-lime-600 flex-1"
               >
                 <option value=""></option>
@@ -183,12 +205,14 @@ function InputStandardAdv({ quote, setQuote }) {
                   name="workArea"
                   value={infoObj.workArea}
                   onChange={handleInfoChange}
+                  data-id={infoObj?._id}
                   className="flex-1 bg-lime-50 border-lime-400 focus:border-lime-600 focus:ring-lime-600"
                 />
                 <Select
                   name="workAreaUnit"
                   onChange={handleInfoChange}
                   value={infoObj.workAreaUnit}
+                  data-id={infoObj?._id}
                   className="flex-1 bg-lime-50 border-lime-400 focus:border-lime-600 focus:ring-lime-600"
                 >
                   <option value=""></option>
@@ -206,6 +230,7 @@ function InputStandardAdv({ quote, setQuote }) {
                   name="serviceRate"
                   value={infoObj.serviceRate}
                   onChange={handleInfoChange}
+                  data-id={infoObj?._id}
                   className="flex-1 bg-lime-50 border-lime-400 focus:border-lime-600 focus:ring-lime-600"
                 />
                 <Select
@@ -230,6 +255,7 @@ function InputStandardAdv({ quote, setQuote }) {
                   name="chemical"
                   onChange={handleInfoChange}
                   value={infoObj.chemical}
+                  data-id={infoObj?._id}
                   className="flex-1 bg-lime-50 border-lime-400 focus:border-lime-600 focus:ring-lime-600"
                 >
                   <option value=""></option>

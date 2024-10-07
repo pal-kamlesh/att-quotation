@@ -15,7 +15,7 @@ import stamp from "../images/stamp.png";
 const ViewQuote = forwardRef((props) => {
   {
     // eslint-disable-next-line react/prop-types
-    const { quoteId, data } = props;
+    const { quoteId, data, changes = [] } = props;
     const dispatch = useDispatch();
     const [quote, setQuote] = useState({});
     const [standard, setStandard] = useState([]);
@@ -86,7 +86,13 @@ const ViewQuote = forwardRef((props) => {
             {/* Quotation Information */}
             <div className="mt-4">
               <p className={`text-sm font-bold `}>
-                <span>
+                <span
+                  className={` ${
+                    substringsExistInArray(["quotationNo"], changes)
+                      ? "bg-red-200"
+                      : ""
+                  }`}
+                >
                   {`Quotation No:  
                 ${quote.quotationNo ? quote.quotationNo : quote._id}`}
                 </span>
@@ -109,30 +115,135 @@ const ViewQuote = forwardRef((props) => {
             <div className="mt-4 flex flex-col md:flex-row">
               <div className="w-full md:w-1/2 p-2">
                 <p className="font-bold">Bill To:</p>
-                <p className="font-bold">
+                <p
+                  className={` ${
+                    substringsExistInArray(
+                      ["billToAddress.prefix", "billToAddress.name"],
+                      changes
+                    )
+                      ? "bg-red-200"
+                      : ""
+                  }`}
+                >
                   {`${quote?.billToAddress?.prefix} ${quote?.billToAddress?.name}`}
                 </p>
-                <p>{`${quote?.billToAddress?.a1} ${quote?.billToAddress?.a2},`}</p>
-                <p>{`${quote?.billToAddress?.a3},`}</p>
-                <p>{`${quote?.billToAddress?.a4},`}</p>
-                <p>{`${quote?.billToAddress?.city} - ${quote?.billToAddress?.pincode},`}</p>
-                <p>{`${quote?.billToAddress?.a5}.`}</p>
+                <p
+                  className={` ${
+                    substringsExistInArray(
+                      ["billToAddress.a1", "billToAddress.a2"],
+                      changes
+                    )
+                      ? "bg-red-200"
+                      : ""
+                  }`}
+                >{`${quote?.billToAddress?.a1} ${quote?.billToAddress?.a2},`}</p>
+                <p
+                  className={` ${
+                    substringsExistInArray(["billToAddress.a3"], changes)
+                      ? "bg-red-200"
+                      : ""
+                  }`}
+                >{`${quote?.billToAddress?.a3},`}</p>
+                <p
+                  className={` ${
+                    substringsExistInArray(["billToAddress.a4"], changes)
+                      ? "bg-red-200"
+                      : ""
+                  }`}
+                >{`${quote?.billToAddress?.a4},`}</p>
+                <p
+                  className={` ${
+                    substringsExistInArray(
+                      ["billToAddress.city", "billToAddress.pincode"],
+                      changes
+                    )
+                      ? "bg-red-200"
+                      : ""
+                  }`}
+                >{`${quote?.billToAddress?.city} - ${quote?.billToAddress?.pincode},`}</p>
+                <p
+                  className={` ${
+                    substringsExistInArray(["billToAddress.a5"], changes)
+                      ? "bg-red-200"
+                      : ""
+                  }`}
+                >{`${quote?.billToAddress?.a5}.`}</p>
               </div>
               <div className="w-full md:w-1/2 p-2">
                 <p className="font-bold">Ship To:</p>
-                <p className="font-bold">{quote?.shipToAddress?.projectName}</p>
-                <p>{`${quote?.shipToAddress?.a1} ${quote?.shipToAddress?.a2},`}</p>
-                <p>{`${quote?.shipToAddress?.a3},`}</p>
-                <p>{`${quote?.shipToAddress?.a4},`}</p>
-                <p>{`${quote?.shipToAddress?.city} - ${quote?.shipToAddress?.pincode},`}</p>
-                <p>{`${quote?.shipToAddress?.a5}.`}</p>
+                <p
+                  className={`font-bold ${
+                    substringsExistInArray(
+                      ["shipToAddress.projectName"],
+                      changes
+                    )
+                      ? "bg-red-200"
+                      : ""
+                  }`}
+                >
+                  {quote?.shipToAddress?.projectName}
+                </p>
+                <p
+                  className={`${
+                    substringsExistInArray(
+                      ["shipToAddress.a1", "shipToAddress.a2"],
+                      changes
+                    )
+                      ? "bg-red-200"
+                      : ""
+                  }`}
+                >{`${quote?.shipToAddress?.a1} ${quote?.shipToAddress?.a2},`}</p>
+                {quote?.shipToAddress?.a3 && (
+                  <p
+                    className={`${
+                      substringsExistInArray(["shipToAddress.a3"], changes)
+                        ? "bg-red-200"
+                        : ""
+                    }`}
+                  >{`${quote?.shipToAddress?.a3},`}</p>
+                )}
+                <p
+                  className={`${
+                    substringsExistInArray(["shipToAddress.a4"], changes)
+                      ? "bg-red-200"
+                      : ""
+                  }`}
+                >{`${quote?.shipToAddress?.a4},`}</p>
+                <p
+                  className={`${
+                    substringsExistInArray(
+                      ["shipToAddress.city", "shipToAddress.pincode"],
+                      changes
+                    )
+                      ? "bg-red-200"
+                      : ""
+                  }`}
+                >{`${quote?.shipToAddress?.city} - ${quote?.shipToAddress?.pincode},`}</p>
+                {quote?.shipToAddress?.a5 && (
+                  <p
+                    className={`${
+                      substringsExistInArray(["shipToAddress.a5"], changes)
+                        ? "bg-red-200"
+                        : ""
+                    }`}
+                  >{`${quote?.shipToAddress?.a5}.`}</p>
+                )}
               </div>
             </div>
 
             {/* Kind Attention */}
             {quote?.kindAttention && quote?.kindAttention?.trim() !== "NA" ? (
               <div className="mt-4">
-                <p className="font-bold">
+                <p
+                  className={`font-bold ${
+                    substringsExistInArray(
+                      ["kindAttentionPrefix", "kindAttention"],
+                      changes
+                    )
+                      ? "bg-red-200"
+                      : ""
+                  }`}
+                >
                   Kind Attention:
                   {`${quote?.kindAttentionPrefix} ${quote?.kindAttention}`}
                 </p>
@@ -141,7 +252,13 @@ const ViewQuote = forwardRef((props) => {
 
             {/* Quotation Description */}
             <div className="mt-4">
-              <p className="font-bold">
+              <p
+                className={`font-bold ${
+                  substringsExistInArray(["salesPerson"], changes)
+                    ? "bg-red-200"
+                    : ""
+                }`}
+              >
                 {quote?.salesPerson?.initials === "SALES"
                   ? "We thank you for your enquiry and the opportunity given to us to quote our rates, Further to your instructions, we are pleased to submit our quotation as below"
                   : `We thank for your enquiry & the time given to our Representative ${quote?.salesPerson?.prefix} ${quote?.salesPerson?.username}`}
@@ -153,11 +270,25 @@ const ViewQuote = forwardRef((props) => {
               <tbody>
                 <tr className="">
                   <td className="w-1/4 p-2  font-bold">Subject:</td>
-                  <td className="w-3/4 p-2 ">{quote?.subject}</td>
+                  <td
+                    className={`w-3/4 p-2 ${
+                      substringsExistInArray(["subject"], changes)
+                        ? "bg-red-200"
+                        : ""
+                    }`}
+                  >
+                    {quote?.subject}
+                  </td>
                 </tr>
                 <tr className="">
                   <td className="w-1/4 p-2  font-bold">Reference:</td>
-                  <td className="w-3/4 p-2 ">
+                  <td
+                    className={`w-3/4 p-2 ${
+                      substringsExistInArray(["reference"], changes)
+                        ? "bg-red-200"
+                        : ""
+                    }`}
+                  >
                     {quote?.reference?.map((ref, idx) => (
                       <div key={idx}>
                         <span className=" font-bold ">
@@ -170,17 +301,37 @@ const ViewQuote = forwardRef((props) => {
                 </tr>
                 <tr className="">
                   <td className="w-1/4 p-2  font-bold">Treatment Type:</td>
-                  <td className="w-3/4 p-2 ">
+                  <td
+                    className={`w-3/4 p-2 ${
+                      substringsExistInArray(["treatmentType"], changes)
+                        ? "bg-red-200"
+                        : ""
+                    }`}
+                  >
                     {quote?.treatmentType + " [Sac-code ... 998531]"}
                   </td>
                 </tr>
                 <tr className="">
                   <td className="w-1/4 p-2  font-bold">Specification:</td>
-                  <td className="w-3/4 p-2 ">{quote?.specification}</td>
+                  <td
+                    className={`w-3/4 p-2 ${
+                      substringsExistInArray(["specification"], changes)
+                        ? "bg-red-200"
+                        : ""
+                    }`}
+                  >
+                    {quote?.specification}
+                  </td>
                 </tr>
                 <tr className="">
                   <td className="w-1/4 p-2  font-bold">Payment Terms:</td>
-                  <td className="w-3/4 p-2 ">
+                  <td
+                    className={`w-3/4 p-2 ${
+                      substringsExistInArray(["paymentTerms"], changes)
+                        ? "bg-red-200"
+                        : ""
+                    }`}
+                  >
                     {String(quote?.paymentTerms)
                       .split(".")
                       .filter((v) => v.trim() !== "")
@@ -199,11 +350,27 @@ const ViewQuote = forwardRef((props) => {
                 </tr>
                 <tr className="">
                   <td className="w-1/4 p-2  font-bold">Taxation:</td>
-                  <td className="w-3/4 p-2 ">{quote?.taxation}</td>
+                  <td
+                    className={`w-3/4 p-2 ${
+                      substringsExistInArray(["taxation"], changes)
+                        ? "bg-red-200"
+                        : ""
+                    }`}
+                  >
+                    {quote?.taxation}
+                  </td>
                 </tr>
                 <tr className="">
                   <td className="w-1/4 p-2  font-bold">Equipments:</td>
-                  <td className="w-3/4 p-2 ">{quote?.equipments}</td>
+                  <td
+                    className={`w-3/4 p-2 ${
+                      substringsExistInArray(["equipments"], changes)
+                        ? "bg-red-200"
+                        : ""
+                    }`}
+                  >
+                    {quote?.equipments}
+                  </td>
                 </tr>
                 <tr className="">
                   <td className="w-1/4 p-2  font-bold">Service Warranty:</td>
@@ -242,13 +409,55 @@ const ViewQuote = forwardRef((props) => {
                     </thead>
                     <tbody>
                       {standard.map((info) => (
-                        <tr key={info._id} className="border-t border-black">
-                          <td className="border border-black p-1 text-center">
+                        <tr key={info._id} className={`border-t border-black `}>
+                          <td
+                            className={`border border-black p-1 text-center ${
+                              substringsExistInArray(
+                                [`${info._id}.workAreaType`],
+                                changes
+                              )
+                                ? "bg-red-200"
+                                : ""
+                            }`}
+                          >
                             {info.workAreaType}
                           </td>
-                          <td className="border border-black p-1 text-center">{`${info.workArea} ${info.workAreaUnit}`}</td>
-                          <td className="border border-black p-1 text-center">{`₹ ${info.serviceRate} ${info.serviceRateUnit}`}</td>
-                          <td className="border border-black p-1 text-center">
+                          <td
+                            className={`border border-black p-1 text-center ${
+                              substringsExistInArray(
+                                [
+                                  `${info._id}.workArea`,
+                                  `${info._id}.workAreaUnit`,
+                                ],
+                                changes
+                              )
+                                ? "bg-red-200"
+                                : ""
+                            }`}
+                          >{`${info.workArea} ${info.workAreaUnit}`}</td>
+                          <td
+                            className={`border border-black p-1 text-center ${
+                              substringsExistInArray(
+                                [
+                                  `${info._id}.serviceRate`,
+                                  `${info._id}.serviceRateUnit`,
+                                ],
+                                changes
+                              )
+                                ? "bg-red-200"
+                                : ""
+                            }`}
+                          >{`₹ ${info.serviceRate} ${info.serviceRateUnit}`}</td>
+                          <td
+                            className={`border border-black p-1 text-center ${
+                              substringsExistInArray(
+                                [`${info._id}.chemical`],
+                                changes
+                              )
+                                ? "bg-red-200"
+                                : ""
+                            }`}
+                          >
                             {info.chemical}
                           </td>
                         </tr>
@@ -286,14 +495,77 @@ const ViewQuote = forwardRef((props) => {
                     <tbody>
                       {applySupply.map((info) => (
                         <tr key={info._id} className="border-t border-black">
-                          <td className="border border-black p-2 text-center">
+                          <td
+                            className={`border border-black p-1 text-center ${
+                              substringsExistInArray(
+                                [`${info._id}.workAreaType`],
+                                changes
+                              )
+                                ? "bg-red-200"
+                                : ""
+                            }`}
+                          >
                             {info.workAreaType}
                           </td>
-                          <td className="border border-black p-2 text-center">{`${info.workArea} ${info.workAreaUnit}`}</td>
-                          <td className="border border-black p-2 text-center">{`₹ ${info.applyRate} ${info.applyRateUnit}`}</td>
-                          <td className="border border-black p-2 text-center">{`${info.chemicalQuantity} Ltr.`}</td>
-                          <td className="border border-black p-2 text-center">{`${info.chemicalRate} ${info.chemicalRateUnit}`}</td>
-                          <td className="border border-black p-2 text-center">
+                          <td
+                            className={`border border-black p-1 text-center ${
+                              substringsExistInArray(
+                                [
+                                  `${info._id}.workArea`,
+                                  `${info._id}.workAreaUnit`,
+                                ],
+                                changes
+                              )
+                                ? "bg-red-200"
+                                : ""
+                            }`}
+                          >{`${info.workArea} ${info.workAreaUnit}`}</td>
+                          <td
+                            className={`border border-black p-1 text-center ${
+                              substringsExistInArray(
+                                [
+                                  `${info._id}.applyRate`,
+                                  `${info._id}.applyRateUnit`,
+                                ],
+                                changes
+                              )
+                                ? "bg-red-200"
+                                : ""
+                            }`}
+                          >{`₹ ${info.applyRate} ${info.applyRateUnit}`}</td>
+                          <td
+                            className={`border border-black p-1 text-center ${
+                              substringsExistInArray(
+                                [`${info._id}.chemicalQunatity`],
+                                changes
+                              )
+                                ? "bg-red-200"
+                                : ""
+                            }`}
+                          >{`${info.chemicalQuantity} Ltr.`}</td>
+                          <td
+                            className={`border border-black p-1 text-center ${
+                              substringsExistInArray(
+                                [
+                                  `${info._id}.chemicalRate`,
+                                  `${info._id}.chemicalRateUnit`,
+                                ],
+                                changes
+                              )
+                                ? "bg-red-200"
+                                : ""
+                            }`}
+                          >{`${info.chemicalRate} ${info.chemicalRateUnit}`}</td>
+                          <td
+                            className={`border border-black p-1 text-center ${
+                              substringsExistInArray(
+                                [`${info._id}.chemical`],
+                                changes
+                              )
+                                ? "bg-red-200"
+                                : ""
+                            }`}
+                          >
                             {info.chemical}
                           </td>
                         </tr>
@@ -325,12 +597,51 @@ const ViewQuote = forwardRef((props) => {
                     <tbody>
                       {supply.map((info) => (
                         <tr key={info._id} className="border-t border-black">
-                          <td className="border border-black p-2 text-center">
+                          <td
+                            className={`border border-black p-1 text-center ${
+                              substringsExistInArray(
+                                [`${info._id}.workAreaType`],
+                                changes
+                              )
+                                ? "bg-red-200"
+                                : ""
+                            }`}
+                          >
                             {info.workAreaType}
                           </td>
-                          <td className="border border-black p-2 text-center">{`${info.chemicalQuantity} Ltr.`}</td>
-                          <td className="border border-black p-2 text-center">{`₹ ${info.chemicalRate} ${info.chemicalRateUnit}`}</td>
-                          <td className="border border-black p-2 text-center">
+                          <td
+                            className={`border border-black p-1 text-center ${
+                              substringsExistInArray(
+                                [`${info._id}.chemicalQuantity`],
+                                changes
+                              )
+                                ? "bg-red-200"
+                                : ""
+                            }`}
+                          >{`${info.chemicalQuantity} Ltr.`}</td>
+                          <td
+                            className={`border border-black p-1 text-center ${
+                              substringsExistInArray(
+                                [
+                                  `${info._id}.chemicalRate`,
+                                  `${info._id}.chemicalRateUnit`,
+                                ],
+                                changes
+                              )
+                                ? "bg-red-200"
+                                : ""
+                            }`}
+                          >{`₹ ${info.chemicalRate} ${info.chemicalRateUnit}`}</td>
+                          <td
+                            className={`border border-black p-1 text-center ${
+                              substringsExistInArray(
+                                [`${info._id}.chemical`],
+                                changes
+                              )
+                                ? "bg-red-200"
+                                : ""
+                            }`}
+                          >
                             {info.chemical}
                           </td>
                         </tr>
@@ -361,7 +672,13 @@ const ViewQuote = forwardRef((props) => {
                 <img src={stamp} alt="Signature" className="w-12 h-10" />
               </div>
               <p>Authorized Signatory</p>
-              <p>{`${quote?.createdBy?.initials}/
+              <p
+                className={` ${
+                  substringsExistInArray(["salesPerson"], changes)
+                    ? "bg-red-200"
+                    : ""
+                }`}
+              >{`${quote?.createdBy?.initials}/
                     ${quote?.salesPerson?.initials}`}</p>
             </div>
 
@@ -384,5 +701,11 @@ const ViewQuote = forwardRef((props) => {
     );
   }
 });
+
+function substringsExistInArray(targetSubstrings, stringArray) {
+  return targetSubstrings.some((substring) =>
+    stringArray.some((str) => str.includes(substring))
+  );
+}
 
 export default ViewQuote;
