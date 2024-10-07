@@ -70,7 +70,6 @@ function KCI({ quote, setQuote, addressKey, changedFileds, orignalQuote }) {
 
     setKciObj((prev) => ({ ...prev, [name]: value }));
   }
-  console.log(changedFileds.current);
   function deleteKci(id) {
     kciArrayRef.current = kciArrayRef.current.filter((kci) => kci.id !== id);
     setQuote((prev) => ({ ...prev }));

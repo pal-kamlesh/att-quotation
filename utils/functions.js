@@ -19,7 +19,6 @@ async function createQuoteArchiveEntry(
   message,
   changes
 ) {
-  console.log(state);
   const theArchive = await QuoteArchive.findOne({ quotationId: quoteId });
   if (theArchive) {
     theArchive.revisions.push({ state, author, message, changes });

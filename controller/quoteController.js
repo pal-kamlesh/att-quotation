@@ -302,7 +302,7 @@ const approving = async (req, res, next) => {
       .populate("quoteInfo")
       .populate({ path: "salesPerson", select: "-password" })
       .populate({ path: "createdBy", select: "-password" })
-      .lean();
+      .lean({ virtuals: ["subject"] });
 
     if (data.approved) {
       res.status(404).json({ message: "Quotation Already approved" });
