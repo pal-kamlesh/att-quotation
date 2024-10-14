@@ -4,7 +4,10 @@ import { useReactToPrint } from "react-to-print";
 import { forwardRef, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Loading from "./Loading";
-import { saprateQuoteInfo } from "../funtions/funtion.js";
+import {
+  saprateQuoteInfo,
+  substringsExistInArray,
+} from "../funtions/funtion.js";
 import { Button } from "flowbite-react";
 import { getSingleContract } from "../redux/contract/contractSlice.js";
 import headerImage from "../images/header.png";
@@ -25,7 +28,7 @@ function longestKey() {
 const ViewContract = forwardRef((props) => {
   {
     // eslint-disable-next-line react/prop-types
-    const { id, data } = props;
+    const { id, data, changes = [] } = props;
     const dispatch = useDispatch();
     const [contract, setContract] = useState({});
     const [standard, setStandard] = useState([]);
@@ -105,15 +108,66 @@ const ViewContract = forwardRef((props) => {
                   <div className="border-r border-black p-2 w-1/2">
                     <p className="font-bold">CONTRACTEE INFORMATION</p>
                     <p>&nbsp;</p>
-                    <p className="font-bold">
+                    <p
+                      className={`font-bold ${
+                        substringsExistInArray(
+                          ["billToAddress.prefix", "billToAddress.name"],
+                          changes
+                        )
+                          ? "bg-red-200"
+                          : ""
+                      }`}
+                    >
                       {`${contract?.billToAddress?.prefix} ${contract?.billToAddress?.name}`}
                     </p>
-                    <p>{`${contract?.billToAddress?.a1} ${contract?.billToAddress?.a2},`}</p>
-                    <p>{`${contract?.billToAddress?.a3},`}</p>
-                    <p>{`${contract?.billToAddress?.a4},`}</p>
-                    <p>{`${contract?.billToAddress?.city} - ${contract?.billToAddress?.pincode},`}</p>
-                    <p>{`${contract?.billToAddress?.a5}.`}</p>
-                    <p className="font-bold">
+                    <p
+                      className={` ${
+                        substringsExistInArray(
+                          ["billToAddress.a1", "billToAddress.a2"],
+                          changes
+                        )
+                          ? "bg-red-200"
+                          : ""
+                      }`}
+                    >{`${contract?.billToAddress?.a1} ${contract?.billToAddress?.a2},`}</p>
+                    <p
+                      className={` ${
+                        substringsExistInArray(["billToAddress.a3"], changes)
+                          ? "bg-red-200"
+                          : ""
+                      }`}
+                    >{`${contract?.billToAddress?.a3},`}</p>
+                    <p
+                      className={` ${
+                        substringsExistInArray(["billToAddress.a4"], changes)
+                          ? "bg-red-200"
+                          : ""
+                      }`}
+                    >{`${contract?.billToAddress?.a4},`}</p>
+                    <p
+                      className={` ${
+                        substringsExistInArray(
+                          ["billToAddress.city", "billToAddress.pincode"],
+                          changes
+                        )
+                          ? "bg-red-200"
+                          : ""
+                      }`}
+                    >{`${contract?.billToAddress?.city} - ${contract?.billToAddress?.pincode},`}</p>
+                    <p
+                      className={` ${
+                        substringsExistInArray(["billToAddress.a5"], changes)
+                          ? "bg-red-200"
+                          : ""
+                      }`}
+                    >{`${contract?.billToAddress?.a5}.`}</p>
+                    <p
+                      className={`font-bold ${
+                        substringsExistInArray(["gstNo"], changes)
+                          ? "bg-red-200"
+                          : ""
+                      }`}
+                    >
                       [{`GST No. ${contract?.gstNo ? contract?.gstNo : ""} `}]
                     </p>
                   </div>
@@ -141,11 +195,23 @@ const ViewContract = forwardRef((props) => {
                           )}
                     </p>
                     <p>&nbsp;</p>
-                    <p className="font-semibold p-2 w-full">
+                    <p
+                      className={`font-semibold p-2 w-full ${
+                        substringsExistInArray(["workOrderNo"], changes)
+                          ? "bg-red-200"
+                          : ""
+                      }`}
+                    >
                       Work Order No: {contract?.workOrderNo}
                     </p>
                     <p>&nbsp;</p>
-                    <p className="font-semibold p-2 w-full">
+                    <p
+                      className={`font-semibold p-2 w-full ${
+                        substringsExistInArray(["workOrderDate"], changes)
+                          ? "bg-red-200"
+                          : ""
+                      }`}
+                    >
                       Work Order Date:
                       {contract?.workOrderDate
                         ? new Date(contract?.workOrderDate).toLocaleDateString(
@@ -173,13 +239,31 @@ const ViewContract = forwardRef((props) => {
                     key={idx}
                     className="grid grid-cols-3 border-t border-black"
                   >
-                    <div className="border-r border-black p-1 text-center">
+                    <div
+                      className={`border-r border-black p-1 text-center ${
+                        substringsExistInArray([`${kci._id}.name`], changes)
+                          ? "bg-red-200"
+                          : ""
+                      }`}
+                    >
                       {kci.name}
                     </div>
-                    <div className="border-r border-black p-1 text-center">
+                    <div
+                      className={`border-r border-black p-1 text-center ${
+                        substringsExistInArray([`${kci._id}.contact`], changes)
+                          ? "bg-red-200"
+                          : ""
+                      }`}
+                    >
                       {kci.contact}
                     </div>
-                    <div className="border-r border-black p-1 text-center">
+                    <div
+                      className={`border-r border-black p-1 text-center ${
+                        substringsExistInArray([`${kci._id}.email`], changes)
+                          ? "bg-red-200"
+                          : ""
+                      }`}
+                    >
                       {kci.email}
                     </div>
                   </div>
@@ -262,12 +346,54 @@ const ViewContract = forwardRef((props) => {
                       <tbody>
                         {standard.map((info) => (
                           <tr key={info._id} className="border-t border-black">
-                            <td className="border border-black p-1 text-center">
+                            <td
+                              className={`border border-black p-1 text-center ${
+                                substringsExistInArray(
+                                  [`${info._id}.workAreaType`],
+                                  changes
+                                )
+                                  ? "bg-red-200"
+                                  : ""
+                              }`}
+                            >
                               {info.workAreaType}
                             </td>
-                            <td className="border border-black p-1 text-center">{`${info.workArea} ${info.workAreaUnit}`}</td>
-                            <td className="border border-black p-1 text-center">{`₹ ${info.serviceRate} ${info.serviceRateUnit}`}</td>
-                            <td className="border border-black p-1 text-center">
+                            <td
+                              className={`border border-black p-1 text-center ${
+                                substringsExistInArray(
+                                  [
+                                    `${info._id}.workArea`,
+                                    `${info._id}.workAreaUnit`,
+                                  ],
+                                  changes
+                                )
+                                  ? "bg-red-200"
+                                  : ""
+                              }`}
+                            >{`${info.workArea} ${info.workAreaUnit}`}</td>
+                            <td
+                              className={`border border-black p-1 text-center ${
+                                substringsExistInArray(
+                                  [
+                                    `${info._id}.serviceRate`,
+                                    `${info._id}.serviceRateUnit`,
+                                  ],
+                                  changes
+                                )
+                                  ? "bg-red-200"
+                                  : ""
+                              }`}
+                            >{`₹ ${info.serviceRate} ${info.serviceRateUnit}`}</td>
+                            <td
+                              className={`border border-black p-1 text-center ${
+                                substringsExistInArray(
+                                  [`${info._id}.chemical`],
+                                  changes
+                                )
+                                  ? "bg-red-200"
+                                  : ""
+                              }`}
+                            >
                               {info.chemical}
                             </td>
                           </tr>
@@ -370,14 +496,59 @@ const ViewContract = forwardRef((props) => {
                 </div>
                 <div className="flex">
                   <div className="border-r border-t border-black p-2 w-1/2">
-                    <p className="font-bold">
+                    <p
+                      className={`font-bold ${
+                        substringsExistInArray(
+                          ["shipToAddress.projectName"],
+                          changes
+                        )
+                          ? "bg-red-200"
+                          : ""
+                      }`}
+                    >
                       {contract?.shipToAddress?.projectName}
                     </p>
-                    <p>{`${contract?.shipToAddress?.a1} ${contract?.shipToAddress?.a2},`}</p>
-                    <p>{`${contract?.shipToAddress?.a3},`}</p>
-                    <p>{`${contract?.shipToAddress?.a4},`}</p>
-                    <p>{`${contract?.shipToAddress?.city} - ${contract?.shipToAddress?.pincode},`}</p>
-                    <p>{`${contract?.shipToAddress?.a5}.`}</p>
+                    <p
+                      className={`${
+                        substringsExistInArray(
+                          ["shipToAddress.a1", "shipToAddress.a2"],
+                          changes
+                        )
+                          ? "bg-red-200"
+                          : ""
+                      }`}
+                    >{`${contract?.shipToAddress?.a1} ${contract?.shipToAddress?.a2},`}</p>
+                    <p
+                      className={`${
+                        substringsExistInArray(["shipToAddress.a3"], changes)
+                          ? "bg-red-200"
+                          : ""
+                      }`}
+                    >{`${contract?.shipToAddress?.a3},`}</p>
+                    <p
+                      className={`${
+                        substringsExistInArray(["shipToAddress.a4"], changes)
+                          ? "bg-red-200"
+                          : ""
+                      }`}
+                    >{`${contract?.shipToAddress?.a4},`}</p>
+                    <p
+                      className={`${
+                        substringsExistInArray(
+                          ["shipToAddress.city", "shipToAddress.pincode"],
+                          changes
+                        )
+                          ? "bg-red-200"
+                          : ""
+                      }`}
+                    >{`${contract?.shipToAddress?.city} - ${contract?.shipToAddress?.pincode},`}</p>
+                    <p
+                      className={`${
+                        substringsExistInArray(["shipToAddress.a5"], changes)
+                          ? "bg-red-200"
+                          : ""
+                      }`}
+                    >{`${contract?.shipToAddress?.a5}.`}</p>
                   </div>
                   <div className="border-l border-t border-black p-2 w-1/2 text-center">
                     Anti Termite Treatment
@@ -401,13 +572,31 @@ const ViewContract = forwardRef((props) => {
                     key={idx}
                     className="grid grid-cols-3 border-t border-black"
                   >
-                    <div className="border-r border-black p-1 text-center">
+                    <div
+                      className={`border-r border-black p-1 text-center ${
+                        substringsExistInArray([`${kci._id}.name`], changes)
+                          ? "bg-red-200"
+                          : ""
+                      }`}
+                    >
                       {kci.name}
                     </div>
-                    <div className="border-r border-black p-1 text-center">
+                    <div
+                      className={`border-r border-black p-1 text-center ${
+                        substringsExistInArray([`${kci._id}.contact`], changes)
+                          ? "bg-red-200"
+                          : ""
+                      }`}
+                    >
                       {kci.contact}
                     </div>
-                    <div className="border-r border-black p-1 text-center">
+                    <div
+                      className={`border-r border-black p-1 text-center ${
+                        substringsExistInArray([`${kci._id}.email`], changes)
+                          ? "bg-red-200"
+                          : ""
+                      }`}
+                    >
                       {kci.email}
                     </div>
                   </div>
@@ -422,7 +611,13 @@ const ViewContract = forwardRef((props) => {
                   <p>&nbsp;</p>
                   <p>&nbsp;</p>
                   <p className="font-bold mt-4">Authorized Signatory</p>
-                  <p>
+                  <p
+                    className={` ${
+                      substringsExistInArray(["salesPerson"], changes)
+                        ? "bg-red-200"
+                        : ""
+                    }`}
+                  >
                     {`${contract?.createdBy?.initials}/
                     ${contract?.salesPerson?.initials}`}
                   </p>

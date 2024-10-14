@@ -8,7 +8,7 @@ import {
   InputSupplyApplyAdv,
   KCI,
   Loading,
-} from "../components";
+} from ".";
 import { Button, Label, Select, Textarea, TextInput } from "flowbite-react";
 import { toast } from "react-toastify";
 import {
@@ -17,7 +17,7 @@ import {
 } from "../funtions/funtion";
 
 // eslint-disable-next-line react/prop-types
-function Update({ quoteId, onClose }) {
+function UpdateQuotation({ quoteId, onClose }) {
   const dispatch = useDispatch();
   const [quote, setQuote] = useState(null);
   const orignalQuote = useRef({});
@@ -47,12 +47,14 @@ function Update({ quoteId, onClose }) {
   if (!quote) {
     return <p className="text-center text-gray-500">No quote data available</p>;
   }
+
   const handleChange = (e) => {
     const { name, value, dataset } = e.target;
 
-    const { id } = dataset; // Accessing data-id attribute
+    const { id } = dataset;
 
     if (name.startsWith("quoteInfo")) {
+      console.log("Mai kyu run hua???");
       const updatedQuoteInfo = quote.quoteInfo.map((info) => {
         if (info._id === id) {
           return {
@@ -88,6 +90,8 @@ function Update({ quoteId, onClose }) {
         });
       }
       const oldValue = getValueFromNestedObject(orignalQuote.current, name);
+      console.log(`Name: ${name}`);
+      console.log(`oldValue: ${oldValue}`);
       if (name.includes(".")) {
         if (
           oldValue.trim() !== value.trim() &&
@@ -104,7 +108,7 @@ function Update({ quoteId, onClose }) {
         }
       } else {
         if (
-          value.trim() !== quote[String(name)].trim() &&
+          value.trim() !== oldValue.trim() &&
           !changedFileds.current.includes(String(name))
         ) {
           changedFileds.current = [...changedFileds.current, name];
@@ -185,6 +189,7 @@ function Update({ quoteId, onClose }) {
       }));
     }
   }
+  console.log(changedFileds.current);
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex items-center justify-evenly gap-2 mb-4 flex-wrap">
@@ -232,37 +237,34 @@ function Update({ quoteId, onClose }) {
           </div>
         </div>
         <div className="">
-          {!quote.approved ? (
-            <>
-              <div className="mb-2 block">
-                <Label htmlFor="salePerson">
-                  <span>Sale Person: </span>
-                  <span className=" text-red-500">*</span>
-                </Label>
-              </div>
+          <div className="mb-2 block">
+            <Label htmlFor="salePerson">
+              <span>Sale Person: </span>
+              <span className=" text-red-500">*</span>
+            </Label>
+          </div>
 
-              <Select
-                name="salePerson"
-                className={`${
-                  error === "salePerson"
-                    ? "border border-red-500 rounded-lg bg-red-300 "
-                    : null
-                }`}
-              >
-                <option></option>
-                {initials.length > 0 &&
-                  initials.map((initial) => (
-                    <option
-                      selected={quote?.salesPerson === initial._id}
-                      value={initial._id}
-                      key={initial._id}
-                    >
-                      {initial.initials} {initial.username}
-                    </option>
-                  ))}
-              </Select>
-            </>
-          ) : null}
+          <Select
+            name="salesPerson"
+            className={`${
+              error === "salePerson"
+                ? "border border-red-500 rounded-lg bg-red-300 "
+                : null
+            }`}
+            onChange={handleChange}
+          >
+            <option></option>
+            {initials.length > 0 &&
+              initials.map((initial) => (
+                <option
+                  selected={quote?.salesPerson === initial._id}
+                  value={initial._id}
+                  key={initial._id}
+                >
+                  {initial.initials} {initial.username}
+                </option>
+              ))}
+          </Select>
         </div>
         <div>
           <div className="mb-2 block">
@@ -718,10 +720,20 @@ function Update({ quoteId, onClose }) {
       )}
 
       {quote.docType === "supply" && (
-        <InputSupplyAdv quote={quote} setQuote={setQuote} />
+        <InputSupplyAdv
+          quote={quote}
+          setQuote={setQuote}
+          changedFileds={changedFileds}
+          orignalQuote={orignalQuote}
+        />
       )}
       {quote.docType === "supply/apply" && (
-        <InputSupplyApplyAdv quote={quote} setQuote={setQuote} />
+        <InputSupplyApplyAdv
+          quote={quote}
+          setQuote={setQuote}
+          changedFileds={changedFileds}
+          orignalQuote={orignalQuote}
+        />
       )}
       {quote.approved ? (
         <div className="col-span-1 mb-4">
@@ -754,4 +766,4 @@ function Update({ quoteId, onClose }) {
   );
 }
 
-export default Update;
+export default UpdateQuotation;

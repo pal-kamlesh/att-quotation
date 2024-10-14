@@ -1,40 +1,46 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import {
-  Create,
-  Dashboard,
   Layout,
-  Login,
-  PageNotFound,
-  User,
+  Dashboard,
+  Quotes,
   Contracts,
   Cards,
-  Reports,
-  WorkLog,
+  User,
   WorkLogDash,
-} from "./pages";
+  WorkLog,
+  Reports,
+  Login,
+  PageNotFound,
+} from "../src/pages/index.js";
+import Test from "./pages/Test.jsx";
+const AppRoutes = () => (
+  <Routes>
+    <Route path="/login" element={<Login />} />
+    <Route path="/" element={<Layout />}>
+      <Route index element={<Dashboard />} />
+      <Route path="test" element={<Test />} />
+      <Route path="quotes" element={<Quotes />} />
+      <Route path="contracts" element={<Contracts />} />
+      <Route path="cards" element={<Cards />} />
+      <Route path="user" element={<User />} />
+      <Route path="work-log">
+        <Route index element={<WorkLogDash />} />
+        <Route path=":id" element={<WorkLog />} />
+      </Route>
+      <Route path="reports" element={<Reports />} />
+      <Route path="404" element={<PageNotFound />} />
+      <Route path="*" element={<Navigate to="/404" replace />} />
+    </Route>
+  </Routes>
+);
 
-function App() {
-  return (
-    <BrowserRouter>
-      <ToastContainer position="top-center" pauseOnFocusLoss={true} />
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Dashboard />} />
-          <Route path="/quotes" element={<Create />} />
-          <Route path="/contracts" element={<Contracts />} />
-          <Route path="/cards" element={<Cards />} />
-          <Route path="/user" element={<User />} />
-          <Route path="/workLog" element={<WorkLogDash />} />
-          <Route path="/workLog/:id" element={<WorkLog />} />
-          <Route path="/reports" element={<Reports />} />
-          <Route path="*" element={<PageNotFound />} />
-        </Route>
-        <Route path="/login" element={<Login />} />
-      </Routes>
-    </BrowserRouter>
-  );
-}
+const App = () => (
+  <BrowserRouter>
+    <ToastContainer position="top-center" pauseOnFocusLoss={true} />
+    <AppRoutes />
+  </BrowserRouter>
+);
 
 export default App;

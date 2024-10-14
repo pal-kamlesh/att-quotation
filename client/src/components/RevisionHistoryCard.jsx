@@ -1,5 +1,10 @@
 /* eslint-disable react/prop-types */
-const RevisionHistoryCard = ({ revision, onClick, active }) => {
+const RevisionHistoryCard = ({
+  revision,
+  onClick,
+  active,
+  docType = "quote",
+}) => {
   const { author, state, timestamp, changes } = revision;
   const { quotationNo, shipToAddress, _id } = state;
   const formattedDate = new Date(timestamp).toLocaleDateString("en-GB");
@@ -11,11 +16,22 @@ const RevisionHistoryCard = ({ revision, onClick, active }) => {
   return (
     <div onClick={() => onClick({ state, changes })} className={cardStyles}>
       <div className="bg-gray-800 text-white text-center py-2">
-        <h2 className="text-xl font-bold">
-          Quotation No: {quotationNo ? quotationNo : _id}
-        </h2>
+        {docType === "quote" ? (
+          <h2 className="text-xl font-bold">
+            Quotation No: {quotationNo ? quotationNo : _id}
+          </h2>
+        ) : (
+          <h2 className="text-xl font-bold">
+            Contract No: {state.contractNo ? state.contractNo : _id}
+          </h2>
+        )}
       </div>
       <div className="p-4">
+        {state?.contractified && (
+          <div className=" text-orange-500 flex items-center justify-center">
+            <h3 className="text-lg font-semibold">Contract</h3>
+          </div>
+        )}
         <div className="mb-2">
           <span className="font-semibold">Author:</span> {author?.prefix}{" "}
           {author?.username} ({author?.initials})

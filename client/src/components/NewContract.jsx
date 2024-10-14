@@ -256,19 +256,6 @@ function NewContract({ onClose }) {
                 ))}
             </Select>
           </div>
-          <div className="col-span-5">
-            <div className="mb-2 block">
-              <Label htmlFor="emailTo">
-                <span>Email To: </span>
-              </Label>
-            </div>
-            <TextInput
-              type="email"
-              name="emailTo"
-              onChange={handleQuoteChange}
-              value={contract.emailTo}
-            />
-          </div>
         </div>
         <div className="flex items-center justify-center w-full">
           <Button

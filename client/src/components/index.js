@@ -27,6 +27,7 @@ import PrintWorkLogs from "./PrintWorkLogs";
 import QRbutton from "./QRbutton";
 import HistoryPanelContract from "./HistoryPanelContract";
 import HistoryPanelQuote from "./HistoryPanelQuote";
+import UpdateQuotation from "./UpdateQuotation";
 export {
   CustomModal,
   NewQuote,
@@ -57,4 +58,5 @@ export {
   QRbutton,
   HistoryPanelContract,
   HistoryPanelQuote,
+  UpdateQuotation,
 };

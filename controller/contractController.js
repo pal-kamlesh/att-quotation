@@ -1,4 +1,5 @@
 import { isValidObjectId } from "mongoose";
+
 import {
   ChemicalBatchNos,
   Contract,
@@ -7,6 +8,7 @@ import {
   QuoteInfo,
   WorkLogs,
 } from "../models/index.js";
+
 import {
   differenceBetweenArrays,
   remove_IdFromObj,
@@ -157,6 +159,8 @@ const contractify = async (req, res, next) => {
     const { id } = req.params;
     const quote = await Quotation.findById(id)
       .populate("quoteInfo")
+      .populate({ path: "createdBy", select: "-password" })
+      .populate({ path: "salesPerson", select: "-password" })
       .populate("createdBy", "username");
     if (!quote) {
       return res.status(404).json({ message: "Quotation not found" });
@@ -234,10 +238,10 @@ const singleContract = async (req, res, next) => {
 const update = async (req, res, next) => {
   try {
     const contractId = req.params.id;
-    const { message, contract: updatedData } = req.body;
+    const { message, contract: updatedData, modified } = req.body;
     const { quoteInfo, ...otherFields } = updatedData;
     const { _id, ...rest } = otherFields;
-
+    console.log(modified);
     const isapproved = await Contract.isApproved(contractId);
     if (isapproved) {
       const { _id, ...state } = await Contract.findById(contractId)
@@ -246,7 +250,13 @@ const update = async (req, res, next) => {
         .populate({ path: "createdBy", select: "-password" })
         .lean();
       const author = req.user.id;
-      await createContractArchiveEntry(contractId, state, author, message);
+      await createContractArchiveEntry(
+        contractId,
+        state,
+        author,
+        message,
+        modified
+      );
     }
 
     // Fetch the existing quotation document
@@ -340,12 +350,24 @@ const approve = async (req, res, next) => {
     const { id } = req.params;
     const data = await Contract.findByIdAndUpdate(id)
       .populate("quoteInfo")
-      .populate({ path: "createdBy", select: "-password" });
-    await data.approve();
-    await data.generateContractNo();
+      .populate({ path: "createdBy", select: "-password" })
+      .populate({ path: "salesPerson", select: "-password" })
+      .lean();
+    if (data.approved) {
+      res.status(404).json({ message: "Contract Already approved" });
+      return;
+    }
+    const author = req.user.id;
+    await createContractArchiveEntry(id, data, author, "Approved");
+    const finalData = await Contract.findByIdAndUpdate(id)
+      .populate("quoteInfo")
+      .populate({ path: "createdBy", select: "-password" })
+      .populate({ path: "salesPerson", select: "-password" });
+    await finalData.approve();
+    await finalData.generateContractNo();
     res.status(200).json({
       message: "Contract Approved.",
-      result: data,
+      result: finalData,
     });
   } catch (error) {
     next(error);

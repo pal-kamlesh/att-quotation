@@ -2,7 +2,6 @@
 import { useDispatch } from "react-redux";
 import { useEffect, useState } from "react";
 import { unwrapResult } from "@reduxjs/toolkit";
-import { diff } from "deep-object-diff";
 import { Loading, RevisionHistoryCard, ViewContract } from "./index.js";
 import { archiveDataContract } from "../redux/contract/contractSlice.js";
 
@@ -12,6 +11,7 @@ function HistoryPanelContract({ contractId }) {
   const [archive, setArchive] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedRevision, setSelectedRevision] = useState(null);
+  const [changes, setChanges] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -29,7 +29,7 @@ function HistoryPanelContract({ contractId }) {
           timestamp: rest.updatedAt,
         };
         setLatest(rest);
-        setArchive(() => [obj, ...(history?.revisions ?? [])]);
+        setArchive(() => [...(history?.revisions ?? []), obj]);
         setLoading(false);
       } catch (error) {
         setLoading(false);
@@ -39,20 +39,11 @@ function HistoryPanelContract({ contractId }) {
     fetchData();
   }, [dispatch, contractId]);
 
-  useEffect(() => {
-    if (archive?.length > 0) {
-      const modifiedKeys = getModifiedKeys(archive[0].state, latest);
-      console.log(modifiedKeys);
-    }
-  }, [latest, archive]);
-
-  function getModifiedKeys(oldObj, newObj) {
-    const difference = diff(oldObj, newObj);
-    return Object.keys(difference);
-  }
-
   const handleCardClick = (revision) => {
-    setSelectedRevision(revision);
+    const { state, changes } = revision;
+
+    setSelectedRevision(state);
+    setChanges(changes);
   };
   const revisionDetails = selectedRevision || latest;
   return (
@@ -65,14 +56,20 @@ function HistoryPanelContract({ contractId }) {
         </h2>
         {/* Make the header sticky */}
         <div className="mt-2 flex flex-col gap-4 ]">
-          {archive?.map((revision, index) => (
-            <RevisionHistoryCard
-              key={index}
-              revision={revision}
-              onClick={handleCardClick}
-              active={revision.state.contractNo === revisionDetails?.contractNo}
-            />
-          ))}
+          {archive
+            ?.slice()
+            .reverse()
+            .map((revision, index) => (
+              <RevisionHistoryCard
+                key={index}
+                revision={revision}
+                onClick={handleCardClick}
+                active={
+                  revision.state.contractNo === revisionDetails?.contractNo
+                }
+                docType="contract"
+              />
+            ))}
         </div>
       </div>
 
@@ -80,7 +77,9 @@ function HistoryPanelContract({ contractId }) {
 
       <div className="w-3/4 overflow-y-auto h-full">
         {loading && <Loading />}
-        {revisionDetails && <ViewContract data={revisionDetails} />}
+        {revisionDetails && (
+          <ViewContract data={revisionDetails} changes={changes} />
+        )}
       </div>
     </div>
   );

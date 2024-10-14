@@ -7,7 +7,7 @@ import {
   TextInput,
   Textarea,
 } from "flowbite-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
@@ -23,6 +23,7 @@ import {
   getSingleContract,
   updateContract,
 } from "../redux/contract/contractSlice";
+import { getValueFromNestedObject } from "../funtions/funtion.js";
 
 // eslint-disable-next-line react/prop-types
 function UpdateContract({ onClose, activeId = null }) {
@@ -69,6 +70,8 @@ function UpdateContract({ onClose, activeId = null }) {
   const [docType, setDocType] = useState("");
   const dispatch = useDispatch();
   const { initials } = useSelector((state) => state.user);
+  const changedFileds = useRef([]);
+  const orignalContract = useRef({});
 
   useEffect(() => {
     async function initial() {
@@ -95,6 +98,7 @@ function UpdateContract({ onClose, activeId = null }) {
           const conNo = result.result.contractNo;
           const prefix = conNo.split("/")[0];
           setDocType(prefix);
+          orignalContract.current = result.result;
         } catch (error) {
           console.error("Failed to fetch contract:", error);
         }
@@ -110,6 +114,11 @@ function UpdateContract({ onClose, activeId = null }) {
       setDoc(value);
     }
   }
+  console.log(changedFileds.current);
+  function handleDoctype(e) {
+    console.log(e.target.value);
+    setDocType(e.target.value);
+  }
   useEffect(() => {
     if (contract.quoteInfo.length <= 0) {
       setDisableRadio(false);
@@ -119,24 +128,35 @@ function UpdateContract({ onClose, activeId = null }) {
       setContract((prev) => ({ ...prev, docType: doc }));
     }
   }, [doc, contract?.quoteInfo.length]);
+
   function handleContractChange(e) {
     const { name, value } = e.target;
+
+    const oldValue = getValueFromNestedObject(orignalContract.current, name);
+    console.log(`Name: ${name}`);
+    console.log(`oldValue: ${oldValue}`);
+    if (
+      value.trim() !== String(contract[name]).trim() &&
+      !changedFileds.current.includes(String(name))
+    ) {
+      changedFileds.current = [...changedFileds.current, name];
+    }
+    if (
+      value.trim() === oldValue &&
+      changedFileds.current.includes(String(name))
+    ) {
+      changedFileds.current = changedFileds.current.filter(
+        (keys) => keys !== name
+      );
+    }
+
     setContract((prev) => ({ ...prev, [name]: value }));
   }
   function handleAddress(e) {
     const { name, value } = e.target;
-    const nameParts = name.split(".");
+    const [addressType, fieldName] = name.split(".");
 
-    // Check if the input is for billToAddress or shipToAddress
-    const isForBillToAddress = nameParts[0] === "billToAddress";
-    const isForShipToAddress = nameParts[0] === "shipToAddress";
-
-    if (isForBillToAddress || isForShipToAddress) {
-      const addressType = isForBillToAddress
-        ? "billToAddress"
-        : "shipToAddress";
-      const fieldName = nameParts[1];
-
+    if (addressType === "billToAddress" || addressType === "shipToAddress") {
       setContract((prev) => ({
         ...prev,
         [addressType]: {
@@ -144,6 +164,22 @@ function UpdateContract({ onClose, activeId = null }) {
           [fieldName]: value,
         },
       }));
+      const oldValue = getValueFromNestedObject(orignalContract.current, name);
+      console.log(`Name: ${name}`);
+      console.log(`oldValue: ${oldValue}`);
+      if (
+        oldValue.trim() !== value.trim() &&
+        !changedFileds.current.includes(String(name))
+      ) {
+        changedFileds.current = [...changedFileds.current, name];
+      } else if (
+        oldValue.trim() === value.trim() &&
+        changedFileds.current.includes(String(name))
+      ) {
+        changedFileds.current = changedFileds.current.filter(
+          (keys) => keys !== name
+        );
+      }
     } else {
       setContract((prev) => ({
         ...prev,
@@ -151,6 +187,7 @@ function UpdateContract({ onClose, activeId = null }) {
       }));
     }
   }
+
   function duplicateBillToShipTo() {
     const { billToAddress } = contract;
     const { shipToAddress } = contract;
@@ -171,10 +208,6 @@ function UpdateContract({ onClose, activeId = null }) {
       shipToAddress: { ...shipToAddress, ...updatedShipToAddress },
     });
   }
-  function handleDoctype(e) {
-    console.log(e.target.value);
-    setDocType(e.target.value);
-  }
   useEffect(() => {
     const conNo = contract.contractNo;
     const parts = conNo.split("/");
@@ -192,7 +225,12 @@ function UpdateContract({ onClose, activeId = null }) {
       toast.error("Please fill the number details.");
       return;
     }
-    const data = { id: contract._id, contract, message };
+    const data = {
+      id: contract._id,
+      contract,
+      message,
+      modified: changedFileds.current,
+    };
     const actionResult = await dispatch(updateContract(data));
     // eslint-disable-next-line no-unused-vars
     const result = unwrapResult(actionResult);
@@ -235,7 +273,6 @@ function UpdateContract({ onClose, activeId = null }) {
     await unwrapResult(actionResult);
     onClose();
   }
-  console.log(contract);
   return (
     <div>
       {loading ? <Loading /> : null}
@@ -498,6 +535,8 @@ function UpdateContract({ onClose, activeId = null }) {
               quote={contract}
               setQuote={setContract}
               addressKey="billToAddress"
+              changedFileds={changedFileds}
+              orignalQuote={orignalContract}
             />
           </div>
           <div className="p-4 col-span-4">
@@ -615,6 +654,8 @@ function UpdateContract({ onClose, activeId = null }) {
               quote={contract}
               setQuote={setContract}
               addressKey="shipToAddress"
+              changedFileds={changedFileds}
+              orignalQuote={orignalContract}
             />
           </div>
         </div>
@@ -695,14 +736,29 @@ function UpdateContract({ onClose, activeId = null }) {
         </div>
 
         {doc === "standard" && (
-          <InputStandardAdv quote={contract} setQuote={setContract} />
+          <InputStandardAdv
+            quote={contract}
+            setQuote={setContract}
+            changedFileds={changedFileds}
+            orignalQuote={orignalContract}
+          />
         )}
 
         {doc === "supply" && (
-          <InputSupplyAdv quote={contract} setQuote={setContract} />
+          <InputSupplyAdv
+            quote={contract}
+            setQuote={setContract}
+            changedFileds={changedFileds}
+            orignalQuote={orignalContract}
+          />
         )}
         {doc === "supply/apply" && (
-          <InputSupplyApplyAdv quote={contract} setQuote={setContract} />
+          <InputSupplyApplyAdv
+            quote={contract}
+            setQuote={setContract}
+            changedFileds={changedFileds}
+            orignalQuote={orignalContract}
+          />
         )}
         {contract.approved ? (
           <div className="col-span-1 mb-4">

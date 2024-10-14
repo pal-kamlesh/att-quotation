@@ -96,7 +96,6 @@ async function base64Url(id) {
 const getValueFromNestedObject = (obj, name) => {
   const keys = Array.isArray(name) ? name : name.split(".");
   let result = obj;
-
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i];
     if (!result) return undefined;
@@ -126,9 +125,29 @@ const getValueFromNestedObject = (obj, name) => {
       result = result[key];
     }
   }
-
   return result;
 };
+function substringsExistInArray(targetSubstrings, stringArray) {
+  console.log(targetSubstrings);
+  console.log(
+    targetSubstrings.some((substring) =>
+      stringArray.some((str) => str.includes(substring))
+    )
+  );
+  return targetSubstrings.some((substring) =>
+    stringArray.some((str) => str.includes(substring))
+  );
+}
+
+function isRevised(string) {
+  const parts = String(string).split("/");
+
+  const lastPart = parts[parts.length - 1];
+
+  const regex = /R([1-9][0-9]*)/;
+
+  return regex.test(lastPart);
+}
 export {
   saprateQuoteInfo,
   getDotColor,
@@ -138,4 +157,6 @@ export {
   qrCodeUint8Arrayfn,
   base64Url,
   getValueFromNestedObject,
+  substringsExistInArray,
+  isRevised,
 };

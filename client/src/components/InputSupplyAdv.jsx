@@ -16,16 +16,18 @@ import { FaEdit } from "react-icons/fa";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { useDispatch } from "react-redux";
 import { getChemicals } from "../redux/contract/contractSlice";
+import { getValueFromNestedObject } from "../funtions/funtion";
 
 const nanoid = customAlphabet(
   "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
   21
 );
 
-function InputSupplyAdv({ quote, setQuote }) {
+function InputSupplyAdv({ quote, setQuote, changedFileds, orignalQuote }) {
   const [validInput, setValidInput] = useState(false);
   const [infoArray, setInfoArray] = useState(quote.quoteInfo);
   const [chemicalList, setChemicalList] = useState([]);
+
   const [infoObj, setInfoObj] = useState({
     _id: nanoid(),
     workAreaType: "",
@@ -72,6 +74,26 @@ function InputSupplyAdv({ quote, setQuote }) {
 
   function handleInfoChange(e) {
     const { name, value } = e.target;
+    const dataId = e.target.getAttribute("data-id");
+    const modifiedString = `quoteInfo.${dataId}.${name}`;
+    const oldValue = orignalQuote
+      ? getValueFromNestedObject(orignalQuote.current, modifiedString)
+      : null;
+    if (oldValue) {
+      if (
+        oldValue.trim() !== value.trim() &&
+        !changedFileds.current.includes(String(modifiedString))
+      ) {
+        changedFileds.current = [...changedFileds.current, modifiedString];
+      } else if (
+        oldValue.trim() === value.trim() &&
+        changedFileds.current.includes(String(modifiedString))
+      ) {
+        changedFileds.current = changedFileds.current.filter(
+          (keys) => keys !== modifiedString
+        );
+      }
+    }
     setInfoObj((prev) => ({ ...prev, [name]: value }));
   }
 
@@ -134,6 +156,7 @@ function InputSupplyAdv({ quote, setQuote }) {
                 name="workAreaType"
                 onChange={handleInfoChange}
                 value={infoObj.workAreaType}
+                data-id={infoObj?._id}
                 className="flex-1 bg-yellow-100 border-yellow-400 focus:border-yellow-600 focus:ring-yellow-600"
               >
                 <option value=""></option>
@@ -158,6 +181,7 @@ function InputSupplyAdv({ quote, setQuote }) {
                   name="chemicalRate"
                   value={infoObj.chemicalRate}
                   onChange={handleInfoChange}
+                  data-id={infoObj?._id}
                   className="flex-1 bg-yellow-100 border-yellow-400 focus:border-yellow-600 focus:ring-yellow-600"
                 />
                 <Select
@@ -178,6 +202,7 @@ function InputSupplyAdv({ quote, setQuote }) {
                 name="chemicalQuantity"
                 value={infoObj.chemicalQuantity}
                 onChange={handleInfoChange}
+                data-id={infoObj?._id}
                 className="bg-yellow-100 border-yellow-400 focus:border-yellow-600 focus:ring-yellow-600"
               />
             </div>
@@ -188,6 +213,7 @@ function InputSupplyAdv({ quote, setQuote }) {
                   name="chemical"
                   onChange={handleInfoChange}
                   value={infoObj.chemical}
+                  data-id={infoObj?._id}
                   className="flex-1 bg-yellow-100 border-yellow-400 focus:border-yellow-600 focus:ring-yellow-600"
                 >
                   <option value=""></option>
@@ -218,6 +244,7 @@ function InputSupplyAdv({ quote, setQuote }) {
               <Label className="text-yellow-700">Description: </Label>
               <Textarea
                 name="description"
+                data-id={infoObj?._id}
                 value={infoObj.description}
                 onChange={handleInfoChange}
                 className="bg-white border-yellow-400 focus:border-yellow-600 focus:ring-yellow-600"

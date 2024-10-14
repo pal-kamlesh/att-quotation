@@ -32,18 +32,34 @@ async function createQuoteArchiveEntry(
   }
 }
 
-async function createContractArchiveEntry(contractId, state, author, message) {
+async function createContractArchiveEntry(
+  contractId,
+  state,
+  author,
+  message,
+  changes
+) {
   const theArchive = await QuoteArchive.findOne({ contractId });
   if (theArchive) {
-    theArchive.revisions.push({ state, author, message });
+    theArchive.revisions.push({ state, author, message, changes });
     await theArchive.save();
   } else {
     const newArchive = new QuoteArchive({
       contractId,
-      revisions: [{ state, author, message }],
+      revisions: [{ state, author, message, changes }],
     });
     await newArchive.save();
   }
+}
+
+function isRevised(string) {
+  const parts = String(string).split("/");
+
+  const lastPart = parts[parts.length - 1];
+
+  const regex = /R([1-9][0-9]*)/;
+
+  return regex.test(lastPart);
 }
 
 export {
@@ -51,5 +67,6 @@ export {
   removeIdFromDocuments,
   remove_IdFromObj,
   createQuoteArchiveEntry,
+  isRevised,
   createContractArchiveEntry,
 };

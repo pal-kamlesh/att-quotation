@@ -99,8 +99,8 @@ const contractSchema = mongoose.Schema(
       type: Number,
       default: 0,
     },
-    workOrderNo: { type: String },
-    workOrderDate: { type: Date },
+    workOrderNo: { type: String, default: "" },
+    workOrderDate: { type: Date, default: "" },
     gstNo: {
       type: String,
       default: "",

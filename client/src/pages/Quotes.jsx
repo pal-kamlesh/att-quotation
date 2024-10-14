@@ -18,8 +18,7 @@ import {
   showMoreQuotes,
   makeContract,
 } from "../redux/quote/quoteSlice";
-import { SearchQuote } from "../components/index.js";
-import Update from "./Update";
+import { SearchQuote, UpdateQuotation } from "../components/index.js";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
 import PopUp from "../components/PopUp";
@@ -80,6 +79,7 @@ export default function Create() {
     // eslint-disable-next-line no-unused-vars
     const result = unwrapResult(actionResult);
   }
+  // Check if the user has scrolled to the bottom of the page
   const handleShowMore = useCallback(
     debounce(async () => {
       const startIndex = quotations.length;
@@ -95,7 +95,6 @@ export default function Create() {
     }, 400), // Debounce delay in milliseconds
     [quotations.length, showMore, extraQuery, dispatch] // Dependencies for useCallback
   );
-  // Check if the user has scrolled to the bottom of the page
   const handleScroll = useCallback(() => {
     const scrollTop = window.scrollY;
     const windowHeight = window.innerHeight;
@@ -351,7 +350,7 @@ export default function Create() {
           </div>
         }
       >
-        <Update
+        <UpdateQuotation
           quoteId={quoteId}
           onClose={() => [setUpdateModel(!updateModel)]}
         />

@@ -1,9 +1,8 @@
 import User from "./User";
-import Create from "./Create";
+import Quotes from "./Quotes";
 import PageNotFound from "./PageNotFound";
 import Layout from "./Layout";
 import Login from "./Login";
-import Update from "./Update";
 import Dashboard from "./Dashboard";
 import Contracts from "./Contracts";
 import Cards from "./Cards";
@@ -14,12 +13,11 @@ import PrintWorkLogs from "../components/PrintWorkLogs";
 
 export {
   User,
-  Create,
+  Quotes,
   Dashboard,
   PageNotFound,
   Layout,
   Login,
-  Update,
   Contracts,
   Cards,
   Reports,

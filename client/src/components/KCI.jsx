@@ -37,7 +37,6 @@ function KCI({ quote, setQuote, addressKey, changedFileds, orignalQuote }) {
       },
     }));
   }, [addressKey, setQuote]);
-
   useEffect(() => {
     const isValid =
       kciObj.name !== "" && (kciObj.contact !== "" || kciObj.email !== "");
@@ -52,6 +51,7 @@ function KCI({ quote, setQuote, addressKey, changedFileds, orignalQuote }) {
     const oldValue = orignalQuote
       ? getValueFromNestedObject(orignalQuote.current, modifiedString)
       : null;
+    console.log(oldValue);
     if (oldValue) {
       if (
         oldValue.trim() !== value.trim() &&
@@ -147,7 +147,7 @@ function KCI({ quote, setQuote, addressKey, changedFileds, orignalQuote }) {
                 name="name"
                 value={kciObj.name}
                 onChange={handleKci}
-                data-id={kciObj?.id}
+                data-id={kciObj?.id ? kciObj.id : kciObj._id}
               />
             </div>
             <div>
@@ -156,7 +156,7 @@ function KCI({ quote, setQuote, addressKey, changedFileds, orignalQuote }) {
                 name="contact"
                 value={kciObj.contact}
                 onChange={handleKci}
-                data-id={kciObj?.id}
+                data-id={kciObj?.id ? kciObj.id : kciObj._id}
               />
             </div>
             <div>
@@ -166,7 +166,7 @@ function KCI({ quote, setQuote, addressKey, changedFileds, orignalQuote }) {
                 name="email"
                 value={kciObj.email}
                 onChange={handleKci}
-                data-id={kciObj?.id}
+                data-id={kciObj?.id ? kciObj.id : kciObj._id}
               />
             </div>
             <div className="flex items-center justify-center mt-5">

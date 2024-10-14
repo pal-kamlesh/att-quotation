@@ -5,7 +5,11 @@ import { forwardRef, useEffect, useRef, useState } from "react";
 import { docxData } from "../redux/quote/quoteSlice";
 import { useDispatch, useSelector } from "react-redux";
 import Loading from "./Loading";
-import { saprateQuoteInfo } from "../funtions/funtion.js";
+import {
+  isRevised,
+  saprateQuoteInfo,
+  substringsExistInArray,
+} from "../funtions/funtion.js";
 import { Button } from "flowbite-react";
 import headerImage from "../images/header.png";
 import footerImage from "../images/footer.png";
@@ -263,6 +267,11 @@ const ViewQuote = forwardRef((props) => {
                   ? "We thank you for your enquiry and the opportunity given to us to quote our rates, Further to your instructions, we are pleased to submit our quotation as below"
                   : `We thank for your enquiry & the time given to our Representative ${quote?.salesPerson?.prefix} ${quote?.salesPerson?.username}`}
               </p>
+              {isRevised(quote.quotationNo) ? (
+                <p className="font-bold">
+                  As per your requirement, submiting our revised offer as below.
+                </p>
+              ) : null}
             </div>
 
             {/* Quotation Details Table */}
@@ -701,11 +710,5 @@ const ViewQuote = forwardRef((props) => {
     );
   }
 });
-
-function substringsExistInArray(targetSubstrings, stringArray) {
-  return targetSubstrings.some((substring) =>
-    stringArray.some((str) => str.includes(substring))
-  );
-}
 
 export default ViewQuote;
