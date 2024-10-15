@@ -8,7 +8,7 @@ import {
   Textarea,
   TextInput,
 } from "flowbite-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { GiCancel } from "react-icons/gi";
 import { customAlphabet } from "nanoid";
 import { toast } from "react-toastify";
@@ -25,7 +25,6 @@ const nanoid = customAlphabet(
 
 function InputStandardAdv({ quote, setQuote, changedFileds, orignalQuote }) {
   const [validInput, setValidInput] = useState(false);
-  const [infoArray, setInfoArray] = useState(quote.quoteInfo);
   const [chemicalList, setChemicalList] = useState([]);
   const [infoObj, setInfoObj] = useState({
     _id: nanoid(),
@@ -39,12 +38,14 @@ function InputStandardAdv({ quote, setQuote, changedFileds, orignalQuote }) {
   });
   const dispatch = useDispatch();
   const [showForm, setShowForm] = useState(false);
+  const infoArrayRef = useRef(quote?.quoteInfo || []);
 
   //effect to set the infoArray initially
   useEffect(() => {
-    setInfoArray(quote.quoteInfo);
+    infoArrayRef.current = quote?.quoteInfo;
   }, [quote.quoteInfo]);
 
+  //fetch chemical
   useEffect(() => {
     async function fetchChemicals() {
       const actionResult = await dispatch(getChemicals());
@@ -74,13 +75,6 @@ function InputStandardAdv({ quote, setQuote, changedFileds, orignalQuote }) {
     infoObj.serviceRateUnit,
     infoObj.chemical,
   ]);
-  //effect to trasfer the infoArray to parent variable
-  useEffect(() => {
-    setQuote((prev) => ({
-      ...prev,
-      quoteInfo: infoArray,
-    }));
-  }, [infoArray, setQuote]);
 
   useEffect(() => {
     let newServiceRateUnit = "";
@@ -133,13 +127,20 @@ function InputStandardAdv({ quote, setQuote, changedFileds, orignalQuote }) {
     setInfoObj((prev) => ({ ...prev, [name]: value }));
   }
   function deleteInfo(id) {
-    setInfoArray((prev) => prev.filter((info) => info._id !== id));
+    infoArrayRef.current = infoArrayRef.current.filter(
+      (info) => info._id !== id
+    );
+    setQuote((prev) => ({ ...prev, quoteInfo: infoArrayRef.current }));
   }
   function editInfo(id) {
-    const info = infoArray.find((el) => el._id === id);
-    setInfoObj(info);
-    setInfoArray((prev) => prev.filter((info) => info._id !== id));
-    setShowForm(true);
+    const info = infoArrayRef.current.find((el) => el._id === id);
+    if (info) {
+      setInfoObj(info);
+      deleteInfo(id);
+      setShowForm(true);
+    } else {
+      console.error(`KCI with id ${id} not found`);
+    }
   }
   function moreInfo() {
     if (
@@ -148,7 +149,8 @@ function InputStandardAdv({ quote, setQuote, changedFileds, orignalQuote }) {
       infoObj.serviceRate !== "" &&
       infoObj.chemical !== ""
     ) {
-      setInfoArray((prevArray) => [...prevArray, infoObj]);
+      infoArrayRef.current = [...infoArrayRef.current, infoObj];
+      setQuote((prev) => ({ ...prev, quoteInfo: infoArrayRef.current }));
       setInfoObj({
         _id: nanoid(),
         workAreaType: "",
@@ -312,8 +314,8 @@ function InputStandardAdv({ quote, setQuote, changedFileds, orignalQuote }) {
             <Table.HeadCell className="text-lime-700">Delete</Table.HeadCell>
           </Table.Head>
           <Table.Body className="divide-y divide-lime-400">
-            {infoArray.length > 0 &&
-              infoArray.map((info, idx) => (
+            {infoArrayRef.current.length > 0 &&
+              infoArrayRef.current.map((info, idx) => (
                 <Table.Row
                   key={info._id}
                   className="bg-lime-100 hover:bg-lime-200"

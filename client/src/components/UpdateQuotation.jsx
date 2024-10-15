@@ -54,7 +54,6 @@ function UpdateQuotation({ quoteId, onClose }) {
     const { id } = dataset;
 
     if (name.startsWith("quoteInfo")) {
-      console.log("Mai kyu run hua???");
       const updatedQuoteInfo = quote.quoteInfo.map((info) => {
         if (info._id === id) {
           return {
@@ -90,8 +89,6 @@ function UpdateQuotation({ quoteId, onClose }) {
         });
       }
       const oldValue = getValueFromNestedObject(orignalQuote.current, name);
-      console.log(`Name: ${name}`);
-      console.log(`oldValue: ${oldValue}`);
       if (name.includes(".")) {
         if (
           oldValue.trim() !== value.trim() &&
@@ -189,7 +186,6 @@ function UpdateQuotation({ quoteId, onClose }) {
       }));
     }
   }
-  console.log(changedFileds.current);
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex items-center justify-evenly gap-2 mb-4 flex-wrap">

@@ -27,16 +27,6 @@ function KCI({ quote, setQuote, addressKey, changedFileds, orignalQuote }) {
   useEffect(() => {
     kciArrayRef.current = quote[String(addressKey)]?.kci;
   }, [addressKey, quote]);
-
-  useEffect(() => {
-    setQuote((prev) => ({
-      ...prev,
-      [addressKey]: {
-        ...prev[addressKey],
-        kci: kciArrayRef.current,
-      },
-    }));
-  }, [addressKey, setQuote]);
   useEffect(() => {
     const isValid =
       kciObj.name !== "" && (kciObj.contact !== "" || kciObj.email !== "");
@@ -51,7 +41,6 @@ function KCI({ quote, setQuote, addressKey, changedFileds, orignalQuote }) {
     const oldValue = orignalQuote
       ? getValueFromNestedObject(orignalQuote.current, modifiedString)
       : null;
-    console.log(oldValue);
     if (oldValue) {
       if (
         oldValue.trim() !== value.trim() &&
@@ -67,14 +56,21 @@ function KCI({ quote, setQuote, addressKey, changedFileds, orignalQuote }) {
         );
       }
     }
-
     setKciObj((prev) => ({ ...prev, [name]: value }));
   }
   function deleteKci(id) {
     kciArrayRef.current = kciArrayRef.current.filter((kci) => kci.id !== id);
-    setQuote((prev) => ({ ...prev }));
+    setQuoteLatest();
   }
-
+  function setQuoteLatest() {
+    setQuote((prev) => ({
+      ...prev,
+      [addressKey]: {
+        ...prev[addressKey],
+        kci: kciArrayRef.current,
+      },
+    }));
+  }
   function addKci() {
     if (kciObj.name !== "" && (kciObj.contact !== "" || kciObj.email !== "")) {
       kciArrayRef.current = [...kciArrayRef.current, kciObj];
@@ -87,13 +83,7 @@ function KCI({ quote, setQuote, addressKey, changedFileds, orignalQuote }) {
       });
       setShowForm(false);
       // Trigger a re-render
-      setQuote((prev) => ({
-        ...prev,
-        [addressKey]: {
-          ...prev[addressKey],
-          kci: kciArrayRef.current,
-        },
-      }));
+      setQuoteLatest();
     } else {
       toast.error("Please fill out all required fields.");
     }
@@ -101,25 +91,12 @@ function KCI({ quote, setQuote, addressKey, changedFileds, orignalQuote }) {
   function editKCI(id) {
     // Find the KCI entry using 'id'
     const kci = kciArrayRef.current.find((el) => el.id === id);
-
     if (kci) {
       // Set the found KCI object to kciObj state
       setKciObj(kci);
-
-      // Remove the entry from kciArrayRef using 'id'
-      kciArrayRef.current = kciArrayRef.current.filter(
-        (info) => info.id !== id
-      );
-
+      deleteKci(id);
       // Update the quote state to trigger a re-render
-      setQuote((prev) => ({
-        ...prev,
-        [addressKey]: {
-          ...prev[addressKey],
-          kci: kciArrayRef.current,
-        },
-      }));
-
+      setQuoteLatest();
       // Show the form for editing
       setShowForm(true);
     } else {
