@@ -20,7 +20,11 @@ import headerImage from "../images/header.png";
 import footerImage from "../images/footer.png";
 import stamp from "../images/stamp.png";
 import { Button } from "flowbite-react";
-import { saprateQuoteInfo, fetchImage } from "../funtions/funtion.js";
+import {
+  saprateQuoteInfo,
+  fetchImage,
+  isRevised,
+} from "../funtions/funtion.js";
 import {
   generateStandardDoc,
   generateSupplyApplyDoc,
@@ -120,18 +124,34 @@ const QuotationGenerator = ({ id, color, onClick, text, annexure }) => {
             ]
           : []),
         new Paragraph({ text: "" }),
-        new Paragraph({
-          children: [
-            new TextRun({
-              text: `${
-                data.salesPerson.initials === "SALES"
-                  ? "We thank you for your enquiry and the opportunity given to us to quote our rates, Further to your instructions, we are pleased to submit our quotation as below"
-                  : `We thank for your enquiry & the time given to our Representative ${data.salesPerson.prefix} ${data.salesPerson.username}`
-              }`,
-              bold: true,
-            }),
-          ],
-        }),
+        ...(!isRevised(data.quotationNo)
+          ? [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: `${
+                      data.salesPerson.initials === "SALES"
+                        ? "We thank you for your enquiry and the opportunity given to us to quote our rates, Further to your instructions, we are pleased to submit our quotation as below"
+                        : `We thank for your enquiry & the time given to our Representative ${data.salesPerson.prefix} ${data.salesPerson.username}`
+                    }`,
+                    bold: true,
+                  }),
+                ],
+              }),
+            ]
+          : []),
+        ...(isRevised(data.quotationNo)
+          ? [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: "As per your requirement, submiting our revised offer as below.",
+                    bold: true,
+                  }),
+                ],
+              }),
+            ]
+          : []),
         new Paragraph({ text: "" }),
         createInfoTable(data, standard.length, applySupply.length),
         new Paragraph({ text: "" }),

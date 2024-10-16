@@ -232,36 +232,38 @@ function UpdateQuotation({ quoteId, onClose }) {
             />
           </div>
         </div>
-        <div className="">
-          <div className="mb-2 block">
-            <Label htmlFor="salePerson">
-              <span>Sale Person: </span>
-              <span className=" text-red-500">*</span>
-            </Label>
-          </div>
+        {!quote.approved && (
+          <div className="">
+            <div className="mb-2 block">
+              <Label htmlFor="salePerson">
+                <span>Sale Person: </span>
+                <span className=" text-red-500">*</span>
+              </Label>
+            </div>
 
-          <Select
-            name="salesPerson"
-            className={`${
-              error === "salePerson"
-                ? "border border-red-500 rounded-lg bg-red-300 "
-                : null
-            }`}
-            onChange={handleChange}
-          >
-            <option></option>
-            {initials.length > 0 &&
-              initials.map((initial) => (
-                <option
-                  selected={quote?.salesPerson === initial._id}
-                  value={initial._id}
-                  key={initial._id}
-                >
-                  {initial.initials} {initial.username}
-                </option>
-              ))}
-          </Select>
-        </div>
+            <Select
+              name="salesPerson"
+              className={`${
+                error === "salePerson"
+                  ? "border border-red-500 rounded-lg bg-red-300 "
+                  : null
+              }`}
+              onChange={handleChange}
+            >
+              <option></option>
+              {initials.length > 0 &&
+                initials.map((initial) => (
+                  <option
+                    selected={quote?.salesPerson === initial._id}
+                    value={initial._id}
+                    key={initial._id}
+                  >
+                    {initial.initials} {initial.username}
+                  </option>
+                ))}
+            </Select>
+          </div>
+        )}
         <div>
           <div className="mb-2 block">
             <Label htmlFor="emailTo">

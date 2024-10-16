@@ -256,17 +256,19 @@ const ViewQuote = forwardRef((props) => {
 
             {/* Quotation Description */}
             <div className="mt-4">
-              <p
-                className={`font-bold ${
-                  substringsExistInArray(["salesPerson"], changes)
-                    ? "bg-red-200"
-                    : ""
-                }`}
-              >
-                {quote?.salesPerson?.initials === "SALES"
-                  ? "We thank you for your enquiry and the opportunity given to us to quote our rates, Further to your instructions, we are pleased to submit our quotation as below"
-                  : `We thank for your enquiry & the time given to our Representative ${quote?.salesPerson?.prefix} ${quote?.salesPerson?.username}`}
-              </p>
+              {!isRevised(quote.quotationNo) && (
+                <p
+                  className={`font-bold ${
+                    substringsExistInArray(["salesPerson"], changes)
+                      ? "bg-red-200"
+                      : ""
+                  }`}
+                >
+                  {quote?.salesPerson?.initials === "SALES"
+                    ? "We thank you for your enquiry and the opportunity given to us to quote our rates, Further to your instructions, we are pleased to submit our quotation as below"
+                    : `We thank for your enquiry & the time given to our Representative ${quote?.salesPerson?.prefix} ${quote?.salesPerson?.username}`}
+                </p>
+              )}
               {isRevised(quote.quotationNo) ? (
                 <p className="font-bold">
                   As per your requirement, submiting our revised offer as below.
