@@ -106,9 +106,11 @@ function InputStandardAdv({ quote, setQuote, changedFileds, orignalQuote }) {
     const { name, value } = e.target;
     const dataId = e.target.getAttribute("data-id");
     const modifiedString = `quoteInfo.${dataId}.${name}`;
+
     const oldValue = orignalQuote
       ? getValueFromNestedObject(orignalQuote.current, modifiedString)
       : null;
+
     if (oldValue) {
       if (
         oldValue.trim() !== value.trim() &&

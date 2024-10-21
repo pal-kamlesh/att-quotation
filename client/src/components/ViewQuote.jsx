@@ -393,6 +393,20 @@ const ViewQuote = forwardRef((props) => {
                     will be forwarded on stamp paper.
                   </td>
                 </tr>
+                {quote.note && quote.note.trim() !== "" ? (
+                  <tr className="">
+                    <td className="w-1/4 p-2  font-bold">Notes:</td>
+                    <td
+                      className={`w-3/4 p-2 ${
+                        substringsExistInArray(["notes"], changes)
+                          ? "bg-red-200"
+                          : ""
+                      }`}
+                    >
+                      {quote?.note}
+                    </td>
+                  </tr>
+                ) : null}
               </tbody>
             </table>
 

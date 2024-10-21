@@ -67,7 +67,6 @@ function DCForm({ id, quoteInfo, setDCs, onClose }) {
       console.log("Invalid input, please fill all fields.");
     }
   }
-  console.log(batchNos);
   return (
     <div className="max-w-md mx-auto p-6">
       <h3 className="text-xl font-semibold text-center mb-4">DC Form</h3>

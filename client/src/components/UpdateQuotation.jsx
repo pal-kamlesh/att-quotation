@@ -50,7 +50,6 @@ function UpdateQuotation({ quoteId, onClose }) {
 
   const handleChange = (e) => {
     const { name, value, dataset } = e.target;
-
     const { id } = dataset;
 
     if (name.startsWith("quoteInfo")) {

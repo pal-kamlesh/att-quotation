@@ -1168,15 +1168,13 @@ const generateStandardContractAdv = async (data, annexure) => {
                             bold: true,
                           }),
                           ...paymentTermsArray.map((v, idx) => {
-                            if (idx === 0 && paymentTermsArray.length !== 1) {
+                            if (paymentTermsArray.length === 1) {
                               return new TextRun({
-                                text: `\t${idx === 0 ? ":" : ""} ${
-                                  idx + 1
-                                } ${v}`,
+                                text: `\t: ${v}`,
                               });
-                            } else {
+                            } else if (idx === 0) {
                               return new TextRun({
-                                text: `\t${idx === 0 ? ":" : ""} ${v}`,
+                                text: `\t:${idx + 1} ${paymentTermsArray[0]}`,
                               });
                             }
                           }),
@@ -1195,19 +1193,14 @@ const generateStandardContractAdv = async (data, annexure) => {
                                 ...paymentTermsArray.map((v, idx) => {
                                   if (idx !== 0) {
                                     return new TextRun({
-                                      text: `${idx === 0 ? ":" : ""} ${
-                                        idx + 1
-                                      } ${v}`,
-                                      break:
-                                        idx !== paymentTermsArray.length - 1
-                                          ? 1
-                                          : null,
+                                      text: `${idx + 1} ${v}`,
+                                      break: idx > 1 ? 1 : null,
                                     });
                                   }
                                 }),
                               ],
                               indent: {
-                                start: 3150, // Adjust this value to control indentation
+                                start: 3070, // Adjust this value to control indentation
                               },
                             }),
                           ]

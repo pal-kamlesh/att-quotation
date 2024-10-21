@@ -128,12 +128,6 @@ const getValueFromNestedObject = (obj, name) => {
   return result;
 };
 function substringsExistInArray(targetSubstrings, stringArray) {
-  console.log(targetSubstrings);
-  console.log(
-    targetSubstrings.some((substring) =>
-      stringArray.some((str) => str.includes(substring))
-    )
-  );
   return targetSubstrings.some((substring) =>
     stringArray.some((str) => str.includes(substring))
   );

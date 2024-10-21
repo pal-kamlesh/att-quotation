@@ -26,7 +26,7 @@ import {
 import { getValueFromNestedObject } from "../funtions/funtion.js";
 
 // eslint-disable-next-line react/prop-types
-function UpdateContract({ onClose, activeId = null }) {
+function UpdateContract({ onClose, activeId }) {
   const { loading } = useSelector((state) => state.contract);
   const [contract, setContract] = useState({
     contractNo: "",
@@ -79,7 +79,6 @@ function UpdateContract({ onClose, activeId = null }) {
         try {
           const actionResult = await dispatch(getSingleContract(activeId));
           const result = unwrapResult(actionResult);
-
           // Use optional chaining and handle the case when workOrderDate is not present
           const isoDateStr = result.result?.workOrderDate ?? ""; // Default to empty string if not present
 
@@ -95,8 +94,8 @@ function UpdateContract({ onClose, activeId = null }) {
 
           setContract({ ...result.result, workOrderDate: formattedDate });
           setDoc(result.result.docType);
-          const conNo = result.result.contractNo;
-          const prefix = conNo.split("/")[0];
+          let conNo = result?.result?.contractNo;
+          let prefix = conNo ? conNo.split("/")[0] : null;
           setDocType(prefix);
           orignalContract.current = result.result;
         } catch (error) {
@@ -104,7 +103,6 @@ function UpdateContract({ onClose, activeId = null }) {
         }
       }
     }
-
     initial();
   }, [activeId, dispatch]);
 
@@ -114,9 +112,7 @@ function UpdateContract({ onClose, activeId = null }) {
       setDoc(value);
     }
   }
-  console.log(changedFileds.current);
   function handleDoctype(e) {
-    console.log(e.target.value);
     setDocType(e.target.value);
   }
   useEffect(() => {
@@ -131,10 +127,7 @@ function UpdateContract({ onClose, activeId = null }) {
 
   function handleContractChange(e) {
     const { name, value } = e.target;
-
     const oldValue = getValueFromNestedObject(orignalContract.current, name);
-    console.log(`Name: ${name}`);
-    console.log(`oldValue: ${oldValue}`);
     if (
       value.trim() !== String(contract[name]).trim() &&
       !changedFileds.current.includes(String(name))
@@ -165,8 +158,6 @@ function UpdateContract({ onClose, activeId = null }) {
         },
       }));
       const oldValue = getValueFromNestedObject(orignalContract.current, name);
-      console.log(`Name: ${name}`);
-      console.log(`oldValue: ${oldValue}`);
       if (
         oldValue.trim() !== value.trim() &&
         !changedFileds.current.includes(String(name))
@@ -209,10 +200,12 @@ function UpdateContract({ onClose, activeId = null }) {
     });
   }
   useEffect(() => {
-    const conNo = contract.contractNo;
-    const parts = conNo.split("/");
-    parts[0] = docType;
-    setContract((prev) => ({ ...prev, contractNo: parts.join("/") }));
+    if (contract?.contractNo) {
+      const conNo = contract?.contractNo;
+      const parts = conNo ? conNo.split("/") : null;
+      parts[0] = docType;
+      setContract((prev) => ({ ...prev, contractNo: parts.join("/") }));
+    }
   }, [docType]);
 
   async function handleSubmitApproved(e) {
@@ -323,7 +316,6 @@ function UpdateContract({ onClose, activeId = null }) {
               </div>
             ) : null}
           </div>
-
           <div className="max-w-full">
             <div className="mb-2 block">
               <Label htmlFor="workOrderNo" value="Work Order No" />

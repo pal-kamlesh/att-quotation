@@ -1,6 +1,7 @@
 /* eslint-disable react/no-unescaped-entities */
 import {
   Button,
+  Checkbox,
   Label,
   Radio,
   Select,
@@ -61,6 +62,10 @@ const getInitialContractState = () => {
     workOrderDate: "",
     gstNo: "",
     paymentTerms: "",
+    activeClauses: {
+      taxation: true,
+      warranty: true,
+    },
   };
 };
 // eslint-disable-next-line react/prop-types
@@ -104,18 +109,9 @@ function NewContract({ onClose }) {
   }
   function handleAddress(e) {
     const { name, value } = e.target;
-    const nameParts = name.split(".");
+    const [addressType, fieldName] = name.split(".");
 
-    // Check if the input is for billToAddress or shipToAddress
-    const isForBillToAddress = nameParts[0] === "billToAddress";
-    const isForShipToAddress = nameParts[0] === "shipToAddress";
-
-    if (isForBillToAddress || isForShipToAddress) {
-      const addressType = isForBillToAddress
-        ? "billToAddress"
-        : "shipToAddress";
-      const fieldName = nameParts[1];
-
+    if (addressType === "billToAddress" || addressType === "shipToAddress") {
       setContract((prev) => ({
         ...prev,
         [addressType]: {
@@ -130,43 +126,46 @@ function NewContract({ onClose }) {
       }));
     }
   }
-
-  // function dummyQuote() {
-  //   const data = {
-  //     contract: {
-  //       billToAddress: {
-  //         prefix: "M/s.",
-  //         name: "KEC International Ltd.",
-  //         a1: "Raghuram Heights",
-  //         a2: "463",
-  //         a3: "Dr Annie Besant Raod",
-  //         a4: "Worli",
-  //         a5: "Opposite Hell",
-  //         city: "Mumbai",
-  //         pincode: "400030",
-  //         kci: [],
-  //       },
-  //       shipToAddress: {
-  //         projectName: "Prestige City Rehab Project",
-  //         a1: "Raghuram Heights",
-  //         a2: "463",
-  //         a3: "Dr Annie Besant Raod",
-  //         a4: "Worli",
-  //         a5: "Opposite Hell",
-  //         city: "Mumbai",
-  //         pincode: "400030",
-  //         kci: [],
-  //       },
-  //       kindAttentionPrefix: "Mr.",
-  //       kindAttention: "Malahari Naik",
-  //       reference: "Our earlier quotation No EPPL/ATT/QTN/401",
-  //       specification: "As per IS 6313 (Part 2):2013",
-  //       note: "",
-  //       quoteInfo: [],
-  //     },
-  //   };
-  //   setContract(data.contract);
-  // }
+  function dummyQuote() {
+    const data = {
+      contract: {
+        billToAddress: {
+          prefix: "M/s.",
+          name: "KEC International Ltd.",
+          a1: "Raghuram Heights",
+          a2: "463",
+          a3: "Dr Annie Besant Raod",
+          a4: "Worli",
+          a5: "Opposite Hell",
+          city: "Mumbai",
+          pincode: "400030",
+          kci: [],
+        },
+        shipToAddress: {
+          projectName: "Prestige City Rehab Project",
+          a1: "Raghuram Heights",
+          a2: "463",
+          a3: "Dr Annie Besant Raod",
+          a4: "Worli",
+          a5: "Opposite Hell",
+          city: "Mumbai",
+          pincode: "400030",
+          kci: [],
+        },
+        kindAttentionPrefix: "Mr.",
+        kindAttention: "Malahari Naik",
+        reference: "Our earlier quotation No EPPL/ATT/QTN/401",
+        specification: "As per IS 6313 (Part 2):2013",
+        note: "",
+        quoteInfo: [],
+        activeClauses: {
+          taxation: true,
+          warranty: true,
+        },
+      },
+    };
+    setContract(data.contract);
+  }
   async function handleSubmit(e) {
     e.preventDefault();
     if (
@@ -256,6 +255,40 @@ function NewContract({ onClose }) {
                 ))}
             </Select>
           </div>
+          <div className="max-w-full flex gap-3">
+            <div className="flex items-center gap-2">
+              <Checkbox
+                checked={contract.activeClauses.taxation}
+                onChange={() =>
+                  setContract((prev) => ({
+                    ...prev,
+                    activeClauses: {
+                      ...prev.activeClauses,
+                      taxation: !contract.activeClauses.taxation,
+                    },
+                  }))
+                }
+                id="taxation"
+              />
+              <Label htmlFor="taxation">Taxations</Label>
+            </div>
+            <div className="flex items-center gap-2">
+              <Checkbox
+                checked={contract.activeClauses.warranty}
+                onChange={() =>
+                  setContract((prev) => ({
+                    ...prev,
+                    activeClauses: {
+                      ...prev.activeClauses,
+                      warranty: !contract.activeClauses.warranty,
+                    },
+                  }))
+                }
+                id="warranty"
+              />
+              <Label htmlFor="warranty">Warranty</Label>
+            </div>
+          </div>
         </div>
         <div className="flex items-center justify-center w-full">
           <Button
@@ -267,9 +300,9 @@ function NewContract({ onClose }) {
           >
             Copy BillTo/ShipTo
           </Button>
-          {/* <Button outline gradientMonochrome="cyan" onClick={dummyQuote}>
+          <Button outline gradientMonochrome="cyan" onClick={dummyQuote}>
             Dummy contract
-          </Button> */}
+          </Button>
         </div>
         <div className="grid grid-cols-8 gap-4 border mb-4 rounded-md">
           <div className=" p-4 col-span-4">

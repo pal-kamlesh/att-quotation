@@ -24,7 +24,6 @@ function PrintDC({ id, quoteInfo }) {
     setSelectedDc(log);
     setDetailModel(true);
   };
-  console.log(selectedDc);
   return (
     <div className=" max-w-[1400px] mx-auto  ">
       <h4 className="text-lg font-semibold mb-2">DC s</h4>
