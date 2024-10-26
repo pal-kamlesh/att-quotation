@@ -31,6 +31,7 @@ const getInitialContractState = () => {
   }
   return {
     salesPerson: "",
+    os: false,
     billToAddress: {
       prefix: "",
       name: "",
@@ -68,6 +69,7 @@ const getInitialContractState = () => {
     },
   };
 };
+
 // eslint-disable-next-line react/prop-types
 function NewContract({ onClose }) {
   const { loading } = useSelector((state) => state.contract);
@@ -258,35 +260,16 @@ function NewContract({ onClose }) {
           <div className="max-w-full flex gap-3">
             <div className="flex items-center gap-2">
               <Checkbox
-                checked={contract.activeClauses.taxation}
+                checked={contract.os}
                 onChange={() =>
                   setContract((prev) => ({
                     ...prev,
-                    activeClauses: {
-                      ...prev.activeClauses,
-                      taxation: !contract.activeClauses.taxation,
-                    },
+                    os: !prev.os,
                   }))
                 }
-                id="taxation"
+                id="os"
               />
-              <Label htmlFor="taxation">Taxations</Label>
-            </div>
-            <div className="flex items-center gap-2">
-              <Checkbox
-                checked={contract.activeClauses.warranty}
-                onChange={() =>
-                  setContract((prev) => ({
-                    ...prev,
-                    activeClauses: {
-                      ...prev.activeClauses,
-                      warranty: !contract.activeClauses.warranty,
-                    },
-                  }))
-                }
-                id="warranty"
-              />
-              <Label htmlFor="warranty">Warranty</Label>
+              <Label htmlFor="os">OS</Label>
             </div>
           </div>
         </div>

@@ -20,6 +20,7 @@ const create = async (req, res, next) => {
     const { contract } = req.body;
     const {
       contractNo,
+      os,
       contractDate,
       salesPerson,
       billToAddress,
@@ -41,6 +42,7 @@ const create = async (req, res, next) => {
     }
     const newContract = await Contract.create({
       contractNo,
+      os,
       contractDate: contractDate || Date.now(),
       salesPerson,
       billToAddress,
@@ -151,6 +153,7 @@ const contracts = async (req, res, next) => {
     next(error);
   }
 };
+
 const contractify = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -159,6 +162,12 @@ const contractify = async (req, res, next) => {
       .populate({ path: "createdBy", select: "-password" })
       .populate({ path: "salesPerson", select: "-password" })
       .populate("createdBy", "username");
+
+    if (quote.contractified) {
+      return res
+        .status(404)
+        .json({ message: "Already Contract, please refresh" });
+    }
     if (!quote) {
       return res.status(404).json({ message: "Quotation not found" });
     }
@@ -212,6 +221,7 @@ const contractify = async (req, res, next) => {
     next(error);
   }
 };
+
 const singleContract = async (req, res, next) => {
   try {
     const { id } = req.params;

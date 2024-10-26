@@ -283,7 +283,13 @@ const ViewContract = forwardRef((props) => {
                 Contractee as per the particulars given below and additional
                 terms printed overleaf.
               </p>
-              <div className="border border-black w-full mb-4 p-2">
+              <div
+                className={`border border-black w-full mb-4 p-2 ${
+                  substringsExistInArray(["paymentTerms"], changes)
+                    ? "bg-red-200"
+                    : ""
+                }`}
+              >
                 <p className="flex">
                   <div
                     className="font-semibold mr-2"
@@ -292,7 +298,20 @@ const ViewContract = forwardRef((props) => {
                     <strong>Payment terms:</strong>
                   </div>
                   <span>
-                    Within 15 days from the date of submission of bill
+                    {String(contract?.paymentTerms)
+                      .split(".")
+                      .filter((v) => v.trim() !== "")
+                      .map((ref, idx) => (
+                        <div key={idx}>
+                          <span className=" font-bold ">
+                            {String(contract.paymentTerms)
+                              .split(".")
+                              .filter((v) => v.trim() !== "").length > 1 &&
+                              idx + 1}
+                          </span>
+                          {ref}
+                        </div>
+                      ))}
                   </span>
                 </p>
                 <p className="flex">

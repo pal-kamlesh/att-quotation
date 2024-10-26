@@ -7,6 +7,10 @@ const contractSchema = mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Quotation",
     },
+    os: {
+      type: Boolean,
+      default: false,
+    },
     contractDate: {
       type: Date,
       default: null,
