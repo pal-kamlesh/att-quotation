@@ -166,10 +166,12 @@ contractSchema.methods.generateContractNo = async function () {
 
     // Get the current year
     const currentYear = new Date().getFullYear();
-
-    // Generate the new contract number using the counter
-    const newContractNo = `PRE/${counter.seq}/${currentYear}`;
-
+    let newContractNo = "";
+    if (this.os) {
+      newContractNo = `OS/PRE/${counter.seq}/${currentYear}`;
+    } else {
+      newContractNo = `PRE/${counter.seq}/${currentYear}`;
+    }
     // Set the generated contract number on the current document
     this.contractNo = newContractNo;
     return this.save();

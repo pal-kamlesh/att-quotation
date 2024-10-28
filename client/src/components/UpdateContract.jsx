@@ -1,6 +1,7 @@
 /* eslint-disable react/no-unescaped-entities */
 import {
   Button,
+  Checkbox,
   Label,
   Radio,
   Select,
@@ -67,7 +68,6 @@ function UpdateContract({ onClose, activeId }) {
   const [disableRadio, setDisableRadio] = useState(false);
   const [areaTypeModel, setAreaTypeModel] = useState(false);
   const [message, setMessage] = useState("");
-  const [docType, setDocType] = useState("");
   const dispatch = useDispatch();
   const { initials } = useSelector((state) => state.user);
   const changedFileds = useRef([]);
@@ -94,9 +94,6 @@ function UpdateContract({ onClose, activeId }) {
 
           setContract({ ...result.result, workOrderDate: formattedDate });
           setDoc(result.result.docType);
-          let conNo = result?.result?.contractNo;
-          let prefix = conNo ? conNo.split("/")[0] : null;
-          setDocType(prefix);
           orignalContract.current = result.result;
         } catch (error) {
           console.error("Failed to fetch contract:", error);
@@ -112,9 +109,7 @@ function UpdateContract({ onClose, activeId }) {
       setDoc(value);
     }
   }
-  function handleDoctype(e) {
-    setDocType(e.target.value);
-  }
+
   useEffect(() => {
     if (contract.quoteInfo.length <= 0) {
       setDisableRadio(false);
@@ -124,6 +119,25 @@ function UpdateContract({ onClose, activeId }) {
       setContract((prev) => ({ ...prev, docType: doc }));
     }
   }, [doc, contract?.quoteInfo.length]);
+
+  useEffect(() => {
+    if (!contract) return; // Ensure contract is defined
+    let cNo = contract.contractNo;
+    let parts = cNo.split("/");
+
+    if (contract.os) {
+      if (parts[0] !== "OS") {
+        parts.unshift("OS");
+      }
+    } else {
+      if (parts[0] === "OS") {
+        parts.shift();
+      }
+    }
+
+    const updatedContractNo = parts.join("/");
+    setContract((prev) => ({ ...prev, contractNo: updatedContractNo }));
+  }, [contract?.os, contract?.contractNo]);
 
   function handleContractChange(e) {
     const { name, value } = e.target;
@@ -199,15 +213,6 @@ function UpdateContract({ onClose, activeId }) {
       shipToAddress: { ...shipToAddress, ...updatedShipToAddress },
     });
   }
-  useEffect(() => {
-    if (contract?.contractNo) {
-      const conNo = contract?.contractNo;
-      const parts = conNo ? conNo.split("/") : null;
-      parts[0] = docType;
-      setContract((prev) => ({ ...prev, contractNo: parts.join("/") }));
-    }
-  }, [docType]);
-
   async function handleSubmitApproved(e) {
     e.preventDefault();
     if (message === "") {
@@ -285,36 +290,19 @@ function UpdateContract({ onClose, activeId }) {
                 />
               </div>
             ) : null}
-            {contract?.contractNo ? (
-              <div className="w-full border border-gray-300 p-1 rounded-lg">
-                <div className="flex gap-4 mt-1 w-full">
-                  <div className="flex items-center">
-                    <Radio
-                      id="os"
-                      name="notype"
-                      value="OS"
-                      checked={docType === "OS"}
-                      onChange={(e) => handleDoctype(e)}
-                    />
-                    <label htmlFor="os" className="ml-2">
-                      OS
-                    </label>
-                  </div>
-                  <div className="flex items-center">
-                    <Radio
-                      id="pre"
-                      name="notype"
-                      value="PRE"
-                      checked={docType === "PRE"}
-                      onChange={(e) => handleDoctype(e)}
-                    />
-                    <label htmlFor="pre" className="ml-2">
-                      PRE
-                    </label>
-                  </div>
-                </div>
-              </div>
-            ) : null}
+          </div>
+          <div className="flex items-center gap-2">
+            <Checkbox
+              checked={contract.os}
+              onChange={() =>
+                setContract((prev) => ({
+                  ...prev,
+                  os: !prev.os,
+                }))
+              }
+              id="os"
+            />
+            <Label htmlFor="os">OS</Label>
           </div>
           <div className="max-w-full">
             <div className="mb-2 block">
@@ -358,6 +346,7 @@ function UpdateContract({ onClose, activeId }) {
                 ))}
             </Select>
           </div>
+
           <div className="col-span-5">
             <div className="mb-2 block">
               <Label htmlFor="emailTo">

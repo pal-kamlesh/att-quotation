@@ -629,7 +629,10 @@ const getArchive = async (req, res, next) => {
 
 const genReport = async (req, res, next) => {
   try {
-    const data = await Contract.find({}, "contractNo approved _id");
+    const data = await Contract.find({})
+      .populate("quoteInfo")
+      .populate("salesPerson")
+      .populate("createdBy");
     const excelBuffer = await generateExcel(data);
     fs.writeFileSync("Contract_List.xlsx", excelBuffer);
 
@@ -653,26 +656,58 @@ async function generateExcel(data) {
     // Create a new workbook and a worksheet
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("Contracts");
-
     // Add header row
     worksheet.columns = [
-      { header: "ContractNo", key: "contractNo", width: 15 },
-      { header: "Approved", key: "approved", width: 15 },
+      { header: "REP", key: "salesPerson", width: 15 },
+      { header: "Date", key: "contractDate", width: 15 },
+      { header: "Contract No", key: "contractNo", width: 15 },
+      { header: "Name of Client", key: "clientName", width: 30 },
+      { header: "Area", key: "area", width: 15 },
+      { header: "Amount", key: "amount", width: 15 },
+      { header: "Contact Nos", key: "contactNos", width: 30 },
+      { header: "Remark", key: "remark", width: 30 },
     ];
 
     // Add a row with the data
     data.forEach((contract) => {
+      const clientName = contract.billToAddress.name;
+      const area =
+        contract.quoteInfo.map((quote) => quote.workArea).join("& ") || "";
+      const amount =
+        contract.quoteInfo
+          .map((quote) => {
+            return `${quote.serviceRate} ${quote.serviceRateUnit}- ${quote.chemical}`;
+          })
+          .join("& ") || "";
+      const contactNosBillTo =
+        contract.billToAddress.kci
+          .map((kci) => `${kci.contact} (${kci.name})`)
+          .join(", ") || "";
+      const contactNosShipTo =
+        contract.shipToAddress.kci
+          .map((kci) => `${kci.contact} (${kci.name})`)
+          .join(", ") || "";
+      const contactNos =
+        [contactNosBillTo, contactNosShipTo].filter(Boolean).join("& ") || "";
+
       worksheet.addRow({
-        contractNo: contract.contractNo ? contract.contractNo : contract._id,
-        approved: contract.approved ? "✓" : "✗",
+        salesPerson: contract.salesPerson.initials, // You may want to resolve this reference to a user name
+        contractDate: contract.contractDate,
+        contractNo: contract.contractNo || contract._id,
+        clientName: clientName,
+        area: area,
+        amount: amount,
+        contactNos: contactNos,
+        remark: contract.note || "", // Add your remark or leave it empty
       });
     });
 
-    // Write to file
+    // Write to file (or return the buffer as needed)
     const buffer = await workbook.xlsx.writeBuffer();
     return buffer;
   } catch (error) {
-    console.log("WE encounter error");
+    console.error("Error encountered while generating Excel:", error);
+    throw error; // Optionally rethrow the error for handling upstream
   }
 }
 

@@ -63,13 +63,8 @@ const getInitialContractState = () => {
     workOrderDate: "",
     gstNo: "",
     paymentTerms: "",
-    activeClauses: {
-      taxation: true,
-      warranty: true,
-    },
   };
 };
-
 // eslint-disable-next-line react/prop-types
 function NewContract({ onClose }) {
   const { loading } = useSelector((state) => state.contract);
