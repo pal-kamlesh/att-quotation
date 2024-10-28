@@ -249,7 +249,6 @@ const update = async (req, res, next) => {
     const { message, contract: updatedData, modified } = req.body;
     const { quoteInfo, ...otherFields } = updatedData;
     const { _id, ...rest } = otherFields;
-    console.log(modified);
     const isapproved = await Contract.isApproved(contractId);
     if (isapproved) {
       const { _id, ...state } = await Contract.findById(contractId)
@@ -630,7 +629,7 @@ const getArchive = async (req, res, next) => {
 
 const genReport = async (req, res, next) => {
   try {
-    const data = await Contract.find({})
+    const data = await Quotation.find({})
       .populate("quoteInfo")
       .populate("salesPerson")
       .populate("createdBy");
@@ -659,49 +658,47 @@ async function generateExcel(data) {
     // Add header row
     worksheet.columns = [
       { header: "REP", key: "salesPerson", width: 15 },
-      { header: "Date", key: "contractDate", width: 15 },
-      { header: "Contract No", key: "contractNo", width: 15 },
+      { header: "Date", key: "quotationDate", width: 15 },
+      { header: "Contract No", key: "quotationNo", width: 15 },
       { header: "Name of Client", key: "clientName", width: 30 },
       { header: "Area", key: "area", width: 15 },
       { header: "Amount", key: "amount", width: 15 },
-      { header: "Contact Nos", key: "contactNos", width: 30 },
+      { header: "Contact Nos", key: "contactNos", width: 15 },
       { header: "Remark", key: "remark", width: 30 },
     ];
 
     // Add a row with the data
-    data.forEach((contract) => {
-      const clientName = contract.billToAddress.name;
+    data.forEach((quotation) => {
+      const clientName = quotation.billToAddress.name;
       const area =
-        contract.quoteInfo.map((quote) => quote.workArea).join("& ") || "";
+        quotation.quoteInfo.map((quote) => quote.workArea).join("& ") || "";
       const amount =
-        contract.quoteInfo
+        quotation.quoteInfo
           .map((quote) => {
             return `${quote.serviceRate} ${quote.serviceRateUnit}- ${quote.chemical}`;
           })
           .join("& ") || "";
       const contactNosBillTo =
-        contract.billToAddress.kci
+        quotation.billToAddress.kci
           .map((kci) => `${kci.contact} (${kci.name})`)
           .join(", ") || "";
       const contactNosShipTo =
-        contract.shipToAddress.kci
+        quotation.shipToAddress.kci
           .map((kci) => `${kci.contact} (${kci.name})`)
           .join(", ") || "";
       const contactNos =
         [contactNosBillTo, contactNosShipTo].filter(Boolean).join("& ") || "";
-
       worksheet.addRow({
-        salesPerson: contract.salesPerson.initials, // You may want to resolve this reference to a user name
-        contractDate: contract.contractDate,
-        contractNo: contract.contractNo || contract._id,
+        salesPerson: quotation.salesPerson.initials, // You may want to resolve this reference to a user name
+        quotationDate: quotation.quotationDate,
+        quotationNo: quotation.quotationNo || quotation._id,
         clientName: clientName,
         area: area,
         amount: amount,
         contactNos: contactNos,
-        remark: contract.note || "", // Add your remark or leave it empty
+        remark: quotation.note || "", // Add your remark or leave it empty
       });
     });
-
     // Write to file (or return the buffer as needed)
     const buffer = await workbook.xlsx.writeBuffer();
     return buffer;
@@ -749,7 +746,6 @@ export const sendEmailWithAttachment = async (attachmentUrl) => {
 async function generateAndSendReport(data) {
   try {
     const excelBuffer = await generateExcel(data);
-
     const base64File = excelBuffer.toString("base64");
 
     // Set up Brevo client
