@@ -14,6 +14,7 @@ import {
 } from "../utils/functions.js";
 import fs from "fs";
 import ExcelJS from "exceljs";
+import brevo from "@getbrevo/brevo";
 
 const create = async (req, res, next) => {
   try {
@@ -628,25 +629,23 @@ const getArchive = async (req, res, next) => {
 };
 
 const genReport = async (req, res, next) => {
-  console.log("GenReport got triggered");
   try {
     const data = await Contract.find({})
       .populate("quoteInfo")
       .populate("salesPerson")
       .populate("createdBy");
-    const excelBuffer = await generateExcel(data);
-    fs.writeFileSync("Contract_List.xlsx", excelBuffer);
+    await generateAndSendReport(data);
 
-    // Set response headers and send the file
-    res.setHeader(
-      "Content-Disposition",
-      "attachment; filename=Contract_List.xlsx"
-    );
-    res.setHeader(
-      "Content-Type",
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    );
-    res.send(excelBuffer);
+    // // Set response headers and send the file
+    // res.setHeader(
+    //   "Content-Disposition",
+    //   "attachment; filename=Contract_List.xlsx"
+    // );
+    // res.setHeader(
+    //   "Content-Type",
+    //   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    // );
+    res.send("OK");
   } catch (error) {
     next(error);
   }
@@ -709,6 +708,80 @@ async function generateExcel(data) {
   } catch (error) {
     console.error("Error encountered while generating Excel:", error);
     throw error; // Optionally rethrow the error for handling upstream
+  }
+}
+
+export const sendEmailWithAttachment = async (attachmentUrl) => {
+  try {
+    let defaultClient = brevo.ApiClient.instance;
+    let apiKey = defaultClient.authentications["api-key"];
+    apiKey.apiKey = process.env.BREVO_KEY;
+
+    let apiInstance = new brevo.TransactionalEmailsApi();
+    let sendSmtpEmail = new brevo.SendSmtpEmail();
+
+    sendSmtpEmail.sender = {
+      name: "EPCORN",
+      email: process.env.NO_REPLY_EMAIL,
+      //email: process.env.EA_EMAIL,
+    };
+    sendSmtpEmail.to = [
+      { email: process.env.STQ_EMAIL },
+      //{ email: process.env.EA_EMAIL },
+      //{ email: process.env.NO_REPLY_EMAIL },
+      { email: process.env.SALES_EMAIL },
+      // { email: process.env.COLLEGE_EMAIL },
+    ];
+    sendSmtpEmail.templateId = 9;
+    sendSmtpEmail.attachment = [
+      { url: attachmentUrl, name: "Registration of IPM Smark Course.xlsx" },
+    ];
+
+    await apiInstance.sendTransacEmail(sendSmtpEmail);
+
+    return true; // Email sent successfully
+  } catch (error) {
+    console.error("Error sending email:", error);
+    throw new Error("Failed to send transactional email");
+  }
+};
+
+async function generateAndSendReport(data) {
+  try {
+    const excelBuffer = await generateExcel(data);
+
+    const base64File = excelBuffer.toString("base64");
+
+    // Set up Brevo client
+    let defaultClient = brevo.ApiClient.instance;
+    let apiKey = defaultClient.authentications["api-key"];
+    apiKey.apiKey = process.env.BREVO_KEY;
+    let apiInstance = new brevo.TransactionalEmailsApi();
+
+    let sendSmtpEmail = new brevo.SendSmtpEmail();
+    sendSmtpEmail.sender = {
+      name: "EPCORN",
+      email: process.env.EA_EMAIL,
+    };
+
+    sendSmtpEmail.to = [{ email: process.env.NO_REPLY_EMAIL }];
+
+    sendSmtpEmail.templateId = 9;
+
+    // Attach the file directly using base64
+    sendSmtpEmail.attachment = [
+      {
+        content: base64File,
+        name: "Contracts_Report.xlsx",
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      },
+    ];
+
+    await apiInstance.sendTransacEmail(sendSmtpEmail);
+    return true;
+  } catch (error) {
+    console.error("Error in generate and send report:", error);
+    throw new Error("Failed to generate and send report");
   }
 }
 
