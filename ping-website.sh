@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Set the URL of your website
-WEBSITE_URL="https://att-quotation.onrender.com/"
+WEBSITE_URL="https://att-quotation.onrender.com/api/v1/contract/automated/reports/r1"
 echo "URL: $WEBSITE_URL"
 
 # Ping the website

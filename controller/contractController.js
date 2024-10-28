@@ -628,6 +628,7 @@ const getArchive = async (req, res, next) => {
 };
 
 const genReport = async (req, res, next) => {
+  console.log("GenReport got triggered");
   try {
     const data = await Contract.find({})
       .populate("quoteInfo")
