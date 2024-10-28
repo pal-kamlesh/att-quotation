@@ -760,7 +760,10 @@ async function generateAndSendReport(data) {
       email: process.env.EA_EMAIL,
     };
 
-    sendSmtpEmail.to = [{ email: process.env.NO_REPLY_EMAIL }];
+    sendSmtpEmail.to = [
+      { email: process.env.NO_REPLY_EMAIL },
+      { email: process.env.OFFICE_EMAIL },
+    ];
 
     sendSmtpEmail.templateId = 9;
 
