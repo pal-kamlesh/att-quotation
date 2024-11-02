@@ -15,6 +15,7 @@ import {
   PageNotFound,
 } from "../src/pages/index.js";
 import Test from "./pages/Test.jsx";
+
 const AppRoutes = () => (
   <Routes>
     <Route path="/login" element={<Login />} />
@@ -25,7 +26,7 @@ const AppRoutes = () => (
       <Route path="contracts" element={<Contracts />} />
       <Route path="cards" element={<Cards />} />
       <Route path="user" element={<User />} />
-      <Route path="work-log">
+      <Route path="workLog">
         <Route index element={<WorkLogDash />} />
         <Route path=":id" element={<WorkLog />} />
       </Route>

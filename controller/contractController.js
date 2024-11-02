@@ -633,7 +633,43 @@ const genReport = async (req, res, next) => {
       .populate("quoteInfo")
       .populate("salesPerson")
       .populate("createdBy");
-    await generateAndSendReport(data);
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const totalQuotations = await Quotation.countDocuments();
+    const todayQuotations = await Quotation.countDocuments({
+      createdAt: { $gte: today },
+    });
+    const approveCount = await Quotation.countDocuments({ approved: true });
+    const approvePending = await Quotation.countDocuments({
+      approved: false,
+    });
+    const contractified = await Quotation.countDocuments({
+      contractified: true,
+    });
+    //contract
+    const totalContracts = await Contract.countDocuments();
+    const todayContracts = await Contract.countDocuments({
+      createdAt: { $gte: today },
+    });
+    const approvedCountContract = await Contract.countDocuments({
+      approved: true,
+    });
+    const approvePendingContract = await Contract.countDocuments({
+      approved: false,
+    });
+    const subdata = {
+      totalQuotations,
+      todayQuotations,
+      contractified,
+      approveCount,
+      approvePending,
+      totalContracts,
+      todayContracts,
+      approvePendingContract,
+      approvedCountContract,
+    };
+    await generateAndSendReport(data, subdata);
 
     // // Set response headers and send the file
     // res.setHeader(
@@ -743,7 +779,7 @@ export const sendEmailWithAttachment = async (attachmentUrl) => {
   }
 };
 
-async function generateAndSendReport(data) {
+async function generateAndSendReport(data, subdata) {
   try {
     const excelBuffer = await generateExcel(data);
     const base64File = excelBuffer.toString("base64");
@@ -762,8 +798,9 @@ async function generateAndSendReport(data) {
 
     sendSmtpEmail.to = [
       { email: process.env.NO_REPLY_EMAIL },
-      { email: process.env.OFFICE_EMAIL },
+      //{ email: process.env.OFFICE_EMAIL },
     ];
+    sendSmtpEmail.params = subdata;
 
     sendSmtpEmail.templateId = 9;
 
@@ -777,7 +814,6 @@ async function generateAndSendReport(data) {
     ];
 
     await apiInstance.sendTransacEmail(sendSmtpEmail);
-    return true;
   } catch (error) {
     console.error("Error in generate and send report:", error);
     throw new Error("Failed to generate and send report");
