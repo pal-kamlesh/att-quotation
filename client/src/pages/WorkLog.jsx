@@ -58,7 +58,7 @@ function WorkLog() {
             activeForm === "worklog" ? "bg-blue-600 text-white" : null
           }`}
         >
-          Add Worklog
+          Make Worklog
         </Button>
       </div>
       {activeForm === "dc" && (

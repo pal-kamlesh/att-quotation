@@ -44,7 +44,7 @@ const Test = () => {
             </div>
             <div className="col-span-6 flex flex-col justify-center items-start pl-6">
               <p className="font-semibold text-lg text-gray-800 mb-1">
-                "Project Detail"
+                &rdquo;Project Detail&rdquo;
               </p>
               <p className="font-semibold text-md text-gray-900">
                 Oberoi Realty Project

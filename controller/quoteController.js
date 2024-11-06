@@ -116,7 +116,7 @@ const quotes = async (req, res, next) => {
     if (req.query.fromDate && req.query.toDate) {
       query.quotationDate = {
         $gte: startOfDay,
-        $lte: endOfDay,
+        $lt: endOfDay,
       };
     } else if (req.query.fromDate) {
       query.quotationDate = {
@@ -124,7 +124,7 @@ const quotes = async (req, res, next) => {
       };
     } else if (req.query.toDate) {
       query.quotationDate = {
-        $lte: endOfDay,
+        $lt: endOfDay,
       };
     }
 

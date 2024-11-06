@@ -12,9 +12,8 @@ import {
   remove_IdFromObj,
   createContractArchiveEntry,
 } from "../utils/functions.js";
-import fs from "fs";
-import ExcelJS from "exceljs";
 import brevo from "@getbrevo/brevo";
+import { createExcelBuilder as excelBuilder } from "../utils/functions.js";
 
 const create = async (req, res, next) => {
   try {
@@ -629,47 +628,87 @@ const getArchive = async (req, res, next) => {
 
 const genReport = async (req, res, next) => {
   try {
-    const data = await Quotation.find({})
+    const today = new Date();
+    const dayOfWeek = today.getUTCDay();
+
+    // Set the time to IST by adding 5.5 hours (19800000 milliseconds)
+    const istOffset = 19800000;
+    const lastMonday = new Date(today.getTime() + istOffset);
+
+    // Adjust to the last Monday
+    lastMonday.setUTCDate(
+      today.getUTCDate() - (dayOfWeek === 2 ? 7 : (dayOfWeek + 5) % 7)
+    );
+    lastMonday.setUTCHours(0, 0, 0, 0);
+
+    // Adjust for IST
+    lastMonday.setTime(lastMonday.getTime() - istOffset);
+
+    const endOfWeek = new Date(lastMonday);
+    endOfWeek.setUTCDate(lastMonday.getUTCDate() + 7);
+    endOfWeek.setUTCHours(0, 0, 0, 0);
+
+    // Query the database for documents within the date range
+    const weeklyDataQuote = await Quotation.find({
+      quotationDate: { $gte: lastMonday, $lt: endOfWeek },
+    })
       .populate("quoteInfo")
       .populate("salesPerson")
-      .populate("createdBy");
+      .populate("createdBy")
+      .lean();
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const totalQuotations = await Quotation.countDocuments();
-    const todayQuotations = await Quotation.countDocuments({
-      createdAt: { $gte: today },
+    const weeklyDataContract = await Contract.find({
+      contractDate: { $gte: lastMonday, $lt: endOfWeek },
+    })
+      .populate("quoteInfo")
+      .populate("salesPerson")
+      .populate("createdBy")
+      .lean();
+
+    const totalQuotations = await Quotation.countDocuments({
+      quotationDate: { $gte: lastMonday, $lt: endOfWeek },
     });
-    const approveCount = await Quotation.countDocuments({ approved: true });
+
+    const approveCount = await Quotation.countDocuments({
+      quotationDate: { $gte: lastMonday, $lt: endOfWeek },
+      approved: true,
+    });
     const approvePending = await Quotation.countDocuments({
+      quotationDate: { $gte: lastMonday, $lt: endOfWeek },
       approved: false,
     });
     const contractified = await Quotation.countDocuments({
+      quotationDate: { $gte: lastMonday, $lt: endOfWeek },
       contractified: true,
     });
     //contract
-    const totalContracts = await Contract.countDocuments();
-    const todayContracts = await Contract.countDocuments({
-      createdAt: { $gte: today },
+    const totalContracts = await Contract.countDocuments({
+      contractDate: { $gte: lastMonday, $lt: endOfWeek },
     });
     const approvedCountContract = await Contract.countDocuments({
+      contractDate: { $gte: lastMonday, $lt: endOfWeek },
       approved: true,
     });
     const approvePendingContract = await Contract.countDocuments({
+      contractDate: { $gte: lastMonday, $lt: endOfWeek },
       approved: false,
     });
     const subdata = {
       totalQuotations,
-      todayQuotations,
       contractified,
       approveCount,
       approvePending,
       totalContracts,
-      todayContracts,
-      approvePendingContract,
       approvedCountContract,
+      approvePendingContract,
+      fromDate: lastMonday.toLocaleDateString(),
+      toDate: endOfWeek.toLocaleDateString(),
     };
-    await generateAndSendReport(data, subdata);
+    await generateAndSendReport({
+      weeklyDataContract,
+      weeklyDataQuote,
+      subdata,
+    });
 
     // // Set response headers and send the file
     // res.setHeader(
@@ -686,102 +725,19 @@ const genReport = async (req, res, next) => {
   }
 };
 
-async function generateExcel(data) {
+async function generateAndSendReport(data) {
+  const { weeklyDataContract, weeklyDataQuote, subdata } = data;
   try {
-    // Create a new workbook and a worksheet
-    const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet("Contracts");
-    // Add header row
-    worksheet.columns = [
-      { header: "REP", key: "salesPerson", width: 15 },
-      { header: "Date", key: "quotationDate", width: 15 },
-      { header: "Contract No", key: "quotationNo", width: 15 },
-      { header: "Name of Client", key: "clientName", width: 30 },
-      { header: "Area", key: "area", width: 15 },
-      { header: "Amount", key: "amount", width: 15 },
-      { header: "Contact Nos", key: "contactNos", width: 15 },
-      { header: "Remark", key: "remark", width: 30 },
-    ];
+    let weeklyDataContractNew = weeklyDataContract.map((data) => ({
+      ...data,
+      type: "contract",
+    }));
+    const builder = excelBuilder();
+    const r1 = await builder(weeklyDataQuote); // Add weekly quote data
+    const rf = await r1(weeklyDataContractNew); // Add weekly contract data
+    const excelBuffer = await rf(); // Complete and get the buffer
 
-    // Add a row with the data
-    data.forEach((quotation) => {
-      const clientName = quotation.billToAddress.name;
-      const area =
-        quotation.quoteInfo.map((quote) => quote.workArea).join("& ") || "";
-      const amount =
-        quotation.quoteInfo
-          .map((quote) => {
-            return `${quote.serviceRate} ${quote.serviceRateUnit}- ${quote.chemical}`;
-          })
-          .join("& ") || "";
-      const contactNosBillTo =
-        quotation.billToAddress.kci
-          .map((kci) => `${kci.contact} (${kci.name})`)
-          .join(", ") || "";
-      const contactNosShipTo =
-        quotation.shipToAddress.kci
-          .map((kci) => `${kci.contact} (${kci.name})`)
-          .join(", ") || "";
-      const contactNos =
-        [contactNosBillTo, contactNosShipTo].filter(Boolean).join("& ") || "";
-      worksheet.addRow({
-        salesPerson: quotation.salesPerson.initials, // You may want to resolve this reference to a user name
-        quotationDate: quotation.quotationDate,
-        quotationNo: quotation.quotationNo || quotation._id,
-        clientName: clientName,
-        area: area,
-        amount: amount,
-        contactNos: contactNos,
-        remark: quotation.note || "", // Add your remark or leave it empty
-      });
-    });
-    // Write to file (or return the buffer as needed)
-    const buffer = await workbook.xlsx.writeBuffer();
-    return buffer;
-  } catch (error) {
-    console.error("Error encountered while generating Excel:", error);
-    throw error; // Optionally rethrow the error for handling upstream
-  }
-}
-
-export const sendEmailWithAttachment = async (attachmentUrl) => {
-  try {
-    let defaultClient = brevo.ApiClient.instance;
-    let apiKey = defaultClient.authentications["api-key"];
-    apiKey.apiKey = process.env.BREVO_KEY;
-
-    let apiInstance = new brevo.TransactionalEmailsApi();
-    let sendSmtpEmail = new brevo.SendSmtpEmail();
-
-    sendSmtpEmail.sender = {
-      name: "EPCORN",
-      email: process.env.NO_REPLY_EMAIL,
-      //email: process.env.EA_EMAIL,
-    };
-    sendSmtpEmail.to = [
-      { email: process.env.STQ_EMAIL },
-      //{ email: process.env.EA_EMAIL },
-      //{ email: process.env.NO_REPLY_EMAIL },
-      { email: process.env.SALES_EMAIL },
-      // { email: process.env.COLLEGE_EMAIL },
-    ];
-    sendSmtpEmail.templateId = 9;
-    sendSmtpEmail.attachment = [
-      { url: attachmentUrl, name: "Registration of IPM Smark Course.xlsx" },
-    ];
-
-    await apiInstance.sendTransacEmail(sendSmtpEmail);
-
-    return true; // Email sent successfully
-  } catch (error) {
-    console.error("Error sending email:", error);
-    throw new Error("Failed to send transactional email");
-  }
-};
-
-async function generateAndSendReport(data, subdata) {
-  try {
-    const excelBuffer = await generateExcel(data);
+    //const excelBuffer = await generateExcel(data);
     const base64File = excelBuffer.toString("base64");
 
     // Set up Brevo client
@@ -808,7 +764,7 @@ async function generateAndSendReport(data, subdata) {
     sendSmtpEmail.attachment = [
       {
         content: base64File,
-        name: "Contracts_Report.xlsx",
+        name: "Report.xlsx",
         type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       },
     ];

@@ -1,9 +1,10 @@
 import { unwrapResult } from "@reduxjs/toolkit";
 import { Button } from "flowbite-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { getWorklogs } from "../redux/contract/contractSlice";
 import { WorklogForm, CustomModal } from "../components/index.js";
+import { toPng } from "html-to-image";
 
 // eslint-disable-next-line react/prop-types
 function PrintWorkLogs({ id, quoteInfo }) {
@@ -12,6 +13,7 @@ function PrintWorkLogs({ id, quoteInfo }) {
   const [detailModel, setDetailModel] = useState(false);
   const [selectedLog, setSelectedLog] = useState(null); // State for selected worklog
   const dispatch = useDispatch();
+  const componentRef = useRef(null);
 
   useEffect(() => {
     //fetch workLogs
@@ -28,10 +30,23 @@ function PrintWorkLogs({ id, quoteInfo }) {
     setDetailModel(true);
   };
 
+  const saveAsPng = () => {
+    if (componentRef.current) {
+      toPng(componentRef.current, { backgroundColor: "white" })
+        .then((dataUrl) => {
+          const link = document.createElement("a");
+          link.href = dataUrl;
+          link.download = "component.png";
+          link.click();
+        })
+        .catch((error) => console.error("Error capturing component:", error));
+    }
+  };
+
   return (
     <div className="max-w-[1400px] mx-auto p-4">
       <h4 className="text-lg font-semibold mb-4">Worklogs</h4>
-      <Button onClick={() => setForm(true)}>Make Worklog</Button>
+      <Button onClick={() => setForm(true)}>Add New</Button>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
         {workLogs?.map((log) => (
           <div
@@ -58,16 +73,19 @@ function PrintWorkLogs({ id, quoteInfo }) {
         bg="bg-teal-50"
       >
         {selectedLog && (
-          <div>
-            <p className="font-semibold">{selectedLog.workAreaType}</p>
-            <p>Chemical: {selectedLog.chemical}</p>
-            <p>Quantity: {selectedLog.chemicalUsed}</p>
-            <p>
-              Area Treated: {selectedLog.areaTreated}{" "}
-              {selectedLog.areaTreatedUnit}
-            </p>
-            {selectedLog.remark && <p>Remark: {selectedLog.remark}</p>}
-          </div>
+          <>
+            <div ref={componentRef}>
+              <p className="font-semibold">{selectedLog.workAreaType}</p>
+              <p>Chemical: {selectedLog.chemical}</p>
+              <p>Quantity: {selectedLog.chemicalUsed}</p>
+              <p>
+                Area Treated: {selectedLog.areaTreated}{" "}
+                {selectedLog.areaTreatedUnit}
+              </p>
+              {selectedLog.remark && <p>Remark: {selectedLog.remark}</p>}
+            </div>
+            <Button onClick={saveAsPng}>Download</Button>
+          </>
         )}
       </CustomModal>
       <CustomModal

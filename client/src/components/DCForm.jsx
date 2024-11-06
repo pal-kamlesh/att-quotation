@@ -48,6 +48,7 @@ function DCForm({ id, quoteInfo, setDCs, onClose }) {
       (obj) => obj.chemical === dcObj.chemical
     );
     setBatchNos(selectChemical?.batchNos);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dcObj.chemical]);
 
   async function handleSubmit() {
@@ -104,17 +105,6 @@ function DCForm({ id, quoteInfo, setDCs, onClose }) {
           </Select>
         </div>
         <div>
-          <Label htmlFor="chemicalqty" value="Quantity" />
-          <TextInput
-            id="chemicalqty"
-            name="chemicalqty"
-            placeholder="Enter quantity"
-            value={dcObj.chemicalqty}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
-        <div>
           <Label htmlFor="packaging" value="Packaging" />
           <Select
             id="packaging"
@@ -131,6 +121,17 @@ function DCForm({ id, quoteInfo, setDCs, onClose }) {
             <option>5 Liters</option>
             <option>20 Liters</option>
           </Select>
+        </div>
+        <div>
+          <Label htmlFor="chemicalqty" value="Quantity" />
+          <TextInput
+            id="chemicalqty"
+            name="chemicalqty"
+            placeholder="Enter quantity"
+            value={dcObj.chemicalqty}
+            onChange={handleInputChange}
+            required
+          />
         </div>
         <Button
           type="button"

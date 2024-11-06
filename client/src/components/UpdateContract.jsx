@@ -137,6 +137,7 @@ function UpdateContract({ onClose, activeId }) {
 
     const updatedContractNo = parts.join("/");
     setContract((prev) => ({ ...prev, contractNo: updatedContractNo }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [contract?.os, contract?.contractNo]);
 
   function handleContractChange(e) {

@@ -1,9 +1,11 @@
 import { unwrapResult } from "@reduxjs/toolkit";
 import { Button } from "flowbite-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { getdcs } from "../redux/contract/contractSlice";
 import { CustomModal, DCForm } from "../components/index.js";
+import { toPng } from "html-to-image";
+
 // eslint-disable-next-line react/prop-types
 function PrintDC({ id, quoteInfo }) {
   const [dcs, setDCs] = useState([]);
@@ -11,6 +13,8 @@ function PrintDC({ id, quoteInfo }) {
   const [detailModel, setDetailModel] = useState(false);
   const [selectedDc, setSelectedDc] = useState(null);
   const dispatch = useDispatch();
+  const componentRef = useRef(null);
+
   useEffect(() => {
     //fetch workLogs
     async function fetch() {
@@ -24,10 +28,24 @@ function PrintDC({ id, quoteInfo }) {
     setSelectedDc(log);
     setDetailModel(true);
   };
+
+  const saveAsPng = () => {
+    if (componentRef.current) {
+      toPng(componentRef.current, { backgroundColor: "white" })
+        .then((dataUrl) => {
+          const link = document.createElement("a");
+          link.href = dataUrl;
+          link.download = "component.png";
+          link.click();
+        })
+        .catch((error) => console.error("Error capturing component:", error));
+    }
+  };
+
   return (
-    <div className=" max-w-[1400px] mx-auto  ">
-      <h4 className="text-lg font-semibold mb-2">DC s</h4>
-      <Button onClick={() => setForm(true)}>Make DC</Button>
+    <div className=" max-w-[1400px] mx-auto p-4 ">
+      <h4 className="text-lg font-semibold mb-2">DC (Delivery Chalan)</h4>
+      <Button onClick={() => setForm(true)}>Add New</Button>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
         {dcs?.map((log) => (
           <div
@@ -54,23 +72,29 @@ function PrintDC({ id, quoteInfo }) {
         bg="bg-teal-50"
       >
         {selectedDc && (
-          <div className="flex flex-col p-4 bg-gray-100 rounded-lg col-span-3">
-            <div className="mb-2">
-              <p className="font-semibold">{selectedDc.workAreaType}</p>
-              <p>Chemical: {selectedDc.chemical}</p>
-              <p>Batch Number: {selectedDc.batchNumber}</p>
-              <p>Quantity: {selectedDc.chemicalqty}</p>
-              <p>Packaging: {selectedDc.packaging}</p>
+          <>
+            <div
+              ref={componentRef}
+              className="flex flex-col p-4 bg-gray-100 rounded-lg col-span-3"
+            >
+              <div className="mb-2">
+                <p className="font-semibold">{selectedDc.workAreaType}</p>
+                <p>Chemical: {selectedDc.chemical}</p>
+                <p>Batch Number: {selectedDc.batchNumber}</p>
+                <p>Quantity: {selectedDc.chemicalqty}</p>
+                <p>Packaging: {selectedDc.packaging}</p>
 
-              {selectedDc.remark && <p>Remark: {selectedDc.remark}</p>}
-            </div>
-            <div className="flex justify-between">
-              {/* <Button size="sm">Edit</Button>
+                {selectedDc.remark && <p>Remark: {selectedDc.remark}</p>}
+              </div>
+              <div className="flex justify-between">
+                {/* <Button size="sm">Edit</Button>
             <Button size="sm" color="failure">
               Delete
             </Button> */}
+              </div>
             </div>
-          </div>
+            <Button onClick={saveAsPng}>Download</Button>
+          </>
         )}
       </CustomModal>
       <CustomModal

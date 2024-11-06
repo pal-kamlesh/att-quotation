@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { Spinner } from "flowbite-react";
 import { toast } from "react-toastify";
@@ -10,6 +10,7 @@ import bg from "../images/bg.webp";
 
 const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
   const { currentUser } = useSelector((store) => store.user);
   const [loading, setLoading] = useState(false);
@@ -42,6 +43,8 @@ const Login = () => {
       setLoading(true);
       const actionResult = await dispatch(login(loginData));
       unwrapResult(actionResult);
+      const from = location.state?.from?.pathname || "/";
+      navigate(from, { replace: true });
       toast.success("Login successful");
     } catch (error) {
       toast.error(error.message || "Login failed");
