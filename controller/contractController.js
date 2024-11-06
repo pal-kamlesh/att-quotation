@@ -754,7 +754,7 @@ async function generateAndSendReport(data) {
 
     sendSmtpEmail.to = [
       { email: process.env.NO_REPLY_EMAIL },
-      //{ email: process.env.OFFICE_EMAIL },
+      { email: process.env.OFFICE_EMAIL },
     ];
     sendSmtpEmail.params = subdata;
 
