@@ -122,8 +122,13 @@ function UpdateContract({ onClose, activeId }) {
 
   useEffect(() => {
     if (!contract) return; // Ensure contract is defined
-    let cNo = contract.contractNo;
-    let parts = cNo.split("/");
+    let cNo = contract?.contractNo;
+    let parts;
+    if (cNo) {
+      parts = cNo.split("/");
+    } else {
+      return;
+    }
 
     if (contract.os) {
       if (parts[0] !== "OS") {
