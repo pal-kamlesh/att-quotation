@@ -67,8 +67,9 @@ export const createDC = createAsyncThunk(
       const response = await fetch(`/api/v1/contract/${id}/dc/create`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(dcObj),
+        body: JSON.stringify({ dcObj }),
       });
+
       if (!response.ok) {
         const errorData = await response.json();
         return rejectWithValue(errorData);

@@ -220,12 +220,97 @@ export const makeContract = createAsyncThunk(
   }
 );
 
+export const createGroup = createAsyncThunk(
+  "group/create",
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await fetch(`/api/v1/quotation/group`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        return rejectWithValue(errorData);
+      }
+      const result = await response.json();
+      return result;
+    } catch (error) {
+      console.log(error);
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+export const getGroups = createAsyncThunk(
+  "group/getAll",
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await fetch(`/api/v1/quotation/group`);
+      if (!response.ok) {
+        const errorData = await response.json();
+        return rejectWithValue(errorData);
+      }
+      const result = await response.json();
+      return result;
+    } catch (error) {
+      console.log(error);
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+export const getGroup = createAsyncThunk(
+  "group/get",
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await fetch(`/api/v1/quotation/group/${data}`);
+      if (!response.ok) {
+        const errorData = await response.json();
+        return rejectWithValue(errorData);
+      }
+      const result = await response.json();
+      return result;
+    } catch (error) {
+      console.log(error);
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
 export const quoteSlice = createSlice({
   name: "quote",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
+      .addCase(createGroup.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(createGroup.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(createGroup.rejected, (state, { payload }) => {
+        state.loading = false;
+        toast.error(payload);
+      })
+      .addCase(getGroup.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(getGroup.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(getGroup.rejected, (state, { payload }) => {
+        state.loading = false;
+        toast.error(payload);
+      })
+      .addCase(getGroups.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(getGroups.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(getGroups.rejected, (state, { payload }) => {
+        state.loading = false;
+        toast.error(payload);
+      })
       .addCase(uploadFiles.pending, (state) => {
         state.loading = true;
         state.newTicket.modeDetails.email.emailCopy = "";

@@ -22,11 +22,13 @@ import {
   Select,
   Spinner,
   Table,
+  Textarea,
   TextInput,
 } from "flowbite-react";
 import { unwrapResult } from "@reduxjs/toolkit";
-import { CustomModal } from "../components/index.js";
+import { CustomModal, KCI } from "../components/index.js";
 import { toast } from "react-toastify";
+import { createGroup } from "../redux/quote/quoteSlice.js";
 
 const userInit = {
   username: "",
@@ -48,6 +50,7 @@ export default function User() {
   const dispatch = useDispatch();
   const [user, setUser] = useState(userInit);
   const [openModal, setOpenModal] = useState(false);
+  const [groupModal, setGroupModal] = useState(false);
   const [update, setUpdate] = useState(false);
   const [rights, setRights] = useState([]);
   const [chemicalModel, setChemicalModel] = useState(false);
@@ -59,6 +62,44 @@ export default function User() {
   });
   const [uploading, setUploading] = useState(false);
   const [chemicalList, setChemicalList] = useState([]);
+  const [name, setName] = useState("");
+  const [quote, setQuote] = useState({
+    kindAttention: "",
+    kindAttentionPrefix: "",
+    reference: "",
+    salePerson: "",
+    billToAddress: {
+      prefix: "",
+      name: "",
+      a1: "",
+      a2: "",
+      a3: "",
+      a4: "",
+      a5: "",
+      city: "",
+      pincode: "",
+      kci: [],
+    },
+    shipToAddress: {
+      projectName: "",
+      a1: "",
+      a2: "",
+      a3: "",
+      a4: "",
+      a5: "",
+      city: "",
+      pincode: "",
+      kci: [],
+    },
+    specification: "",
+    emailTo: "",
+    groupBy: "",
+    note: "",
+    quotationNo: "",
+    docType: "standard",
+    paymentTerms: "Within 15 days from the date of submission of bill.",
+    quoteInfo: [],
+  });
 
   function onCloseModal() {
     setOpenModal(false);
@@ -190,6 +231,48 @@ export default function User() {
       setUploading(false);
     }
   }
+  function handleQuoteChange(e) {
+    const { name, value } = e.target;
+    if (name === "kindAttentionPrefix" && value === "NA") {
+      setQuote((prev) => ({ ...prev, kindAttention: "NA", [name]: value }));
+      return;
+    }
+    setQuote((prev) => ({ ...prev, [name]: value }));
+  }
+  function handleAddress(e) {
+    const { name, value } = e.target;
+    const nameParts = name.split(".");
+
+    // Check if the input is for billToAddress or shipToAddress
+    const isForBillToAddress = nameParts[0] === "billToAddress";
+    const isForShipToAddress = nameParts[0] === "shipToAddress";
+
+    if (isForBillToAddress || isForShipToAddress) {
+      const addressType = isForBillToAddress
+        ? "billToAddress"
+        : "shipToAddress";
+      const fieldName = nameParts[1];
+
+      setQuote((prev) => ({
+        ...prev,
+        [addressType]: {
+          ...prev[addressType],
+          [fieldName]: value,
+        },
+      }));
+    } else {
+      setQuote((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
+  }
+  async function handleSubmit(e) {
+    e.preventDefault();
+    const actionResult = await dispatch(createGroup({ name, data: quote }));
+    const result = await unwrapResult(actionResult);
+    setGroupModal(false);
+  }
   return (
     <div className="max-w-7xl mx-auto ">
       <div className=" mt-3 h-full">
@@ -221,6 +304,14 @@ export default function User() {
               className="bg-[#FFFDB5] hover:bg-yellow-200 font-medium py-2 px-4 rounded mr-2"
             >
               New User
+            </button>
+          </div>
+          <div>
+            <button
+              onClick={() => setGroupModal(true)}
+              className="bg-[#FFFDB5] hover:bg-yellow-200 font-medium py-2 px-4 rounded mr-2"
+            >
+              Create Group
             </button>
           </div>
         </div>
@@ -556,6 +647,374 @@ export default function User() {
             </Button>
           </div>
         </div>
+      </CustomModal>
+
+      <CustomModal
+        isOpen={groupModal}
+        onClose={() => setGroupModal(!groupModal)}
+        size="7xl"
+        heading={
+          <div className="flex gap-3 items-center justify-center">
+            <span>Add/Delete Batch No</span>
+          </div>
+        }
+      >
+        <form className="">
+          <div className="flex items-center justify-evenly gap-4 mb-4 flex-wrap">
+            <div className="max-w-full grid grid-cols-6">
+              <div className="col-span-1">
+                <div className="mb-2 ">
+                  <Label htmlFor="kindAttentionPrefix">
+                    <span>Prefix</span>
+                    <span className=" text-red-500 text-xl">*</span>
+                  </Label>
+                </div>
+                <Select
+                  name="kindAttentionPrefix"
+                  value={quote.kindAttentionPrefix}
+                  onChange={handleQuoteChange}
+                >
+                  <option></option>
+                  <option value="Mr.">Mr.</option>
+                  <option value="Ms.">Ms.</option>
+                  <option value="NA">NA</option>
+                </Select>
+              </div>
+              <div className="col-span-5">
+                <div className="mb-2 block">
+                  <Label htmlFor="kindAttention">
+                    <span>Kind Attn: </span>
+                    <span className=" text-red-500">*</span>
+                  </Label>
+                </div>
+                <TextInput
+                  name="kindAttention"
+                  onChange={handleQuoteChange}
+                  value={quote.kindAttention}
+                />
+              </div>
+            </div>
+
+            <div className=" col-span-3 max-w-full">
+              <div className="mb-2 block">
+                <Label htmlFor="specification" value="Group Name">
+                  <span className="text-red-500 text-xl">*</span>
+                </Label>
+              </div>
+              <TextInput
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+            </div>
+
+            <div className=" col-span-3 max-w-full">
+              <div className="mb-2 block">
+                <Label htmlFor="specification" value="Specification">
+                  <span>Specification</span>
+                  <span className="text-red-500 text-xl">*</span>
+                </Label>
+              </div>
+              <Select
+                name="specification"
+                value={quote.specification}
+                onChange={handleQuoteChange}
+              >
+                <option></option>
+                <option>As per IS 6313 (Part 2):2013 & 2022</option>
+                <option>As per IS 6313 (Part 2):2013</option>
+              </Select>
+            </div>
+          </div>
+          <div className="flex items-center justify-center w-full">
+            <Button
+              outline
+              gradientMonochrome="cyan"
+              //onClick={() => duplicateBillToShipTo({ quote, setQuote })}
+            >
+              Copy BillTo/ShipTo
+            </Button>
+          </div>
+          <div className="grid grid-cols-8 gap-4 border mb-4 rounded-md">
+            <div className=" p-4 col-span-4">
+              <h2>Bill To Address</h2>
+              <div className="max-w-full grid grid-cols-6">
+                <div className="col-span-1">
+                  <div className="mb-2">
+                    <Label htmlFor="billToAddress.prefix" value="Prefix" />
+                    <span className="text-red-500 text-xl">*</span>
+                  </div>
+                  <Select name="billToAddress.prefix" onChange={handleAddress}>
+                    <option></option>
+                    <option value="M/s.">M/s.</option>
+                    <option value="Mr.">Mr.</option>
+                    <option value="Mrs.">Mrs.</option>
+                  </Select>
+                </div>
+                <div className=" col-span-5">
+                  <div className="mb-2">
+                    <Label htmlFor="billToAddress.name">
+                      <span>Name</span>
+                      <span className="text-red-500 text-xl">*</span>
+                    </Label>
+                  </div>
+                  <TextInput
+                    type="text"
+                    name="billToAddress.name"
+                    value={quote.billToAddress.name}
+                    onChange={handleAddress}
+                  />
+                </div>
+              </div>
+              <div className="max-w-full">
+                <div className="mb-2 block">
+                  <Label htmlFor="a1">
+                    <span>A1</span>
+                    <span className="text-red-500 text-xl">*</span>
+                  </Label>
+                </div>
+                <TextInput
+                  name="billToAddress.a1"
+                  onChange={handleAddress}
+                  value={quote.billToAddress.a1}
+                  placeholder="Building/Office name"
+                />
+              </div>
+              <div className="max-w-full">
+                <div className="mb-2 block">
+                  <Label htmlFor="a2">
+                    <span>A2</span>
+                    <span className="text-red-500 text-xl">*</span>
+                  </Label>
+                </div>
+                <TextInput
+                  name="billToAddress.a2"
+                  onChange={handleAddress}
+                  value={quote.billToAddress.a2}
+                  placeholder="Flat/Office No"
+                />
+              </div>
+              <div className="max-w-full">
+                <div className="mb-2 block">
+                  <Label htmlFor="a3">
+                    <span>A3</span>
+                    <span className="text-red-500 text-xl">*</span>
+                  </Label>
+                </div>
+                <TextInput
+                  name="billToAddress.a3"
+                  onChange={handleAddress}
+                  value={quote.billToAddress.a3}
+                  placeholder="Road/Lanename"
+                />
+              </div>
+              <div className="max-w-full">
+                <div className="mb-2 block">
+                  <Label htmlFor="a4">
+                    <span>A4</span>
+                    <span className="text-red-500 text-xl">*</span>
+                  </Label>
+                </div>
+                <TextInput
+                  name="billToAddress.a4"
+                  onChange={handleAddress}
+                  value={quote.billToAddress.a4}
+                  placeholder="Location"
+                />
+              </div>
+              <div className="max-w-full">
+                <div className="mb-2 block">
+                  <Label htmlFor="a5">
+                    <span>A5</span>
+                    <span className="text-red-500 text-xl">*</span>
+                  </Label>
+                </div>
+                <TextInput
+                  name="billToAddress.a5"
+                  onChange={handleAddress}
+                  value={quote.billToAddress.a5}
+                  placeholder="NearBy: Landmark"
+                />
+              </div>
+              <div className="max-w-full">
+                <div className="mb-2 block">
+                  <Label htmlFor="billToAddress.city">
+                    <span>City</span>
+                    <span className="text-red-500 text-xl">*</span>
+                  </Label>
+                </div>
+                <TextInput
+                  name="billToAddress.city"
+                  value={quote.billToAddress.city}
+                  onChange={handleAddress}
+                />
+              </div>
+              <div className="max-w-full">
+                <div className="mb-2 block">
+                  <Label htmlFor="billToAddress.pincode">
+                    <span>Pincode: </span>
+                    <span className="text-red-500 text-xl">*</span>
+                  </Label>
+                </div>
+                <TextInput
+                  name="billToAddress.pincode"
+                  onChange={handleAddress}
+                  value={quote.billToAddress.pincode}
+                />
+              </div>
+
+              <KCI
+                quote={quote}
+                setQuote={setQuote}
+                addressKey="billToAddress"
+              />
+            </div>
+            <div className="p-4 col-span-4">
+              <h2>Ship To Address</h2>
+              <div className="max-w-full">
+                <div className="mb-2 block">
+                  <Label htmlFor="shipToAddress.projectName">
+                    <span>Project Name</span>
+                    <span className="text-red-500 text-xl">*</span>
+                  </Label>
+                </div>
+                <TextInput
+                  name="shipToAddress.projectName"
+                  onChange={handleAddress}
+                  value={quote.shipToAddress.projectName}
+                  type="text"
+                />
+              </div>
+
+              <div className={`max-w-full `}>
+                <div className="mb-2 block">
+                  <Label htmlFor="shipToAddress.a1">
+                    <span>A1</span>
+                    <span className=" text-red-500 text-xl">*</span>
+                  </Label>
+                </div>
+                <TextInput
+                  name="shipToAddress.a1"
+                  onChange={handleAddress}
+                  value={quote.shipToAddress.a1}
+                  placeholder="Building/Office name"
+                />
+              </div>
+              <div className="max-w-full">
+                <div className="mb-2 block">
+                  <Label htmlFor="shipToAddress.a2">
+                    <span>A2</span>
+                  </Label>
+                </div>
+                <TextInput
+                  name="shipToAddress.a2"
+                  onChange={handleAddress}
+                  value={quote.shipToAddress.a2}
+                  placeholder="Flat/Office No"
+                />
+              </div>
+              <div className="max-w-full">
+                <div className="mb-2 block">
+                  <Label htmlFor="shipToAddress.a3">
+                    <span>A3</span>
+                  </Label>
+                </div>
+                <TextInput
+                  name="shipToAddress.a3"
+                  onChange={handleAddress}
+                  value={quote.shipToAddress.a3}
+                  placeholder="Road/Lanename"
+                />
+              </div>
+              <div className="max-w-full">
+                <div className="mb-2 block">
+                  <Label htmlFor="shipToAddress.a4">
+                    <span>A4</span>
+                    <span className="text-red-500 text-xl">*</span>
+                  </Label>
+                </div>
+                <TextInput
+                  name="shipToAddress.a4"
+                  onChange={handleAddress}
+                  value={quote.shipToAddress.a4}
+                  placeholder="Location"
+                />
+              </div>
+              <div className="max-w-full">
+                <div className="mb-2 block">
+                  <Label htmlFor="shipToAddress.a5">
+                    <span>A5</span>
+                  </Label>
+                </div>
+                <TextInput
+                  name="shipToAddress.a5"
+                  onChange={handleAddress}
+                  value={quote.shipToAddress.a5}
+                  placeholder="NearBy: Landmark"
+                />
+              </div>
+              <div className="max-w-full">
+                <div className="mb-2 block">
+                  <span>City</span>
+                  <span className="text-red-500 text-xl">*</span>
+                </div>
+                <TextInput
+                  name="shipToAddress.city"
+                  value={quote.shipToAddress.city}
+                  onChange={handleAddress}
+                />
+              </div>
+              <div className="max-w-full">
+                <div className="mb-2 block">
+                  <Label htmlFor="shipToAddress.pincode">
+                    <span>Pincode: </span>
+                    <span className="text-red-500 text-xl">*</span>
+                  </Label>
+                </div>
+                <TextInput
+                  name="shipToAddress.pincode"
+                  value={quote.shipToAddress.pincode}
+                  onChange={handleAddress}
+                />
+              </div>
+              <KCI
+                quote={quote}
+                setQuote={setQuote}
+                addressKey="shipToAddress"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-12 gap-4 mb-4">
+            <div className="col-span-4 gap-4 mb-4 border-1 border-gray-200 rounded-md">
+              <div className="max-w-full">
+                <div className="mb-2 block">
+                  <Label htmlFor="paymentTerms" className="grid grid-cols-12">
+                    <span className=" col-span-2">
+                      Payment Terms:
+                      <span className="text-red-500 text-xl">*</span>
+                    </span>
+                  </Label>
+                </div>
+                <TextInput
+                  name="paymentTerms"
+                  value={quote.paymentTerms}
+                  onChange={handleQuoteChange}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="col-span-1 mb-4">
+            <Label>Notes: </Label>
+            <Textarea
+              name="note"
+              onChange={handleQuoteChange}
+              value={quote.note}
+            />
+          </div>
+          <Button type="submit" onClick={handleSubmit}>
+            Submit
+          </Button>
+        </form>
       </CustomModal>
     </div>
   );

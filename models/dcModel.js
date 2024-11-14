@@ -2,22 +2,25 @@ import mongoose from "mongoose";
 
 const dcSchema = new mongoose.Schema(
   {
-    chemical: {
-      type: String,
-      required: true,
+    dcCount: {
+      type: Number,
     },
-    batchNumber: {
-      type: String,
-      required: true,
-    },
-    chemicalqty: {
-      type: String,
-      required: true,
-    },
-    packaging: {
-      type: String,
-      required: true,
-    },
+    dcObj: [
+      {
+        chemical: {
+          type: String,
+        },
+        batchNo: {
+          type: String,
+        },
+        chemicalqty: {
+          type: String,
+        },
+        packaging: {
+          type: String,
+        },
+      },
+    ],
     entryBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

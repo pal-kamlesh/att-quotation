@@ -9,7 +9,7 @@ import {
 } from "flowbite-react";
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { createQuote } from "../redux/quote/quoteSlice";
+import { createQuote, getGroup, getGroups } from "../redux/quote/quoteSlice";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
 import {
@@ -57,6 +57,7 @@ const getInitialQuoteState = () => {
     },
     specification: "",
     emailTo: "",
+    groupBy: "",
     note: "",
     quotationNo: "",
     docType: "standard",
@@ -76,7 +77,8 @@ function NewQuote({ onClose }) {
   const { initials } = useSelector((state) => state.user);
   const [subPaymentTerm, setSubPaymentTerm] = useState("");
   const [error, setError] = useState("");
-
+  const [groups, setGroups] = useState([]);
+  const [selectedGroup, setSelectedGroup] = useState(null);
   // Load data from local storage on component mount
   useEffect(() => {
     const savedData = localStorage.getItem("newQuote");
@@ -85,6 +87,25 @@ function NewQuote({ onClose }) {
       setQuote(quote);
     }
   }, []);
+  useEffect(() => {
+    async function fetchGroups() {
+      const actionResult = await dispatch(getGroups());
+      const result = unwrapResult(actionResult);
+      setGroups(result.groups);
+    }
+    fetchGroups();
+  }, [dispatch]);
+  useEffect(() => {
+    async function fetchGroups() {
+      const actionResult = await dispatch(getGroup(selectedGroup));
+      const result = unwrapResult(actionResult);
+      setQuote(() => result.group.data);
+      setQuote((prev) => ({ ...prev, groupBy: result.group._id }));
+    }
+    if (selectedGroup) {
+      fetchGroups();
+    }
+  }, [selectedGroup]);
   // Save data to local storage whenever quote or infoArray changes
   useEffect(() => {
     localStorage.setItem("newQuote", JSON.stringify({ quote }));
@@ -107,6 +128,8 @@ function NewQuote({ onClose }) {
   }, [doc, quote?.quoteInfo.length]);
   function handleQuoteChange(e) {
     const { name, value } = e.target;
+    console.log(`Name: ${name} Value: ${value}`);
+    console.log(`groupBy: ${quote.groupBy}`);
     if (name === "kindAttentionPrefix" && value === "NA") {
       setQuote((prev) => ({ ...prev, kindAttention: "NA", [name]: value }));
       return;
@@ -354,7 +377,29 @@ function NewQuote({ onClose }) {
               <option>As per IS 6313 (Part 2):2013</option>
             </Select>
           </div>
-          <div className="col-span-5">
+          <div className="">
+            <div className="mb-2 block">
+              <Label htmlFor="groupBy" value="Group By"></Label>
+            </div>
+            <Select
+              name="groupBy"
+              value={selectedGroup?._id}
+              onChange={(e) => [setSelectedGroup(e.target.value)]}
+              className={`${
+                error === "groupBy"
+                  ? "border border-red-500 rounded-lg bg-red-300 "
+                  : null
+              }`}
+            >
+              <option></option>
+              {groups?.map((group) => (
+                <option key={group._id} value={group._id}>
+                  {group.name}
+                </option>
+              ))}
+            </Select>
+          </div>
+          {/* <div className="col-span-5">
             <div className="mb-2 block">
               <Label htmlFor="emailTo">
                 <span>Email To: </span>
@@ -371,7 +416,7 @@ function NewQuote({ onClose }) {
                   : null
               }`}
             />
-          </div>
+          </div> */}
         </div>
         <div className="flex items-center justify-center w-full">
           <Button

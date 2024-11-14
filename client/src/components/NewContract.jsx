@@ -22,6 +22,7 @@ import {
   InputSupplyApplyAdv,
   CustomModal,
 } from "./index.js";
+import { getGroup, getGroups } from "../redux/quote/quoteSlice.js";
 
 const getInitialContractState = () => {
   const savedData = localStorage.getItem("newContract");
@@ -63,6 +64,7 @@ const getInitialContractState = () => {
     workOrderDate: "",
     gstNo: "",
     paymentTerms: "",
+    groupBy: "",
   };
 };
 // eslint-disable-next-line react/prop-types
@@ -76,12 +78,35 @@ function NewContract({ onClose }) {
   const [subPaymentTerm, setSubPaymentTerm] = useState("");
   const dispatch = useDispatch();
   const { initials } = useSelector((state) => state.user);
+  const [groups, setGroups] = useState([]);
+  const [selectedGroup, setSelectedGroup] = useState(null);
 
   // Save data to local storage whenever contract or infoArray changes
   useEffect(() => {
     localStorage.setItem("newContract", JSON.stringify({ contract }));
   }, [contract]);
 
+  useEffect(() => {
+    async function fetchGroups() {
+      const actionResult = await dispatch(getGroups());
+      const result = unwrapResult(actionResult);
+      setGroups(result.groups);
+    }
+    fetchGroups();
+  }, [dispatch]);
+
+  useEffect(() => {
+    async function fetchGroups() {
+      const actionResult = await dispatch(getGroup(selectedGroup));
+      const result = unwrapResult(actionResult);
+      setContract(() => result.group.data);
+      setContract((prev) => ({ ...prev, groupBy: result.group._id }));
+    }
+    if (selectedGroup) {
+      fetchGroups();
+    }
+  }, [selectedGroup]);
+  console.log(contract);
   function handleDocType(e) {
     if (contract.quoteInfo.length <= 0) {
       const { value } = e.target;
@@ -266,6 +291,26 @@ function NewContract({ onClose }) {
               />
               <Label htmlFor="os">OS</Label>
             </div>
+          </div>
+          <div className="">
+            <div className="mb-2 block">
+              <Label htmlFor="groupBy" value="Group By"></Label>
+            </div>
+            <Select
+              name="groupBy"
+              value={selectedGroup?._id}
+              onChange={(e) => [
+                setSelectedGroup(e.target.value),
+                handleQuoteChange(e),
+              ]}
+            >
+              <option></option>
+              {groups?.map((group) => (
+                <option key={group._id} value={group._id}>
+                  {group.name}
+                </option>
+              ))}
+            </Select>
           </div>
         </div>
         <div className="flex items-center justify-center w-full">

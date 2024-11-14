@@ -6,6 +6,7 @@ import {
   differenceBetweenArrays,
   createQuoteArchiveEntry,
 } from "../utils/functions.js";
+import { Groups } from "../models/counterModel.js";
 
 const create = async (req, res, next) => {
   try {
@@ -24,6 +25,7 @@ const create = async (req, res, next) => {
       docType,
       emailTo,
       paymentTerms,
+      groupBy,
     } = quote;
     const { projectName } = shipToAddress;
     if (!projectName || !specification) {
@@ -58,6 +60,7 @@ const create = async (req, res, next) => {
       emailTo,
       docType,
       paymentTerms,
+      groupBy,
     });
 
     const populatedQuotation = await newQuotation.populate(
@@ -393,6 +396,57 @@ const similarProjects = async (req, res, next) => {
     next(error);
   }
 };
+const createGroup = async (req, res, next) => {
+  try {
+    const { name, data } = req.body;
+    if (!name) {
+      return res.status(200).json({ message: "Group Name is required" });
+    }
+    const newGroup = await Groups.create({ name, data });
+    res.status(200).json({ message: "Group Created", group: newGroup });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getAllGroup = async (req, res, next) => {
+  try {
+    // Fetch all groups, selecting only the "name" field
+    const groups = await Groups.find({}, "name"); // The second argument specifies the fields to return
+
+    // Check if any groups exist
+    if (groups.length === 0) {
+      return res.status(404).json({ message: "No groups found" });
+    }
+
+    res.status(200).json({ message: "Group retrieved successfully", groups });
+  } catch (error) {
+    next(error); // Pass errors to the next error-handling middleware
+  }
+};
+
+const getGroupData = async (req, res, next) => {
+  try {
+    const { groupId } = req.params;
+    let group;
+    if (groupId) {
+      group = await Groups.findById(groupId);
+    } else {
+      return res
+        .status(400)
+        .json({ message: "Either groupId or groupName must be provided" });
+    }
+
+    if (!group) {
+      return res.status(404).json({ message: "Group not found" });
+    }
+    res
+      .status(200)
+      .json({ message: "Group data retrieved successfully", group });
+  } catch (error) {
+    next(error);
+  }
+};
 
 export {
   create,
@@ -403,4 +457,7 @@ export {
   approving,
   getArchive,
   similarProjects,
+  createGroup,
+  getAllGroup,
+  getGroupData,
 };

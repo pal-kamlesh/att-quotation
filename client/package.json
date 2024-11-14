@@ -14,7 +14,7 @@
     "docx": "^8.5.0",
     "file-saver": "^2.0.5",
     "flowbite-react": "^0.7.5",
-    "html-to-image": "^1.11.11",
+    "html2canvas": "^1.4.1",
     "lodash.debounce": "^4.0.8",
     "nanoid": "^5.0.7",
     "qrcode": "^1.5.4",

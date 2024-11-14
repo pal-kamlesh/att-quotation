@@ -28,6 +28,7 @@ import { getDotColor } from "../funtions/funtion.js";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { useNavigate } from "react-router-dom";
 import debounce from "lodash.debounce";
+import Test from "./Test.jsx";
 
 function Contracts() {
   const {
@@ -43,6 +44,7 @@ function Contracts() {
   const [activeId, setActiveId] = useState("");
   const [pending, setPending] = useState(false);
   const [archiveModel, setArchiveModel] = useState(false);
+  const [warModel, setWarModel] = useState(false);
   const [contractNo, setContractNo] = useState(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -257,6 +259,14 @@ function Contracts() {
                               History
                             </Button>
                           ) : null}
+                          <Button
+                            onClick={() => [
+                              setWarModel(true),
+                              setActiveId(contract._id),
+                            ]}
+                          >
+                            Warrenty
+                          </Button>
                           <PopUpContract
                             id={contract._id}
                             setActiveId={setActiveId}
@@ -337,6 +347,19 @@ function Contracts() {
           contractId={activeId}
           onClose={() => [setArchiveModel(!archiveModel)]}
         />
+      </CustomModal>
+
+      <CustomModal
+        isOpen={warModel}
+        onClose={() => [setWarModel(!warModel)]}
+        size="7xl"
+        heading={
+          <div className="flex items-center justify-center">
+            <span>View/Edit</span>
+          </div>
+        }
+      >
+        <Test id={activeId} />
       </CustomModal>
     </div>
   );

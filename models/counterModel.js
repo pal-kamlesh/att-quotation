@@ -13,7 +13,19 @@ const chemicalAndBatch = new mongoose.Schema({
   batchNos: [String],
 });
 
+const groupSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+  },
+  data: {
+    type: Object,
+    default: {},
+  },
+});
+
+const Groups = mongoose.model("Groups", groupSchema);
 const Counter = mongoose.model("Counter", counterSchema);
 const ChemicalBatchNos = mongoose.model("ChemicalBatchNos", chemicalAndBatch);
 
-export { Counter, ChemicalBatchNos };
+export { Counter, ChemicalBatchNos, Groups };

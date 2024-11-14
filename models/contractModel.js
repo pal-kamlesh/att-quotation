@@ -119,6 +119,7 @@ const contractSchema = mongoose.Schema(
     note: {
       type: String,
     },
+    warranty: { type: mongoose.Schema.ObjectId, ref: "Warranty" },
   },
   { timestamps: true }
 );

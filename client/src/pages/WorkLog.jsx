@@ -62,10 +62,10 @@ function WorkLog() {
         </Button>
       </div>
       {activeForm === "dc" && (
-        <PrintDC id={contract?._id} quoteInfo={contract?.quoteInfo} />
+        <PrintDC id={contract?._id} contract={contract} />
       )}
       {activeForm === "worklog" && (
-        <PrintWorkLogs id={contract?._id} quoteInfo={contract?.quoteInfo} />
+        <PrintWorkLogs id={contract?._id} contract={contract} />
       )}
     </div>
   );

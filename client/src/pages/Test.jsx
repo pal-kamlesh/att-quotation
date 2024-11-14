@@ -1,10 +1,39 @@
 import { Button } from "flowbite-react";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useDispatch } from "react-redux";
 import { useReactToPrint } from "react-to-print";
+import { getSingleContract } from "../redux/contract/contractSlice";
+import { unwrapResult } from "@reduxjs/toolkit";
 
-const Test = () => {
-  const componentRef = useRef();
+const Test = ({ id }) => {
+  const dispatch = useDispatch();
+  const [contract, setContract] = useState({});
+  const componentRef = useRef(null);
+  const [warranty, setWarranty] = useState({
+    warrantyPeriod: {
+      from: "",
+      to: "",
+    },
+    warrantyDetails: [],
+  });
+  const [workArea, setWorkArea] = useState();
 
+  useEffect(() => {
+    async function fn() {
+      const actionResult = await dispatch(getSingleContract(id));
+      const result = unwrapResult(actionResult);
+      setContract(result.result);
+    }
+    if (id) {
+      fn();
+    }
+  }, [dispatch, id]);
+  console.log(contract);
+  useEffect(() => {
+    if (contract) {
+      setWorkArea(contract.quoteInfo);
+    }
+  });
   const handlePrint = useReactToPrint({
     content: () => componentRef.current,
     onAfterPrint: async () => {
@@ -23,7 +52,9 @@ const Test = () => {
         <div className="border border-gray-400 p-6 bg-white shadow-md rounded-md">
           <p className="flex justify-end mb-4 text-gray-700">
             <span className="font-semibold">Warranty Number:</span>
-            <span className="ml-2 text-lg">PRE/71/2024/SW/123</span>
+            <span className="ml-2 text-lg">
+              {contract?.warranty?.warrantyNo}
+            </span>
           </p>
           <h1 className="text-2xl font-extrabold text-center text-gray-800 mb-6">
             Pre-Construction Anti-Termite Treatment Service Warranty
@@ -34,24 +65,33 @@ const Test = () => {
           </p>
           <div className="grid grid-cols-12 border-b pb-6 mb-6">
             <div className="col-span-6 border-r pr-6">
-              <p className="font-semibold text-lg text-gray-800 mb-1">To,</p>
-              <p className="font-semibold text-md text-gray-900">
-                M/s. L&T Constructions
+              <p className="font-bold">To,</p>
+              <p>
+                {`${contract?.billToAddress?.prefix} ${contract?.billToAddress?.name}`}
               </p>
-              <p>Oberoi Realty Project, Pokharn Road No. 2</p>
-              <p>Thane (W) - 400604</p>
-              <p>Near Gandhi Nagar Bus Stop & Unnathi Gardens.</p>
+              <p>{`${contract?.billToAddress?.a1} ${contract?.billToAddress?.a2},`}</p>
+              <p>{`${contract?.billToAddress?.a3},`}</p>
+              <p>{`${contract?.billToAddress?.a4},`}</p>
+              <p>{`${contract?.billToAddress?.city} - ${contract?.billToAddress?.pincode},`}</p>
+              <p>{`${contract?.billToAddress?.a5}.`}</p>
             </div>
+
             <div className="col-span-6 flex flex-col justify-center items-start pl-6">
               <p className="font-semibold text-lg text-gray-800 mb-1">
                 &rdquo;Project Detail&rdquo;
               </p>
-              <p className="font-semibold text-md text-gray-900">
-                Oberoi Realty Project
+              <p className="font-bold">
+                {contract?.shipToAddress?.projectName}
               </p>
-              <p>Oberoi Realty Project, Pokharn Road No. 2</p>
-              <p>Thane (W) - 400604</p>
-              <p>Near Gandhi Nagar Bus Stop & Unnathi Gardens.</p>
+              <p>{`${contract?.shipToAddress?.a1} ${contract?.shipToAddress?.a2},`}</p>
+              {contract?.shipToAddress?.a3 && (
+                <p>{`${contract?.shipToAddress?.a3},`}</p>
+              )}
+              <p>{`${contract?.shipToAddress?.a4},`}</p>
+              <p>{`${contract?.shipToAddress?.city} - ${contract?.shipToAddress?.pincode},`}</p>
+              {contract?.shipToAddress?.a5 && (
+                <p>{`${contract?.shipToAddress?.a5}.`}</p>
+              )}
             </div>
           </div>
           <div className="grid grid-cols-12 mb-6">
@@ -59,11 +99,25 @@ const Test = () => {
               <p className="font-semibold text-lg">
                 <span>*</span> Service Warranty Period:
               </p>
-              <p className="ml-2">From: 12/08/2024</p>
-              <p className="ml-2">Upto: 12/08/2034</p>
+              <p className="ml-2">
+                From: <input type="date" />
+              </p>
+              <p className="ml-2">
+                Upto: <input type="date" />
+              </p>
             </div>
-            <div className="col-span-6 flex justify-center items-center text-lg font-semibold">
-              <span>Chemical Name: Imidachloprid 30.5% SC</span>
+            <div className="col-span-6 flex justify-center items-center border border-black">
+              <div className="w-full border border-black">
+                <span className="text-lg font-semibold ">Chemical Name:</span>
+                {workArea?.map((info, idx) => (
+                  <span
+                    key={idx}
+                    className={`${idx === 0 ? "ml-1" : "ml-5"}font-semibold `}
+                  >
+                    {info.chemical}
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
           <p className="text-justify text-gray-700 leading-relaxed mb-6">
@@ -74,7 +128,7 @@ const Test = () => {
             Management Company.
           </p>
           <div className="mt-6 mb-6">
-            <table className="min-w-full border border-gray-500">
+            <table className="min-w-full border border-gray-500 table-fixed">
               <thead className="bg-gray-200">
                 <tr>
                   <th className="border border-gray-500 p-2 text-center font-semibold">
@@ -86,17 +140,27 @@ const Test = () => {
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td className="border border-gray-500 p-2 text-center">
-                    Basement
-                  </td>
-                  <td className="border border-gray-500 p-2 text-center">
-                    50 Sq.mts
-                  </td>
-                </tr>
+                {workArea?.map((info, idx) => (
+                  <tr key={idx} className="">
+                    <td className="border border-gray-500 p-2 text-center flex-1">
+                      {info?.workAreaType}
+                    </td>
+                    <td className="border border-gray-500 p-2 text-center flex-1">
+                      <div className=" inline">
+                        <input
+                          className="bg-gray-200 text-black border border-blue-400 w-[70px] rounded-md p-1 shadow-sm focus:outline-none focus:ring-transparent focus:ring-blue-300"
+                          placeholder="Enter value"
+                          value={info.workArea}
+                        />
+                        <span>{info.workAreaUnit}</span>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
+
           <p className="text-justify text-gray-700 leading-relaxed mb-6">
             <span className="ml-4 text-justify">Hereby</span> certified that the
             structure described in “Project Detail” has been treated against

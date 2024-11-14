@@ -2,9 +2,6 @@ import mongoose from "mongoose";
 
 const warrantySchema = mongoose.Schema(
   {
-    chemicalName: {
-      type: String,
-    },
     warrantyPeriod: {
       from: {
         type: Date,
@@ -13,9 +10,31 @@ const warrantySchema = mongoose.Schema(
         type: Date,
       },
     },
-    areaTreated: {},
-    structureType: {},
-    contractNo: {},
+    warrantyDetails: [
+      {
+        chemicalName: {
+          type: String,
+        },
+        areaTreated: {
+          area: {
+            type: String,
+          },
+          unit: {
+            type: String,
+          },
+        },
+        structureType: {
+          type: String,
+        },
+      },
+    ],
+    warrantyNo: {
+      type: String,
+    },
   },
   { timestamps: true }
 );
+
+const Warranty = mongoose.model("Warranty", warrantySchema);
+
+export default Warranty;

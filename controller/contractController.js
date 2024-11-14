@@ -2,6 +2,7 @@ import { isValidObjectId } from "mongoose";
 import {
   ChemicalBatchNos,
   Contract,
+  Counter,
   DC,
   Quotation,
   QuoteInfo,
@@ -14,6 +15,7 @@ import {
 } from "../utils/functions.js";
 import brevo from "@getbrevo/brevo";
 import { createExcelBuilder as excelBuilder } from "../utils/functions.js";
+import Warranty from "../models/warrantyModel.js";
 
 const create = async (req, res, next) => {
   try {
@@ -33,6 +35,7 @@ const create = async (req, res, next) => {
       workOrderDate,
       gstNo,
       paymentTerms,
+      groupBy,
     } = contract;
     let quoteInfoIds = [];
     for (let i = 0; i < quoteInfo.length; i++) {
@@ -54,6 +57,7 @@ const create = async (req, res, next) => {
       workOrderNo,
       gstNo,
       paymentTerms,
+      groupBy,
       quoteInfo: quoteInfoIds,
       createdBy: req.user.id,
     });
@@ -153,7 +157,6 @@ const contracts = async (req, res, next) => {
     next(error);
   }
 };
-
 const contractify = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -221,7 +224,6 @@ const contractify = async (req, res, next) => {
     next(error);
   }
 };
-
 const singleContract = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -379,6 +381,24 @@ const approve = async (req, res, next) => {
     next(error);
   }
 };
+const createWarrenty = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const contract = Contract.findById(id);
+    if (!contract) {
+      return res.status(404).json({ message: "No such contract" });
+    }
+    const warrantyCount = await manageWarrantyCounter();
+    const warranty = await Warranty.create({
+      ...req.body,
+      warrantyNo: `${contract.contentNo}/SW/${warrantyCount}`,
+    });
+    contract.warranty = warranty;
+    res.status(200).json({ message: "Warrenty Created!" });
+  } catch (error) {
+    next(error);
+  }
+};
 const printCount = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -469,13 +489,10 @@ const createDC = async (req, res, next) => {
     if (!contract) {
       return res.status(404).json({ message: "No such Contract" });
     }
-    const { chemical, batchNo, chemicalqty, packaging } = req.body;
-
+    const dcCount = await manageDcCounter();
     let dc = await DC.create({
-      chemical,
-      batchNumber: batchNo,
-      chemicalqty,
-      packaging,
+      dcCount,
+      dcObj: req.body.dcObj,
       entryBy: req.user.id,
     });
 
@@ -604,7 +621,6 @@ const deletedContract = async (req, res, next) => {
     next(error);
   }
 };
-
 const getArchive = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -625,30 +641,19 @@ const getArchive = async (req, res, next) => {
     next(error);
   }
 };
-
 const genReport = async (req, res, next) => {
   try {
     const today = new Date();
     const dayOfWeek = today.getUTCDay();
-
-    // Set the time to IST by adding 5.5 hours (19800000 milliseconds)
-    const istOffset = 19800000;
-    const lastMonday = new Date(today.getTime() + istOffset);
-
-    // Adjust to the last Monday
+    const lastMonday = new Date(today);
     lastMonday.setUTCDate(
-      today.getUTCDate() - (dayOfWeek === 2 ? 7 : (dayOfWeek + 5) % 7)
+      today.getUTCDate() - (dayOfWeek === 1 ? 7 : (dayOfWeek + 6) % 7)
     );
     lastMonday.setUTCHours(0, 0, 0, 0);
 
-    // Adjust for IST
-    lastMonday.setTime(lastMonday.getTime() - istOffset);
-
     const endOfWeek = new Date(lastMonday);
     endOfWeek.setUTCDate(lastMonday.getUTCDate() + 7);
-    endOfWeek.setUTCHours(0, 0, 0, 0);
 
-    // Query the database for documents within the date range
     const weeklyDataQuote = await Quotation.find({
       quotationDate: { $gte: lastMonday, $lt: endOfWeek },
     })
@@ -724,7 +729,6 @@ const genReport = async (req, res, next) => {
     next(error);
   }
 };
-
 async function generateAndSendReport(data) {
   const { weeklyDataContract, weeklyDataQuote, subdata } = data;
   try {
@@ -774,6 +778,36 @@ async function generateAndSendReport(data) {
     console.error("Error in generate and send report:", error);
     throw new Error("Failed to generate and send report");
   }
+}
+async function manageDcCounter() {
+  let dcCounter = await Counter.findById("dcCounter");
+  if (!dcCounter) {
+    dcCounter = await new Counter({ _id: "dcCounter", seq: 0 }).save();
+  }
+  // Increment the counter and get the new sequence number
+  dcCounter = await Counter.findByIdAndUpdate(
+    "dcCounter",
+    { $inc: { seq: 1 } },
+    { new: true }
+  );
+  return dcCounter.seq;
+}
+
+async function manageWarrantyCounter() {
+  let warrantyCounter = await Counter.findById("warrantyCounter");
+  if (!warrantyCounter) {
+    warrantyCounter = await new Counter({
+      _id: "warrantyCounter",
+      seq: 0,
+    }).save();
+  }
+  // Increment the counter and get the new sequence number
+  warrantyCounter = await Counter.findByIdAndUpdate(
+    "warrantyCounter",
+    { $inc: { seq: 1 } },
+    { new: true }
+  );
+  return warrantyCounter.seq;
 }
 
 export {

@@ -137,6 +137,10 @@ const quotationSchema = mongoose.Schema(
       enum: ["standard", "supply/apply", "supply"],
       default: "standard",
     },
+    groupBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      default: null,
+    },
     quoteInfo: [{ type: mongoose.Schema.Types.ObjectId, ref: "QuoteInfo" }],
   },
   { timestamps: true }

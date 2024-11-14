@@ -1,12 +1,12 @@
 /* eslint-disable react/prop-types */
 import { Button, TextInput, Label, Select } from "flowbite-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { createDC, getChemicals } from "../redux/contract/contractSlice";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
 
-function DCForm({ id, quoteInfo, setDCs, onClose }) {
+function DCForm({ id, contract, setDCs, onClose }) {
   const dispatch = useDispatch();
   const [validInput, setValidInput] = useState(false);
   const [chemicalList, setChemicalList] = useState([]);
@@ -17,6 +17,7 @@ function DCForm({ id, quoteInfo, setDCs, onClose }) {
     chemicalqty: "",
     packaging: "",
   });
+  const dcArryRef = useRef([]);
 
   function handleInputChange(e) {
     const { name, value } = e.target;
@@ -53,7 +54,10 @@ function DCForm({ id, quoteInfo, setDCs, onClose }) {
 
   async function handleSubmit() {
     if (validInput) {
-      const dispatchAction = await dispatch(createDC({ id, dcObj }));
+      dcArryRef.current = [...dcArryRef.current, dcObj];
+      const dispatchAction = await dispatch(
+        createDC({ id, dcObj: dcArryRef.current })
+      );
       const result = unwrapResult(dispatchAction);
       toast.info(result.message);
       setDcObj({
@@ -68,6 +72,16 @@ function DCForm({ id, quoteInfo, setDCs, onClose }) {
       console.log("Invalid input, please fill all fields.");
     }
   }
+  function addMore() {
+    dcArryRef.current = [...dcArryRef.current, dcObj];
+    setDcObj({
+      chemical: "",
+      batchNo: "",
+      chemicalqty: "",
+      packaging: "",
+    });
+  }
+  console.log(dcArryRef.current);
   return (
     <div className="max-w-md mx-auto p-6">
       <h3 className="text-xl font-semibold text-center mb-4">DC Form</h3>
@@ -83,7 +97,7 @@ function DCForm({ id, quoteInfo, setDCs, onClose }) {
             required
           >
             <option></option>
-            {quoteInfo.map((info) => (
+            {contract?.quoteInfo.map((info) => (
               <option key={info._id}>{info.chemical}</option>
             ))}
           </Select>
@@ -140,6 +154,14 @@ function DCForm({ id, quoteInfo, setDCs, onClose }) {
           fullSized
         >
           Submit
+        </Button>
+        <Button
+          type="button"
+          disabled={!validInput}
+          onClick={addMore}
+          fullSized
+        >
+          Add More
         </Button>
       </form>
     </div>

@@ -4,10 +4,12 @@ import { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { getdcs } from "../redux/contract/contractSlice";
 import { CustomModal, DCForm } from "../components/index.js";
-import { toPng } from "html-to-image";
+import TestChalan from "../pages/TestChalan.jsx";
+import html2canvas from "html2canvas";
+import { getFormattedDateTime } from "../funtions/funtion.js";
 
 // eslint-disable-next-line react/prop-types
-function PrintDC({ id, quoteInfo }) {
+function PrintDC({ id, contract }) {
   const [dcs, setDCs] = useState([]);
   const [form, setForm] = useState(false);
   const [detailModel, setDetailModel] = useState(false);
@@ -24,22 +26,20 @@ function PrintDC({ id, quoteInfo }) {
     }
     fetch();
   }, [dispatch, id]);
+
   const openWorklogModal = (log) => {
     setSelectedDc(log);
     setDetailModel(true);
   };
 
-  const saveAsPng = () => {
-    if (componentRef.current) {
-      toPng(componentRef.current, { backgroundColor: "white" })
-        .then((dataUrl) => {
-          const link = document.createElement("a");
-          link.href = dataUrl;
-          link.download = "component.png";
-          link.click();
-        })
-        .catch((error) => console.error("Error capturing component:", error));
-    }
+  const captureComponent = async () => {
+    const element = componentRef.current;
+    html2canvas(element, { scale: 2 }).then((canvas) => {
+      const link = document.createElement("a");
+      link.href = canvas.toDataURL("image/png");
+      link.download = `DC_${getFormattedDateTime()}.png`;
+      link.click();
+    });
   };
 
   return (
@@ -49,7 +49,7 @@ function PrintDC({ id, quoteInfo }) {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
         {dcs?.map((log) => (
           <div
-            key={log._id}
+            key={log?._id}
             className={`p-4 bg-gray-100 rounded-lg cursor-pointer border transition-all duration-300 ease-in-out ${
               selectedDc?._id === log._id
                 ? "border-blue-500 shadow-lg transform scale-105"
@@ -59,9 +59,9 @@ function PrintDC({ id, quoteInfo }) {
           >
             <div className="font-semibold flex items-center justify-start w-full gap-4">
               <p>Date: {new Date(log.createdAt).toLocaleDateString()}</p>
-              <p>Time: {new Date(log.createdAt).toLocaleTimeString()}</p>
+              <p>Time: {new Date(log.createdAt).toLocaleDateString()}</p>
             </div>
-            <p>Entry By: {log.entryBy?.username}</p>
+            <p>Entry By: {log?.entryBy?.username}</p>
           </div>
         ))}
       </div>
@@ -69,31 +69,15 @@ function PrintDC({ id, quoteInfo }) {
         isOpen={detailModel}
         onClose={() => [setDetailModel(false), setSelectedDc(null)]}
         heading="DC Details"
-        bg="bg-teal-50"
+        bg="bg-gray-50"
+        size="3xl"
       >
         {selectedDc && (
           <>
-            <div
-              ref={componentRef}
-              className="flex flex-col p-4 bg-gray-100 rounded-lg col-span-3"
-            >
-              <div className="mb-2">
-                <p className="font-semibold">{selectedDc.workAreaType}</p>
-                <p>Chemical: {selectedDc.chemical}</p>
-                <p>Batch Number: {selectedDc.batchNumber}</p>
-                <p>Quantity: {selectedDc.chemicalqty}</p>
-                <p>Packaging: {selectedDc.packaging}</p>
-
-                {selectedDc.remark && <p>Remark: {selectedDc.remark}</p>}
-              </div>
-              <div className="flex justify-between">
-                {/* <Button size="sm">Edit</Button>
-            <Button size="sm" color="failure">
-              Delete
-            </Button> */}
-              </div>
+            <div ref={componentRef}>
+              <TestChalan selectedDc={selectedDc} contract={contract} />
             </div>
-            <Button onClick={saveAsPng}>Download</Button>
+            <Button onClick={captureComponent}>Print</Button>
           </>
         )}
       </CustomModal>
@@ -105,7 +89,7 @@ function PrintDC({ id, quoteInfo }) {
       >
         <DCForm
           id={id}
-          quoteInfo={quoteInfo}
+          contract={contract}
           setDCs={setDCs}
           onClose={() => setForm(!form)}
         />

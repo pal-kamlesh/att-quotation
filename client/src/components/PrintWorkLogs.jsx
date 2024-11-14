@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { getWorklogs } from "../redux/contract/contractSlice";
 import { WorklogForm, CustomModal } from "../components/index.js";
-import { toPng } from "html-to-image";
 
 // eslint-disable-next-line react/prop-types
 function PrintWorkLogs({ id, quoteInfo }) {
@@ -28,19 +27,6 @@ function PrintWorkLogs({ id, quoteInfo }) {
   const openWorklogModal = (log) => {
     setSelectedLog(log);
     setDetailModel(true);
-  };
-
-  const saveAsPng = () => {
-    if (componentRef.current) {
-      toPng(componentRef.current, { backgroundColor: "white" })
-        .then((dataUrl) => {
-          const link = document.createElement("a");
-          link.href = dataUrl;
-          link.download = "component.png";
-          link.click();
-        })
-        .catch((error) => console.error("Error capturing component:", error));
-    }
   };
 
   return (
@@ -84,7 +70,6 @@ function PrintWorkLogs({ id, quoteInfo }) {
               </p>
               {selectedLog.remark && <p>Remark: {selectedLog.remark}</p>}
             </div>
-            <Button onClick={saveAsPng}>Download</Button>
           </>
         )}
       </CustomModal>
