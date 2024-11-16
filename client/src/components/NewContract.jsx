@@ -64,7 +64,7 @@ const getInitialContractState = () => {
     workOrderDate: "",
     gstNo: "",
     paymentTerms: "",
-    groupBy: "",
+    groupBy: null,
   };
 };
 // eslint-disable-next-line react/prop-types
