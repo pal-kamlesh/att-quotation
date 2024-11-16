@@ -139,7 +139,6 @@ const quotationSchema = mongoose.Schema(
     },
     groupBy: {
       type: mongoose.Schema.Types.ObjectId,
-      default: null,
     },
     quoteInfo: [{ type: mongoose.Schema.Types.ObjectId, ref: "QuoteInfo" }],
   },

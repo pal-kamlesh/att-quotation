@@ -119,6 +119,9 @@ const contractSchema = mongoose.Schema(
     note: {
       type: String,
     },
+    groupBy: {
+      type: mongoose.Schema.Types.ObjectId,
+    },
     warranty: { type: mongoose.Schema.ObjectId, ref: "Warranty" },
   },
   { timestamps: true }
