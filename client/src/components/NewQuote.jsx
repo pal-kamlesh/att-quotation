@@ -57,7 +57,7 @@ const getInitialQuoteState = () => {
     },
     specification: "",
     emailTo: "",
-    groupBy: "",
+    groupBy: null,
     note: "",
     quotationNo: "",
     docType: "standard",
@@ -128,8 +128,6 @@ function NewQuote({ onClose }) {
   }, [doc, quote?.quoteInfo.length]);
   function handleQuoteChange(e) {
     const { name, value } = e.target;
-    console.log(`Name: ${name} Value: ${value}`);
-    console.log(`groupBy: ${quote.groupBy}`);
     if (name === "kindAttentionPrefix" && value === "NA") {
       setQuote((prev) => ({ ...prev, kindAttention: "NA", [name]: value }));
       return;
