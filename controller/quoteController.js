@@ -11,7 +11,7 @@ import { Groups } from "../models/counterModel.js";
 const create = async (req, res, next) => {
   try {
     const { quote } = req.body;
-    const {
+    let {
       quotationDate,
       kindAttention,
       kindAttentionPrefix,
@@ -27,6 +27,7 @@ const create = async (req, res, next) => {
       paymentTerms,
       groupBy,
     } = quote;
+    groupBy = groupBy ? groupBy : null;
     const { projectName } = shipToAddress;
     if (!projectName || !specification) {
       return res

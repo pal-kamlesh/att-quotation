@@ -6,7 +6,6 @@ import morgan from "morgan";
 import connectDB from "./config/mongoose.js";
 import errorMiddleware from "./middleware/errorMiddleware.js";
 import rootRouter from "./routes/index.js";
-import { Quotation } from "./models/index.js";
 connectDB();
 
 const app = express();
@@ -46,21 +45,6 @@ app.use("/api/v1", rootRouter);
 })();
 
 app.use(errorMiddleware);
-async () => {
-  try {
-    const quotations = await Quotation.find({
-      quotationNo: { $ne: "" }, // QuotationNo is not an empty string
-      approved: false,
-    }).select({ quotationNo: 1, docType: 1, _id: 0 }); // Select only quotationNo and doctype fields
-
-    quotations.forEach(({ quotationNo }) => {
-      console.log(`${quotationNo}: [ ] standard [ ] supply [ ] supply/apply`);
-      console.log("");
-    });
-  } catch (error) {
-    console.error("Error fetching quotations:", error);
-  }
-};
 
 const port = process.env.PORT || 5000;
 app.listen(port, () => console.log(`Server running at port: ${port}`));
