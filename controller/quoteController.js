@@ -449,6 +449,22 @@ const getGroupData = async (req, res, next) => {
   }
 };
 
+const deletedQuote = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const quotation = await Quotation.findOneAndDelete({ _id: id });
+
+    if (!quotation) {
+      return res.status(404).json({ message: "Quotation not found" });
+    }
+
+    res.status(200).json({ message: "Quotation Deleted!" });
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
+};
+
 export {
   create,
   quotes,
@@ -461,4 +477,5 @@ export {
   createGroup,
   getAllGroup,
   getGroupData,
+  deletedQuote,
 };

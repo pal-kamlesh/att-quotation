@@ -12,10 +12,17 @@ import {
   differenceBetweenArrays,
   remove_IdFromObj,
   createContractArchiveEntry,
+  generateAndSendReport,
+  manageWarrantyCounter,
+  manageDcCounter,
+  createExcelBuilder,
 } from "../utils/functions.js";
-import brevo from "@getbrevo/brevo";
-import { createExcelBuilder as excelBuilder } from "../utils/functions.js";
 import Warranty from "../models/warrantyModel.js";
+import {
+  createHeader,
+  sendExel,
+  createExcelBuilder1,
+} from "../utils/modules.js";
 
 const create = async (req, res, next) => {
   try {
@@ -615,7 +622,6 @@ const deletedContract = async (req, res, next) => {
     if (!contract) {
       return res.status(404).json({ message: "Contract not found" });
     }
-
     res.status(200).json({ message: "Contract Deleted!" });
   } catch (error) {
     next(error);
@@ -656,6 +662,18 @@ const genReport = async (req, res, next) => {
 
     const weeklyDataQuote = await Quotation.find({
       quotationDate: { $gte: lastMonday, $lt: endOfWeek },
+    })
+      .populate("quoteInfo")
+      .populate("salesPerson")
+      .populate("createdBy")
+      .sort({ "salesPerson._id": 1 })
+      .lean();
+
+    const monthelyDataQuote = await Quotation.find({
+      quotationDate: {
+        $gte: startOfMonth,
+        $lt: endOfMonth,
+      },
     })
       .populate("quoteInfo")
       .populate("salesPerson")
@@ -712,6 +730,7 @@ const genReport = async (req, res, next) => {
     await generateAndSendReport({
       weeklyDataContract,
       weeklyDataQuote,
+      monthelyDataQuote,
       subdata,
     });
 
@@ -729,86 +748,43 @@ const genReport = async (req, res, next) => {
     next(error);
   }
 };
-async function generateAndSendReport(data) {
-  const { weeklyDataContract, weeklyDataQuote, subdata } = data;
+const monthelyReport = async () => {
   try {
-    let weeklyDataContractNew = weeklyDataContract.map((data) => ({
-      ...data,
-      type: "contract",
-    }));
-    const builder = excelBuilder();
-    const r1 = await builder(weeklyDataQuote); // Add weekly quote data
-    const rf = await r1(weeklyDataContractNew); // Add weekly contract data
-    const excelBuffer = await rf(); // Complete and get the buffer
+    const currentDate = new Date();
+    const startOfMonth = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth() - 1,
+      1
+    );
+    const endOfMonth = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth(),
+      1
+    );
 
-    //const excelBuffer = await generateExcel(data);
-    const base64File = excelBuffer.toString("base64");
-
-    // Set up Brevo client
-    let defaultClient = brevo.ApiClient.instance;
-    let apiKey = defaultClient.authentications["api-key"];
-    apiKey.apiKey = process.env.BREVO_KEY;
-    let apiInstance = new brevo.TransactionalEmailsApi();
-
-    let sendSmtpEmail = new brevo.SendSmtpEmail();
-    sendSmtpEmail.sender = {
-      name: "EPCORN",
-      email: process.env.EA_EMAIL,
-    };
-
-    sendSmtpEmail.to = [
-      { email: process.env.NO_REPLY_EMAIL },
-      { email: process.env.OFFICE_EMAIL },
-    ];
-    sendSmtpEmail.params = subdata;
-
-    sendSmtpEmail.templateId = 9;
-
-    // Attach the file directly using base64
-    sendSmtpEmail.attachment = [
-      {
-        content: base64File,
-        name: "Report.xlsx",
-        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    const monthelyDataQuote = await Quotation.find({
+      quotationDate: {
+        $gte: startOfMonth,
+        $lt: endOfMonth,
       },
-    ];
+    })
+      .populate("quoteInfo")
+      .populate("salesPerson")
+      .populate("createdBy")
+      .lean();
 
-    await apiInstance.sendTransacEmail(sendSmtpEmail);
+    const headers = createHeader(monthelyDataQuote);
+    const builder = createExcelBuilder1(headers);
+    const rf = await builder(monthelyDataQuote);
+    const excelBuffer = await rf();
+    const base64File = excelBuffer.toString("base64");
+    await sendExel(base64File);
+    res.send("OK");
   } catch (error) {
-    console.error("Error in generate and send report:", error);
-    throw new Error("Failed to generate and send report");
+    console.log(error);
+    next(error);
   }
-}
-async function manageDcCounter() {
-  let dcCounter = await Counter.findById("dcCounter");
-  if (!dcCounter) {
-    dcCounter = await new Counter({ _id: "dcCounter", seq: 0 }).save();
-  }
-  // Increment the counter and get the new sequence number
-  dcCounter = await Counter.findByIdAndUpdate(
-    "dcCounter",
-    { $inc: { seq: 1 } },
-    { new: true }
-  );
-  return dcCounter.seq;
-}
-
-async function manageWarrantyCounter() {
-  let warrantyCounter = await Counter.findById("warrantyCounter");
-  if (!warrantyCounter) {
-    warrantyCounter = await new Counter({
-      _id: "warrantyCounter",
-      seq: 0,
-    }).save();
-  }
-  // Increment the counter and get the new sequence number
-  warrantyCounter = await Counter.findByIdAndUpdate(
-    "warrantyCounter",
-    { $inc: { seq: 1 } },
-    { new: true }
-  );
-  return warrantyCounter.seq;
-}
+};
 
 export {
   create,
@@ -831,4 +807,5 @@ export {
   deletedContract,
   getArchive,
   genReport,
+  monthelyReport,
 };

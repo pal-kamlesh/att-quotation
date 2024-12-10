@@ -219,7 +219,26 @@ export const makeContract = createAsyncThunk(
     }
   }
 );
-
+export const deleteQuote = createAsyncThunk(
+  "quote/delete",
+  async (data, { rejectWithValue }) => {
+    console.log(data);
+    try {
+      const response = await fetch(`/api/v1/quotation/delete/${data}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        return rejectWithValue(errorData);
+      }
+      const result = await response.json();
+      return result;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
 export const createGroup = createAsyncThunk(
   "group/create",
   async (data, { rejectWithValue }) => {
@@ -494,6 +513,26 @@ export const quoteSlice = createSlice({
       .addCase(makeContract.rejected, (state, { payload }) => {
         state.loading = false;
         toast.error(payload);
+      })
+      .addCase(deleteQuote.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(deleteQuote.fulfilled, (state, { payload }) => {
+        state.loading = false;
+        state.quotations = state.quotations.filter(
+          (contract) => contract._id !== payload.result._id
+        );
+        state.quotations.push(payload.result);
+        state.quotations.sort(
+          (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+        );
+        state.totalQuotations = state.totalQuotations - 1;
+        state.todayQuotations = state.todayQuotations - 1;
+        toast.success(payload.message);
+      })
+      .addCase(deleteQuote.rejected, (state, { payload }) => {
+        state.loading = false;
+        toast.error(payload.message);
       });
   },
 });

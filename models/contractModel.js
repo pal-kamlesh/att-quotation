@@ -236,7 +236,7 @@ contractSchema.pre("findOneAndDelete", async function (next) {
       await mongoose
         .model("WorkLogs")
         .deleteMany({ _id: { $in: doc.worklogs } });
-      await mongoose.model("QuoteArchive").deleteOne({ quotationId: doc._id });
+      await mongoose.model("QuoteArchive").deleteOne({ contractId: doc._id });
       await mongoose.model("WorkLogs").deleteOne({ contractId: doc._id });
 
       if (doc.quotation) {

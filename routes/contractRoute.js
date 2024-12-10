@@ -20,6 +20,7 @@ import {
   deletedContract,
   getArchive,
   genReport,
+  monthelyReport,
 } from "../controller/contractController.js";
 import { verifyToken } from "../middleware/verifyUser.js";
 
@@ -45,6 +46,6 @@ router.post("/:id", verifyToken, update);
 router.delete("/:contractId", verifyToken, deletedContract);
 router.get("/archive/:id", verifyToken, getArchive);
 router.get("/reports/r1", genReport);
-router.get("/automated/reports/r1", genReport);
+router.get("/automated/reports/r1", monthelyReport);
 
 export default router;

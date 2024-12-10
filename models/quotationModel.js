@@ -239,5 +239,24 @@ quotationSchema.statics.generateQuotationNo = async function () {
   }
 };
 
+quotationSchema.pre("findOneAndDelete", async function (next) {
+  try {
+    // Get the document that is about to be deleted
+    const doc = await this.model.findOne(this.getFilter());
+
+    if (doc) {
+      // Now we can use doc instead of this
+      await mongoose
+        .model("QuoteInfo")
+        .deleteMany({ _id: { $in: doc.quoteInfo } });
+      await mongoose.model("QuoteArchive").deleteOne({ quotationId: doc._id });
+    }
+
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
 const Quotation = mongoose.model("Quotation", quotationSchema);
 export default Quotation;

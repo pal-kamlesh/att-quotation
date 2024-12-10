@@ -657,6 +657,26 @@ export const contractSlice = createSlice({
         state.loading = false;
         toast.error(payload.message);
       })
+      .addCase(deleteContract.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(deleteContract.fulfilled, (state, { payload }) => {
+        state.loading = false;
+        state.contracts = state.contracts.filter(
+          (contract) => contract._id !== payload.result._id
+        );
+        state.contracts.push(payload.result);
+        state.contracts.sort(
+          (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+        );
+        state.totalContracts = state.totalContracts - 1;
+        state.todayContracts = state.todayContracts - 1;
+        toast.success(payload.message);
+      })
+      .addCase(deleteContract.rejected, (state, { payload }) => {
+        state.loading = false;
+        toast.error(payload.message);
+      })
       .addCase(archiveDataContract.pending, (state) => {
         state.loading = true;
       })

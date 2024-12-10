@@ -26,6 +26,8 @@ import {
   showMoreQuotes,
   makeContract,
   createGroup,
+  // eslint-disable-next-line no-unused-vars
+  deleteQuote,
 } from "../redux/quote/quoteSlice";
 import { SearchQuote, UpdateQuotation } from "../components/index.js";
 import { unwrapResult } from "@reduxjs/toolkit";
@@ -128,6 +130,7 @@ export default function Create() {
     const result = unwrapResult(actionResult);
   }
   // Check if the user has scrolled to the bottom of the page
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleShowMore = useCallback(
     debounce(async () => {
       const startIndex = quotations.length;
@@ -220,6 +223,17 @@ export default function Create() {
     const result = await unwrapResult(actionResult);
     setGroupModal(false);
   }
+
+  // async function handleDelete(id) {
+  //   console.log(id);
+  //   if (!currentUser.rights.admin) {
+  //     toast.error("Contact KP to Delete.");
+  //     return;
+  //   }
+  //   const actionResult = await dispatch(deleteQuote(id));
+  //   const result = unwrapResult(actionResult);
+  //   toast.success(result.message);
+  // }
   return (
     <div className=" max-w-[1400px] mx-auto ">
       {loading ? <Loading /> : null}
@@ -333,6 +347,17 @@ export default function Create() {
                             )}
                           </Button>
                         )}
+                        {/* {currentUser.rights.admin ? (
+                          <Button
+                            onClick={() => [
+                              setQuoteId(ticket._id),
+                              handleDelete(ticket._id),
+                            ]}
+                            gradientMonochrome="failure"
+                          >
+                            Delete
+                          </Button>
+                        ) : null} */}
                       </Table.Cell>
                       <Table.Cell className="border ">
                         <div className="flex items-center justify-evenly flex-wrap gap-1 relative">

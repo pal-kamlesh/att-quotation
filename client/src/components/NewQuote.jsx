@@ -280,6 +280,7 @@ function NewQuote({ onClose }) {
     }
     onClose();
   }
+  console.log(quote);
   return (
     <div>
       {loading ? <Loading /> : null}
