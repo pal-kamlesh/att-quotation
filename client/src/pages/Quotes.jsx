@@ -413,11 +413,7 @@ export default function Create() {
                               History
                             </Button>
                           ) : null}
-                          <PopUp2
-                            setQuoteId={setQuoteId}
-                            id={ticket._id}
-                            disabled={ticket.contractified}
-                          />
+                          <PopUp2 setQuoteId={setQuoteId} id={ticket._id} />
                         </div>
                       </Table.Cell>
                     </Table.Row>
