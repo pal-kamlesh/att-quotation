@@ -109,14 +109,7 @@ function NewQuote({ onClose }) {
   // Save data to local storage whenever quote or infoArray changes
   useEffect(() => {
     localStorage.setItem("newQuote", JSON.stringify({ quote }));
-  }, [quote]);
-
-  function handleDocType(e) {
-    if (quote.quoteInfo.length <= 0) {
-      const { value } = e.target;
-      setDoc(value);
-    }
-  }
+  }, [quote, selectedGroup]);
   useEffect(() => {
     if (quote.quoteInfo.length <= 0) {
       setDisableRadio(false);
@@ -126,6 +119,16 @@ function NewQuote({ onClose }) {
       setQuote((prev) => ({ ...prev, docType: doc }));
     }
   }, [doc, quote?.quoteInfo.length]);
+  useEffect(() => {
+    setQuote((prev) => ({ ...prev, paymentTerms: subPaymentTerm }));
+  }, [subPaymentTerm]);
+
+  function handleDocType(e) {
+    if (quote.quoteInfo.length <= 0) {
+      const { value } = e.target;
+      setDoc(value);
+    }
+  }
   function handleQuoteChange(e) {
     const { name, value } = e.target;
     if (name === "kindAttentionPrefix" && value === "NA") {
@@ -162,10 +165,6 @@ function NewQuote({ onClose }) {
       }));
     }
   }
-
-  useEffect(() => {
-    setQuote((prev) => ({ ...prev, paymentTerms: subPaymentTerm }));
-  }, [subPaymentTerm]);
 
   // function dummyQuote() {
   //   const data = {
@@ -280,7 +279,6 @@ function NewQuote({ onClose }) {
     }
     onClose();
   }
-  console.log(quote);
   return (
     <div>
       {loading ? <Loading /> : null}
@@ -339,6 +337,7 @@ function NewQuote({ onClose }) {
             <Select
               name="salePerson"
               onChange={handleQuoteChange}
+              value={quote.salePerson}
               className={`${
                 error === "salePerson"
                   ? "border border-red-500 rounded-lg bg-red-300 "
@@ -382,7 +381,7 @@ function NewQuote({ onClose }) {
             </div>
             <Select
               name="groupBy"
-              value={selectedGroup?._id}
+              value={quote.groupBy}
               onChange={(e) => [setSelectedGroup(e.target.value)]}
               className={`${
                 error === "groupBy"
@@ -440,6 +439,7 @@ function NewQuote({ onClose }) {
                 </div>
                 <Select
                   name="billToAddress.prefix"
+                  value={quote.billToAddress.prefix}
                   className={`${
                     error === "billToAddress.prefix"
                       ? "border border-red-500 rounded-lg bg-red-300 "

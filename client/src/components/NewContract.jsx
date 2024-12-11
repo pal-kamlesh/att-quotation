@@ -263,7 +263,11 @@ function NewContract({ onClose }) {
                 <span className=" text-red-500">*</span>
               </Label>
             </div>
-            <Select name="salesPerson" onChange={handleQuoteChange}>
+            <Select
+              name="salesPerson"
+              onChange={handleQuoteChange}
+              value={contract.salesPerson}
+            >
               <option></option>
               {initials.length > 0 &&
                 initials.map((initial) => (
@@ -298,7 +302,7 @@ function NewContract({ onClose }) {
             </div>
             <Select
               name="groupBy"
-              value={selectedGroup?._id}
+              value={contract.groupBy}
               onChange={(e) => [
                 setSelectedGroup(e.target.value),
                 handleQuoteChange(e),
@@ -335,7 +339,11 @@ function NewContract({ onClose }) {
                 <div className="mb-2">
                   <Label htmlFor="billToAddress.prefix" value="Prefix" />
                 </div>
-                <Select name="billToAddress.prefix" onChange={handleAddress}>
+                <Select
+                  name="billToAddress.prefix"
+                  onChange={handleAddress}
+                  value={contract.billToAddress.prefix}
+                >
                   <option></option>
                   <option
                     selected={contract.billToAddress.prefix === "M/s."}

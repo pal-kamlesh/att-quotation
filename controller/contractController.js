@@ -197,6 +197,7 @@ const contractify = async (req, res, next) => {
       workOrderNo,
       workOrderDate,
       gstNo,
+      groupBy,
     } = quote;
 
     // Copying quoteInfo and creating new QuoteInfo documents
@@ -222,6 +223,7 @@ const contractify = async (req, res, next) => {
       gstNo,
       quoteInfo: quoteInfoIds,
       createdBy: req.user.id,
+      groupBy,
     });
     quote.contractified = true;
     await quote.save();
