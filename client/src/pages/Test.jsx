@@ -7,7 +7,7 @@ import { unwrapResult } from "@reduxjs/toolkit";
 
 const Test = ({ id }) => {
   const dispatch = useDispatch();
-  const [contract, setContract] = useState({});
+  const [contract, setContract] = useState(null);
   const componentRef = useRef(null);
   const [warranty, setWarranty] = useState({
     warrantyPeriod: {
@@ -16,8 +16,8 @@ const Test = ({ id }) => {
     },
     warrantyDetails: [],
   });
-  const [workArea, setWorkArea] = useState();
-
+  const [workArea, setWorkArea] = useState([]);
+  console.log(warranty);
   useEffect(() => {
     async function fn() {
       const actionResult = await dispatch(getSingleContract(id));
@@ -28,20 +28,15 @@ const Test = ({ id }) => {
       fn();
     }
   }, [dispatch, id]);
-  console.log(contract);
+
   useEffect(() => {
     if (contract) {
       setWorkArea(contract.quoteInfo);
     }
-  });
+  }, [contract]);
   const handlePrint = useReactToPrint({
     content: () => componentRef.current,
-    onAfterPrint: async () => {
-      // const resultAction = await dispatch(incPrintCount(id));
-      // // eslint-disable-next-line no-unused-vars
-      // const result = unwrapResult(resultAction);
-      // close();
-    },
+    onAfterPrint: async () => {},
   });
   return (
     <>
@@ -100,25 +95,50 @@ const Test = ({ id }) => {
                 <span>*</span> Service Warranty Period:
               </p>
               <p className="ml-2">
-                From: <input type="date" />
+                From:
+                <input
+                  type="date"
+                  onChange={(e) =>
+                    setWarranty((state) => ({
+                      ...state,
+                      warrantyPeriod: {
+                        ...state.warrantyPeriod,
+                        from: e.target.value,
+                      },
+                    }))
+                  }
+                  name="from"
+                />
               </p>
               <p className="ml-2">
-                Upto: <input type="date" />
+                Upto:{" "}
+                <input
+                  name="to"
+                  type="date"
+                  onChange={(e) =>
+                    setWarranty((state) => ({
+                      ...state,
+                      warrantyPeriod: {
+                        ...state.warrantyPeriod,
+                        to: e.target.value,
+                      },
+                    }))
+                  }
+                />
               </p>
             </div>
-            <div className="col-span-6 flex justify-center items-center border border-black">
-              <div className="w-full border border-black">
-                <span className="text-lg font-semibold ">Chemical Name:</span>
-                {workArea?.map((info, idx) => (
-                  <span
-                    key={idx}
-                    className={`${idx === 0 ? "ml-1" : "ml-5"}font-semibold `}
-                  >
-                    {info.chemical}
-                  </span>
-                ))}
+            {workArea.length == 1 && (
+              <div className="col-span-6 flex justify-center items-center ">
+                <div className="w-full ">
+                  <span className="text-lg font-semibold ">Chemical Name:</span>
+                  {workArea?.map((info, idx) => (
+                    <span key={idx} className="font-semibold">
+                      {info.chemical}
+                    </span>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </div>
           <p className="text-justify text-gray-700 leading-relaxed mb-6">
             This service warranty is provided in accordance of the guidelines
@@ -127,39 +147,82 @@ const Test = ({ id }) => {
             whereby the document is used by the accredited Professional Pest
             Management Company.
           </p>
-          <div className="mt-6 mb-6">
-            <table className="min-w-full border border-gray-500 table-fixed">
-              <thead className="bg-gray-200">
-                <tr>
-                  <th className="border border-gray-500 p-2 text-center font-semibold">
-                    Type of Structure
-                  </th>
-                  <th className="border border-gray-500 p-2 text-center font-semibold">
-                    Area Treated
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {workArea?.map((info, idx) => (
-                  <tr key={idx} className="">
-                    <td className="border border-gray-500 p-2 text-center flex-1">
-                      {info?.workAreaType}
-                    </td>
-                    <td className="border border-gray-500 p-2 text-center flex-1">
-                      <div className=" inline">
-                        <input
-                          className="bg-gray-200 text-black border border-blue-400 w-[70px] rounded-md p-1 shadow-sm focus:outline-none focus:ring-transparent focus:ring-blue-300"
-                          placeholder="Enter value"
-                          value={info.workArea}
-                        />
-                        <span>{info.workAreaUnit}</span>
-                      </div>
-                    </td>
+          {workArea.length <= 1 && (
+            <div className="mt-6 mb-6">
+              <table className="min-w-full border border-gray-500 table-fixed">
+                <thead className="bg-gray-200">
+                  <tr>
+                    <th className="border border-gray-500 p-2 text-center font-semibold">
+                      Type of Structure
+                    </th>
+                    <th className="border border-gray-500 p-2 text-center font-semibold">
+                      Area Treated
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {workArea?.map((info, idx) => (
+                    <tr key={idx} className="">
+                      <td className="border border-gray-500 p-2 text-center flex-1">
+                        {info?.workAreaType}
+                      </td>
+                      <td className="border border-gray-500 p-2 text-center flex-1">
+                        <div className=" inline">
+                          <input
+                            className="bg-gray-200 text-black border border-blue-400 w-[70px] rounded-md p-1 shadow-sm focus:outline-none focus:ring-transparent focus:ring-blue-300"
+                            placeholder="Enter value"
+                            value={info.workArea}
+                          />
+                          <span>{info.workAreaUnit}</span>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+          {workArea.length > 1 && (
+            <div className="mt-6 mb-6">
+              <table className="min-w-full border border-gray-500 table-fixed">
+                <thead className="bg-gray-200">
+                  <tr>
+                    <th className="border border-gray-500 p-2 text-center font-semibold">
+                      Type of Structure
+                    </th>
+                    <th className="border border-gray-500 p-2 text-center font-semibold">
+                      Chemical Name
+                    </th>
+                    <th className="border border-gray-500 p-2 text-center font-semibold">
+                      Area Treated
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {workArea?.map((info, idx) => (
+                    <tr key={idx} className="">
+                      <td className="border border-gray-500 p-2 text-center flex-1">
+                        {info?.workAreaType}
+                      </td>
+                      <td className="border border-gray-500 p-2 text-center flex-1">
+                        {info?.chemical}
+                      </td>
+                      <td className="border border-gray-500 p-2 text-center flex-1">
+                        <div className=" inline">
+                          <input
+                            className="bg-gray-200 text-black border border-blue-400 w-[70px] rounded-md p-1 shadow-sm focus:outline-none focus:ring-transparent focus:ring-blue-300"
+                            placeholder="Enter value"
+                            value={info.workArea}
+                          />
+                          <span>{info.workAreaUnit}</span>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
 
           <p className="text-justify text-gray-700 leading-relaxed mb-6">
             <span className="ml-4 text-justify">Hereby</span> certified that the

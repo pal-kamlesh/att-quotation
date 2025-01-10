@@ -24,6 +24,7 @@ import {
   MdCheckCircle,
   MdHourglassEmpty,
 } from "react-icons/md";
+import HeroSection from "./Hero";
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
@@ -189,6 +190,7 @@ export default function Dashboard() {
           color="border-yellow-500"
         />
       </div>
+      <HeroSection />
     </div>
   );
 }
