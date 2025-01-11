@@ -60,13 +60,13 @@ function DCForm({ id, contract, setDCs, onClose }) {
       );
       const result = unwrapResult(dispatchAction);
       toast.info(result.message);
+      setDCs((prev) => [...prev, result.dc]);
       setDcObj({
         chemical: "",
         batchNo: "",
         chemicalqty: "",
         packaging: "",
       });
-      setDCs((prev) => [...prev, result.dc]);
       onClose();
     } else {
       console.log("Invalid input, please fill all fields.");
