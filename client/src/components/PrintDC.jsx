@@ -7,6 +7,7 @@ import { CustomModal, DCForm } from "../components/index.js";
 import TestChalan from "../pages/TestChalan.jsx";
 import html2canvas from "html2canvas";
 import { getFormattedDateTime } from "../funtions/funtion.js";
+import jsPDF from "jspdf";
 
 // eslint-disable-next-line react/prop-types
 function PrintDC({ id, contract }) {
@@ -34,11 +35,31 @@ function PrintDC({ id, contract }) {
 
   const captureComponent = async () => {
     const element = componentRef.current;
-    html2canvas(element, { scale: 2 }).then((canvas) => {
-      const link = document.createElement("a");
-      link.href = canvas.toDataURL("image/png");
-      link.download = `DC_${getFormattedDateTime()}.png`;
-      link.click();
+    //const desktopWidth = 1280;
+    const scale = 2;
+    html2canvas(element, {
+      scale,
+      // width: desktopWidth,
+      // windowWidth: desktopWidth,
+    }).then((canvas) => {
+      // const link = document.createElement("a");
+      // link.href = canvas.toDataURL("image/png");
+      // link.download = `DC_${getFormattedDateTime()}.png`;
+      // link.click();
+      const imgData = canvas.toDataURL("image/png"); // Convert to image
+
+      // Create a jsPDF instance (landscape or portrait)
+      const pdf = new jsPDF({
+        orientation: "portrait", // Adjust based on your design
+        unit: "px",
+        format: [canvas.width, canvas.height], // Match the canvas size
+      });
+
+      // Add the captured image to the PDF
+      pdf.addImage(imgData, "PNG", 0, 0, canvas.width, canvas.height);
+
+      // Save the PDF
+      pdf.save(`DC_${getFormattedDateTime()}.pdf`);
     });
   };
 
@@ -59,7 +80,7 @@ function PrintDC({ id, contract }) {
           >
             <div className="font-semibold flex items-center justify-start w-full gap-4">
               <p>Date: {new Date(log.createdAt).toLocaleDateString()}</p>
-              <p>Time: {new Date(log.createdAt).toLocaleDateString()}</p>
+              <p>Time: {new Date(log.createdAt).toLocaleTimeString()}</p>
             </div>
             <p>Entry By: {log?.entryBy?.username}</p>
           </div>

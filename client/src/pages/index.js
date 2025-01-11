@@ -10,7 +10,7 @@ import Reports from "./Reports";
 import WorkLog from "./WorkLog";
 import WorkLogDash from "./WorkLogDash";
 import PrintWorkLogs from "../components/PrintWorkLogs";
-
+import LandingPage from "./LandingPage";
 export {
   User,
   Quotes,
@@ -24,4 +24,5 @@ export {
   WorkLog,
   WorkLogDash,
   PrintWorkLogs,
+  LandingPage,
 };

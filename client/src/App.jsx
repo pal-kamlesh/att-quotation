@@ -10,9 +10,9 @@ import {
   User,
   WorkLogDash,
   WorkLog,
-  Reports,
   Login,
   PageNotFound,
+  LandingPage,
 } from "../src/pages/index.js";
 import Test from "./pages/Test.jsx";
 
@@ -20,7 +20,8 @@ const AppRoutes = () => (
   <Routes>
     <Route path="/login" element={<Login />} />
     <Route path="/" element={<Layout />}>
-      <Route index element={<Dashboard />} />
+      <Route index element={<LandingPage />} />
+      <Route path="dashboard" element={<Dashboard />} />
       <Route path="test" element={<Test id="66fe222681323e43678e1d7c" />} />
       <Route path="quotes" element={<Quotes />} />
       <Route path="contracts" element={<Contracts />} />
@@ -30,7 +31,7 @@ const AppRoutes = () => (
         <Route index element={<WorkLogDash />} />
         <Route path=":id" element={<WorkLog />} />
       </Route>
-      <Route path="reports" element={<Reports />} />
+      {/* <Route path="reports" element={<Reports />} /> */}
       <Route path="404" element={<PageNotFound />} />
       <Route path="*" element={<Navigate to="/404" replace />} />
     </Route>

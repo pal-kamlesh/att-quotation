@@ -25,41 +25,57 @@ function TestChalan({ selectedDc, contract }) {
   );
 }
 
-function Chalan({ selectedDc, contract, copyFor }) {
+const Chalan = ({ selectedDc = {}, contract = {}, copyFor = "" }) => {
+  // Safely access nested properties
+  const shipToAddress = contract?.shipToAddress || {};
+  const dcObj = selectedDc?.dcObj || [];
+
   return (
-    <div className="p-3 border border-black max-w-2xl mx-auto">
-      <div className="flex justify-between items-center">
-        <p className="font-bold">{copyFor}</p>
-        <div className="p-1">
-          <p className="text-sm  text-center">MATERIAL CHALLAN</p>
+    <div className="p-2 md:p-3 border border-black max-w-2xl mx-auto text-sm md:text-base">
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 mb-3">
+        <p className="font-bold order-2 md:order-1">{copyFor}</p>
+        <div className="order-1 md:order-2">
+          <p className="text-center font-medium">MATERIAL CHALLAN</p>
         </div>
-        <p className="font-semibold">
-          NO <span>{selectedDc.dcCount}</span>
+        <p className="font-semibold order-3">
+          NO <span>{selectedDc?.dcCount || "-"}</span>
         </p>
       </div>
 
-      <p className=" text-center ml-8 text-3xl font-semibold mb-2">EPCORN</p>
+      {/* Company Name */}
+      <p className="text-center text-2xl md:text-3xl font-semibold mb-2">
+        EPCORN
+      </p>
       <p className="text-sm text-center mb-4 border-b border-b-black"></p>
 
-      <div className="mb-4 grid grid-cols-12 w-full border ">
-        <p className="font-semibold col-span-8 border h-full border-black p-2">
+      {/* Shipping and Date Section */}
+      <div className="mb-4 flex flex-col md:grid md:grid-cols-12 w-full border border-black">
+        <p className="font-semibold md:col-span-8 border-b md:border-b-0 md:border-r border-black p-2">
           <span className="mr-1">Ship To: </span>
           <br />
-          <span>
-            {contract?.shipToAddress.a1}
-            {contract?.shipToAddress.a2},{contract?.shipToAddress.a3}
-            {contract?.shipToAddress.a4},{contract?.shipToAddress.a5}
-            {contract?.shipToAddress.city}-{contract?.shipToAddress.pincode}
+          <span className="text-sm">
+            {shipToAddress.a1 || ""}
+            {shipToAddress.a2 ? `, ${shipToAddress.a2}` : ""}
+            {shipToAddress.a3 ? `, ${shipToAddress.a3}` : ""}
+            {shipToAddress.a4 ? `, ${shipToAddress.a4}` : ""}
+            {shipToAddress.a5 ? `, ${shipToAddress.a5}` : ""}
+            {shipToAddress.city ? `, ${shipToAddress.city}` : ""}
+            {shipToAddress.pincode ? `-${shipToAddress.pincode}` : ""}
           </span>
         </p>
-        <div className="text-sm mt-1 col-span-4 p-4">
-          <p className="mb-[30px]">
+        <div className="text-sm md:col-span-4 p-2 md:p-4">
+          <p className="mb-2 md:mb-[30px]">
             <span className="mr-1">Date:</span>
-            <span>{new Date(selectedDc?.createdAt).toLocaleDateString()}</span>
+            <span>
+              {selectedDc?.createdAt
+                ? new Date(selectedDc.createdAt).toLocaleDateString()
+                : "-"}
+            </span>
           </p>
-          <p className="mt-[30px]">
+          <p className="mt-2 md:mt-[30px]">
             <span className="mr-1">S.C:</span>
-            <span>{contract?.contractNo}</span>
+            <span>{contract?.contractNo || "-"}</span>
           </p>
         </div>
       </div>
@@ -69,51 +85,67 @@ function Chalan({ selectedDc, contract, copyFor }) {
         Anti Termite works on a returnable basis.
       </p>
 
-      <table className="w-full border border-black text-sm mb-4">
-        <thead>
-          <tr className="border-b border-black">
-            <th className="border-r border-black p-2 text-left">Sr No</th>
-            <th className="border-r border-black p-2 text-center">
-              <p>Chemical Name</p>
-              <p>Batch No</p>
-            </th>
-            <th className="border-r border-black p-2 text-left">Packaging</th>
-            <th className="border-r border-black p-2 text-left">
-              QUANTITY (KGS/LTR)
-            </th>
-            <th className="p-2 text-left">TOTAL QUANTITY</th>
-          </tr>
-        </thead>
-        <tbody>
-          {selectedDc?.dcObj?.map((dc, idx) => (
-            <tr key={dc.chemical} className="border-b border-black">
-              <td className="border-r border-black p-2">{idx + 1}</td>
-              <td className="border-r border-black p-2 text-center">
-                <p>{dc?.chemical}</p>
-                <p>{dc?.batchNo}</p>
-              </td>
-              <td className="border-r border-black p-2">{dc?.packaging}</td>
-              <td className="border-r border-black p-2">{dc?.chemicalqty}</td>
-              <td className="border-r border-black p-2">
-                {qunatyCalculator(dc?.packaging, dc?.chemicalqty)}
-              </td>
+      {/* Table Section */}
+      <div className="overflow-x-auto mb-4">
+        <table className="w-full border border-black text-xs md:text-sm">
+          <thead>
+            <tr className="border-b border-black">
+              <th className="border-r border-black p-1 md:p-2 text-left">
+                Sr No
+              </th>
+              <th className="border-r border-black p-1 md:p-2 text-center">
+                <p>Chemical Name</p>
+                <p>Batch No</p>
+              </th>
+              <th className="border-r border-black p-1 md:p-2 text-left">
+                Packaging
+              </th>
+              <th className="border-r border-black p-1 md:p-2 text-left">
+                QUANTITY (KGS/LTR)
+              </th>
+              <th className="p-1 md:p-2 text-left">TOTAL QUANTITY</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {dcObj.map((dc, idx) => (
+              <tr
+                key={`${dc?.chemical}-${idx}`}
+                className="border-b border-black"
+              >
+                <td className="border-r border-black p-1 md:p-2">{idx + 1}</td>
+                <td className="border-r border-black p-1 md:p-2 text-center">
+                  <p>{dc?.chemical || "-"}</p>
+                  <p>{dc?.batchNo || "-"}</p>
+                </td>
+                <td className="border-r border-black p-1 md:p-2">
+                  {dc?.packaging || "-"}
+                </td>
+                <td className="border-r border-black p-1 md:p-2">
+                  {dc?.chemicalqty || "-"}
+                </td>
+                <td className="border-r border-black p-1 md:p-2">
+                  {dc?.packaging && dc?.chemicalqty
+                    ? qunatyCalculator(dc.packaging, dc.chemicalqty)
+                    : "-"}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
-      <div className=" flex justify-between items-end">
-        <div className=" mt-4 text-sm">
+      {/* Footer Section */}
+      <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 mt-6">
+        <div className="text-sm">
           <p>For EPCORN</p>
-          <br />
           <br />
           <p>ATT Service Dept</p>
         </div>
-        <p>Receiver Signature</p>
+        <p className="text-sm">Receiver Signature</p>
       </div>
     </div>
   );
-}
+};
 
 export default TestChalan;
 

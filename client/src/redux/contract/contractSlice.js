@@ -468,6 +468,15 @@ export const contractSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      .addCase(createDC.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(createDC.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(createDC.rejected, (state) => {
+        state.loading = false;
+      })
       .addCase(getChemicals.fulfilled, (state) => {
         state.loading = false;
       })

@@ -1,12 +1,13 @@
 /* eslint-disable react/prop-types */
-import { Button, TextInput, Label, Select } from "flowbite-react";
+import { Button, TextInput, Label, Select, Spinner } from "flowbite-react";
 import { useEffect, useRef, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { createDC, getChemicals } from "../redux/contract/contractSlice";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
 
 function DCForm({ id, contract, setDCs, onClose }) {
+  const { loading } = useSelector((store) => store.contract);
   const dispatch = useDispatch();
   const [validInput, setValidInput] = useState(false);
   const [chemicalList, setChemicalList] = useState([]);
@@ -152,7 +153,14 @@ function DCForm({ id, contract, setDCs, onClose }) {
           onClick={handleSubmit}
           fullSized
         >
-          Submit
+          {loading ? (
+            <div className="flex items-center justify-center">
+              <Spinner size="sm" className="mr-2" />
+              <span>Logging in...</span>
+            </div>
+          ) : (
+            "Submit"
+          )}
         </Button>
         <Button
           type="button"
