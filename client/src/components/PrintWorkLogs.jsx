@@ -6,7 +6,7 @@ import { getWorklogs } from "../redux/contract/contractSlice";
 import { WorklogForm, CustomModal } from "../components/index.js";
 
 // eslint-disable-next-line react/prop-types
-function PrintWorkLogs({ id, quoteInfo }) {
+function PrintWorkLogs({ id, contract }) {
   const [workLogs, setWorkLogs] = useState([]);
   const [form, setForm] = useState(false);
   const [detailModel, setDetailModel] = useState(false);
@@ -81,7 +81,7 @@ function PrintWorkLogs({ id, quoteInfo }) {
       >
         <WorklogForm
           id={id}
-          quoteInfo={quoteInfo}
+          contract={contract}
           setWorkLogs={setWorkLogs}
           onClose={() => setForm(!form)}
         />

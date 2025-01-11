@@ -81,7 +81,6 @@ function DCForm({ id, contract, setDCs, onClose }) {
       packaging: "",
     });
   }
-  console.log(dcArryRef.current);
   return (
     <div className="max-w-md mx-auto p-6">
       <h3 className="text-xl font-semibold text-center mb-4">DC Form</h3>

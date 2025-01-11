@@ -6,7 +6,7 @@ import { unwrapResult } from "@reduxjs/toolkit";
 import { useDispatch } from "react-redux";
 import { createWorklog } from "../redux/contract/contractSlice";
 
-function WorklogForm({ id, quoteInfo, setWorkLogs, onClose }) {
+function WorklogForm({ id, contract, setWorkLogs, onClose }) {
   const dispatch = useDispatch();
   const [validInput, setValidInput] = useState(false);
   const [worklogObj, setWorklogObj] = useState({
@@ -35,9 +35,9 @@ function WorklogForm({ id, quoteInfo, setWorkLogs, onClose }) {
   useEffect(() => {
     setWorklogObj((prev) => ({
       ...prev,
-      areaTreatedUnit: quoteInfo[0].workAreaUnit,
+      areaTreatedUnit: contract?.workAreaUnit,
     }));
-  }, [quoteInfo]);
+  }, [contract]);
 
   function handleWorklogChange(e) {
     const { name, value } = e.target;
@@ -56,7 +56,7 @@ function WorklogForm({ id, quoteInfo, setWorkLogs, onClose }) {
         chemical: "",
         chemicalUsed: "",
         areaTreated: "",
-        areaTreatedUnit: quoteInfo[0].workAreaUnit,
+        areaTreatedUnit: contract[0].workAreaUnit,
         remark: "",
       });
       onClose();
@@ -80,7 +80,7 @@ function WorklogForm({ id, quoteInfo, setWorkLogs, onClose }) {
             required
           >
             <option></option>
-            {quoteInfo.map((info) => (
+            {contract?.quoteInfo.map((info) => (
               <option key={info._id}>{info.workAreaType}</option>
             ))}
           </Select>
@@ -96,7 +96,7 @@ function WorklogForm({ id, quoteInfo, setWorkLogs, onClose }) {
             required
           >
             <option></option>
-            {quoteInfo.map((info) => (
+            {contract?.quoteInfo.map((info) => (
               <option key={info._id}>{info.chemical}</option>
             ))}
           </Select>
@@ -127,7 +127,7 @@ function WorklogForm({ id, quoteInfo, setWorkLogs, onClose }) {
             <TextInput
               id="areaTreatedUnit"
               name="areaTreatedUnit"
-              value={quoteInfo[0].workAreaUnit}
+              value={contract?.workAreaUnit}
               onChange={handleWorklogChange}
               required
               className="col-span-2"
