@@ -217,6 +217,7 @@ async function generateAndSendReport(data) {
     ];
 
     await apiInstance.sendTransacEmail(sendSmtpEmail);
+    return base64File;
   } catch (error) {
     console.error("Error in generate and send report:", error);
     throw new Error("Failed to generate and send report");

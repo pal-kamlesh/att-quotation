@@ -670,7 +670,21 @@ const genReport = async (req, res, next) => {
       .populate("createdBy")
       .sort({ "salesPerson._id": 1 })
       .lean();
+    console.log(`weeklydataQuot: ${weeklyDataQuote}`);
+    // Get the start and end of the current month
+    const startOfMonth = new Date(
+      today.getUTCFullYear(),
+      today.getUTCMonth(),
+      1
+    );
+    startOfMonth.setUTCHours(0, 0, 0, 0);
 
+    const endOfMonth = new Date(
+      today.getUTCFullYear(),
+      today.getUTCMonth() + 1,
+      0
+    );
+    endOfMonth.setUTCHours(23, 59, 59, 999);
     const monthelyDataQuote = await Quotation.find({
       quotationDate: {
         $gte: startOfMonth,
@@ -681,7 +695,7 @@ const genReport = async (req, res, next) => {
       .populate("salesPerson")
       .populate("createdBy")
       .lean();
-
+    console.log(`monthlyDataQuote: ${monthelyDataQuote}`);
     const weeklyDataContract = await Contract.find({
       contractDate: { $gte: lastMonday, $lt: endOfWeek },
     })
@@ -729,7 +743,7 @@ const genReport = async (req, res, next) => {
       fromDate: lastMonday.toLocaleDateString(),
       toDate: endOfWeek.toLocaleDateString(),
     };
-    await generateAndSendReport({
+    const base64File = await generateAndSendReport({
       weeklyDataContract,
       weeklyDataQuote,
       monthelyDataQuote,
@@ -745,45 +759,113 @@ const genReport = async (req, res, next) => {
     //   "Content-Type",
     //   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     // );
-    res.send("OK");
+    // res.status(200).json({
+    //   message: "Report Generated",
+    //   file: base64File,
+    // });
+    res.status(200).json("ok");
   } catch (error) {
     next(error);
   }
 };
-const monthelyReport = async () => {
+const genMonthlyReport = async (req, res, next) => {
   try {
-    const currentDate = new Date();
-    const startOfMonth = new Date(
-      currentDate.getFullYear(),
-      currentDate.getMonth() - 1,
-      1
-    );
-    const endOfMonth = new Date(
-      currentDate.getFullYear(),
-      currentDate.getMonth(),
-      1
-    );
+    const { fromDate, toDate } = req.query;
+    let startDate, endDate;
 
-    const monthelyDataQuote = await Quotation.find({
-      quotationDate: {
-        $gte: startOfMonth,
-        $lt: endOfMonth,
-      },
+    if (fromDate && toDate) {
+      startDate = new Date(fromDate);
+      endDate = new Date(toDate);
+      endDate.setUTCDate(endDate.getUTCDate() + 1);
+    } else {
+      const today = new Date();
+      startDate = new Date(today.getUTCFullYear(), today.getUTCMonth(), 1);
+      endDate = new Date(today.getUTCFullYear(), today.getUTCMonth() + 1, 0);
+      endDate.setUTCDate(endDate.getUTCDate() + 1);
+    }
+
+    startDate.setUTCHours(0, 0, 0, 0);
+    endDate.setUTCHours(0, 0, 0, 0);
+
+    const periodDataQuote = await Quotation.find({
+      quotationDate: { $gte: startDate, $lt: endDate },
+    })
+      .populate("quoteInfo")
+      .populate("salesPerson")
+      .populate("createdBy")
+      .sort({ "salesPerson._id": 1 })
+      .lean();
+
+    const monthlyDataQuote = await Quotation.find({
+      quotationDate: { $gte: startDate, $lt: endDate },
     })
       .populate("quoteInfo")
       .populate("salesPerson")
       .populate("createdBy")
       .lean();
 
-    const headers = createHeader(monthelyDataQuote);
-    const builder = createExcelBuilder1(headers);
-    const rf = await builder(monthelyDataQuote);
-    const excelBuffer = await rf();
-    const base64File = excelBuffer.toString("base64");
-    await sendExel(base64File);
+    const periodDataContract = await Contract.find({
+      contractDate: { $gte: startDate, $lt: endDate },
+    })
+      .populate("quoteInfo")
+      .populate("salesPerson")
+      .populate("createdBy")
+      .lean();
+
+    const totalQuotations = await Quotation.countDocuments({
+      quotationDate: { $gte: startDate, $lt: endDate },
+    });
+
+    const approveCount = await Quotation.countDocuments({
+      quotationDate: { $gte: startDate, $lt: endDate },
+      approved: true,
+    });
+
+    const approvePending = await Quotation.countDocuments({
+      quotationDate: { $gte: startDate, $lt: endDate },
+      approved: false,
+    });
+
+    const contractified = await Quotation.countDocuments({
+      quotationDate: { $gte: startDate, $lt: endDate },
+      contractified: true,
+    });
+
+    const totalContracts = await Contract.countDocuments({
+      contractDate: { $gte: startDate, $lt: endDate },
+    });
+
+    const approvedCountContract = await Contract.countDocuments({
+      contractDate: { $gte: startDate, $lt: endDate },
+      approved: true,
+    });
+
+    const approvePendingContract = await Contract.countDocuments({
+      contractDate: { $gte: startDate, $lt: endDate },
+      approved: false,
+    });
+
+    const subdata = {
+      totalQuotations,
+      contractified,
+      approveCount,
+      approvePending,
+      totalContracts,
+      approvedCountContract,
+      approvePendingContract,
+      fromDate: startDate.toLocaleDateString(),
+      toDate: endDate.toLocaleDateString(),
+    };
+
+    await generateAndSendReport({
+      weeklyDataContract: periodDataContract,
+      weeklyDataQuote: periodDataQuote,
+      monthlyDataQuote,
+      subdata,
+    });
+
     res.send("OK");
   } catch (error) {
-    console.log(error);
     next(error);
   }
 };
@@ -809,5 +891,5 @@ export {
   deletedContract,
   getArchive,
   genReport,
-  monthelyReport,
+  genMonthlyReport,
 };

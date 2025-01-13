@@ -75,7 +75,7 @@ export default function Header() {
       </div>
       <Navbar.Collapse>
         <Navbar.Link as="div" active={location.pathname === "/" ? true : false}>
-          <Link to="/">Dashboard</Link>
+          <Link to="/">Home</Link>
         </Navbar.Link>
         {(currentUser?.rights.createQuote ||
           currentUser?.rights.admin ||
@@ -111,6 +111,15 @@ export default function Header() {
             <Link to="/work-log">Work logs</Link>
           </Navbar.Link>
         )}
+        {currentUser?.rights.admin && (
+          <Navbar.Link
+            as="div"
+            active={location.pathname === "/dashboard" ? true : false}
+          >
+            <Link to="/dashboard">Dashboard</Link>
+          </Navbar.Link>
+        )}
+
         {currentUser?.rights.admin && (
           <Navbar.Link
             as="div"
