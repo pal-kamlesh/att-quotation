@@ -16,6 +16,8 @@ import {
   manageWarrantyCounter,
   manageDcCounter,
   createExcelBuilder,
+  getStatsForEmail,
+  generateAndSendReport2,
 } from "../utils/functions.js";
 import Warranty from "../models/warrantyModel.js";
 import {
@@ -670,7 +672,6 @@ const genReport = async (req, res, next) => {
       .populate("createdBy")
       .sort({ "salesPerson._id": 1 })
       .lean();
-    console.log(`weeklydataQuot: ${weeklyDataQuote}`);
     // Get the start and end of the current month
     const startOfMonth = new Date(
       today.getUTCFullYear(),
@@ -695,7 +696,6 @@ const genReport = async (req, res, next) => {
       .populate("salesPerson")
       .populate("createdBy")
       .lean();
-    console.log(`monthlyDataQuote: ${monthelyDataQuote}`);
     const weeklyDataContract = await Contract.find({
       contractDate: { $gte: lastMonday, $lt: endOfWeek },
     })
@@ -704,45 +704,67 @@ const genReport = async (req, res, next) => {
       .populate("createdBy")
       .lean();
 
-    const totalQuotations = await Quotation.countDocuments({
-      quotationDate: { $gte: lastMonday, $lt: endOfWeek },
-    });
-
-    const approveCount = await Quotation.countDocuments({
-      quotationDate: { $gte: lastMonday, $lt: endOfWeek },
-      approved: true,
-    });
-    const approvePending = await Quotation.countDocuments({
-      quotationDate: { $gte: lastMonday, $lt: endOfWeek },
-      approved: false,
-    });
-    const contractified = await Quotation.countDocuments({
-      quotationDate: { $gte: lastMonday, $lt: endOfWeek },
-      contractified: true,
-    });
-    //contract
-    const totalContracts = await Contract.countDocuments({
-      contractDate: { $gte: lastMonday, $lt: endOfWeek },
-    });
-    const approvedCountContract = await Contract.countDocuments({
-      contractDate: { $gte: lastMonday, $lt: endOfWeek },
-      approved: true,
-    });
-    const approvePendingContract = await Contract.countDocuments({
-      contractDate: { $gte: lastMonday, $lt: endOfWeek },
-      approved: false,
-    });
-    const subdata = {
-      totalQuotations,
-      contractified,
-      approveCount,
-      approvePending,
-      totalContracts,
-      approvedCountContract,
-      approvePendingContract,
-      fromDate: lastMonday.toLocaleDateString(),
-      toDate: endOfWeek.toLocaleDateString(),
+    const subdata = await getStatsForEmail(lastMonday, endOfWeek);
+    const sheetConfigs = [
+      {
+        sheetName: "Quotes",
+        headers: [
+          { header: "REP", key: "salesPerson", width: 15 },
+          { header: "Date", key: "quotationDate", width: 15 },
+          { header: "Quote No", key: "quotationNo", width: 15 },
+          { header: "Name of Client", key: "clientName", width: 30 },
+          { header: "Area", key: "area", width: 15 },
+          { header: "Amount", key: "amount", width: 15 },
+          { header: "Contact Nos", key: "contactNos", width: 15 },
+          { header: "Remark", key: "remark", width: 30 },
+        ],
+      },
+      {
+        sheetName: "Contracts",
+        headers: [
+          { header: "REP", key: "salesPerson", width: 15 },
+          { header: "Date", key: "quotationDate", width: 15 },
+          { header: "Contract No", key: "quotationNo", width: 15 },
+          { header: "Name of Client", key: "clientName", width: 30 },
+          { header: "Area", key: "area", width: 15 },
+          { header: "Amount", key: "amount", width: 15 },
+          { header: "Contact Nos", key: "contactNos", width: 15 },
+          { header: "Remark", key: "remark", width: 30 },
+        ],
+      },
+      {
+        sheetName: "Monthly Quote",
+        headers: [
+          { header: "REP", key: "salesPerson", width: 15 },
+          { header: "Date", key: "quotationDate", width: 15 },
+          { header: "Quote No", key: "quotationNo", width: 15 },
+          { header: "Name of Client", key: "clientName", width: 30 },
+          { header: "Area", key: "area", width: 15 },
+          { header: "Amount", key: "amount", width: 15 },
+          { header: "Contact Nos", key: "contactNos", width: 15 },
+          { header: "Remark", key: "remark", width: 30 },
+        ],
+      },
+    ];
+    const emailConfig = {
+      sender: { name: "EPCORN", email: process.env.EA_EMAIL },
+      recipients: [{ email: process.env.NO_REPLY_EMAIL }],
+      subject: "Monthly Report",
+      templateId: 9,
+      params: subdata,
     };
+    const data = [
+      {
+        sheetName: "Quotes",
+        data: [...weeklyDataQuote],
+      },
+      { sheetName: "Contracts", data: [...weeklyDataContract] },
+      {
+        sheetName: "Monthly Quote",
+        data: [...monthelyDataQuote],
+      },
+    ];
+    //await generateAndSendReport2({ data, emailConfig, sheetConfigs });
     const base64File = await generateAndSendReport({
       weeklyDataContract,
       weeklyDataQuote,
@@ -765,6 +787,7 @@ const genReport = async (req, res, next) => {
     // });
     res.status(200).json("ok");
   } catch (error) {
+    console.log(error);
     next(error);
   }
 };
@@ -796,13 +819,13 @@ const genMonthlyReport = async (req, res, next) => {
       .sort({ "salesPerson._id": 1 })
       .lean();
 
-    const monthlyDataQuote = await Quotation.find({
-      quotationDate: { $gte: startDate, $lt: endDate },
-    })
-      .populate("quoteInfo")
-      .populate("salesPerson")
-      .populate("createdBy")
-      .lean();
+    // const monthlyDataQuote = await Quotation.find({
+    //   quotationDate: { $gte: startDate, $lt: endDate },
+    // })
+    //   .populate("quoteInfo")
+    //   .populate("salesPerson")
+    //   .populate("createdBy")
+    //   .lean();
 
     const periodDataContract = await Contract.find({
       contractDate: { $gte: startDate, $lt: endDate },
@@ -812,55 +835,11 @@ const genMonthlyReport = async (req, res, next) => {
       .populate("createdBy")
       .lean();
 
-    const totalQuotations = await Quotation.countDocuments({
-      quotationDate: { $gte: startDate, $lt: endDate },
-    });
-
-    const approveCount = await Quotation.countDocuments({
-      quotationDate: { $gte: startDate, $lt: endDate },
-      approved: true,
-    });
-
-    const approvePending = await Quotation.countDocuments({
-      quotationDate: { $gte: startDate, $lt: endDate },
-      approved: false,
-    });
-
-    const contractified = await Quotation.countDocuments({
-      quotationDate: { $gte: startDate, $lt: endDate },
-      contractified: true,
-    });
-
-    const totalContracts = await Contract.countDocuments({
-      contractDate: { $gte: startDate, $lt: endDate },
-    });
-
-    const approvedCountContract = await Contract.countDocuments({
-      contractDate: { $gte: startDate, $lt: endDate },
-      approved: true,
-    });
-
-    const approvePendingContract = await Contract.countDocuments({
-      contractDate: { $gte: startDate, $lt: endDate },
-      approved: false,
-    });
-
-    const subdata = {
-      totalQuotations,
-      contractified,
-      approveCount,
-      approvePending,
-      totalContracts,
-      approvedCountContract,
-      approvePendingContract,
-      fromDate: startDate.toLocaleDateString(),
-      toDate: endDate.toLocaleDateString(),
-    };
+    const subdata = await getStatsForEmail();
 
     await generateAndSendReport({
       weeklyDataContract: periodDataContract,
       weeklyDataQuote: periodDataQuote,
-      monthlyDataQuote,
       subdata,
     });
 

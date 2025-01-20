@@ -81,12 +81,6 @@ const quoteInfoSchema = mongoose.Schema({
   },
   chemical: {
     type: String,
-    enum: [
-      "Chloropyriphos 20% EC",
-      "Imidachloprid 30.5% SC",
-      "Imidachloprid 30.5% SC 'Termida'",
-      'Imidachloprid 30.5% SC ("PREMISE" - By Bayer India/ENVU)',
-    ],
     required: true,
   },
   chemicalQuantity: {

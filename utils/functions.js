@@ -1,4 +1,4 @@
-import { Counter, QuoteArchive } from "../models/index.js";
+import { Contract, Counter, Quotation, QuoteArchive } from "../models/index.js";
 import ExcelJS from "exceljs";
 import brevo from "@getbrevo/brevo";
 import { createExcelBuilder as excelBuilder } from "../utils/functions.js";
@@ -252,9 +252,144 @@ async function manageWarrantyCounter() {
   );
   return warrantyCounter.seq;
 }
+async function getStatsForEmail(lastMonday, endOfWeek) {
+  const totalQuotations = await Quotation.countDocuments({
+    quotationDate: { $gte: lastMonday, $lt: endOfWeek },
+  });
+
+  const approveCount = await Quotation.countDocuments({
+    quotationDate: { $gte: lastMonday, $lt: endOfWeek },
+    approved: true,
+  });
+  const approvePending = await Quotation.countDocuments({
+    quotationDate: { $gte: lastMonday, $lt: endOfWeek },
+    approved: false,
+  });
+  const contractified = await Quotation.countDocuments({
+    quotationDate: { $gte: lastMonday, $lt: endOfWeek },
+    contractified: true,
+  });
+  //contract
+  const totalContracts = await Contract.countDocuments({
+    contractDate: { $gte: lastMonday, $lt: endOfWeek },
+  });
+  const approvedCountContract = await Contract.countDocuments({
+    contractDate: { $gte: lastMonday, $lt: endOfWeek },
+    approved: true,
+  });
+  const approvePendingContract = await Contract.countDocuments({
+    contractDate: { $gte: lastMonday, $lt: endOfWeek },
+    approved: false,
+  });
+  const subdata = {
+    totalQuotations,
+    contractified,
+    approveCount,
+    approvePending,
+    totalContracts,
+    approvedCountContract,
+    approvePendingContract,
+    fromDate: lastMonday.toLocaleDateString(),
+    toDate: endOfWeek.toLocaleDateString(),
+  };
+  return subdata;
+}
+
+// Utility to Create Excel Workbook
+function createExcelBuilder2(sheetConfigs) {
+  const workbook = new ExcelJS.Workbook();
+  const worksheets = {};
+
+  // Dynamically create worksheets with given headers
+  sheetConfigs.forEach(({ sheetName, headers }) => {
+    const worksheet = workbook.addWorksheet(sheetName);
+    worksheet.columns = headers;
+    worksheets[sheetName] = worksheet;
+  });
+
+  // Function to add data to a specific worksheet
+  async function addData(sheetName, data) {
+    console.log(`here: ${sheetName}`);
+    console.log(`worksheets: ${worksheets}`);
+    const worksheet = worksheets[sheetName];
+    if (!worksheet) throw new Error(`Worksheet ${sheetName} not found`);
+
+    if (data && data.length === 0) return addData;
+
+    if (!data) {
+      // Return the Excel file as a buffer
+      const buffer = await workbook.xlsx.writeBuffer();
+      return buffer;
+    }
+
+    data.forEach((row) => worksheet.addRow(row));
+
+    return addData;
+  }
+
+  return addData;
+}
+// Utility to Send Email via Brevo
+async function sendEmail({
+  sender,
+  recipients,
+  subject,
+  templateId,
+  attachment,
+  params,
+}) {
+  const defaultClient = brevo.ApiClient.instance;
+  const apiKey = defaultClient.authentications["api-key"];
+  apiKey.apiKey = process.env.BREVO_KEY;
+
+  const apiInstance = new brevo.TransactionalEmailsApi();
+  const emailData = new brevo.SendSmtpEmail({
+    sender,
+    to: recipients,
+    subject,
+    templateId,
+    params,
+    attachment: [
+      {
+        content: attachment,
+        name: "Report.xlsx",
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      },
+    ],
+  });
+
+  await apiInstance.sendTransacEmail(emailData);
+}
+// Main Function to Generate and Email Report
+async function generateAndSendReport2({ data, emailConfig, sheetConfigs }) {
+  try {
+    const builder = createExcelBuilder2(sheetConfigs);
+
+    // Add data to worksheets
+    for (const { sheetName, data: sheetData } of data) {
+      await builder(sheetName, sheetData);
+    }
+
+    // Generate Excel buffer
+    const excelBuffer = await builder();
+
+    // Convert buffer to base64
+    const base64File = excelBuffer.toString("base64");
+
+    // Send email with attachment
+    await sendEmail({ ...emailConfig, attachment: base64File });
+
+    console.log("Report sent successfully!");
+    return base64File;
+  } catch (error) {
+    console.error("Error in generateAndSendReport:", error);
+    throw new Error("Failed to generate and send report");
+  }
+}
 
 export {
   generateAndSendReport,
+  generateAndSendReport2,
   manageDcCounter,
   manageWarrantyCounter,
   differenceBetweenArrays,
@@ -264,4 +399,5 @@ export {
   isRevised,
   createContractArchiveEntry,
   createExcelBuilder,
+  getStatsForEmail,
 };
