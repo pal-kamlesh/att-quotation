@@ -3,10 +3,14 @@ import { Button, Label, Select, Spinner, TextInput } from "flowbite-react";
 import { useDispatch, useSelector } from "react-redux";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { searchQuotes } from "../redux/quote/quoteSlice";
+import { useLocation } from "react-router-dom";
+import { searchContracts } from "../redux/contract/contractSlice";
+import { searchCards } from "../redux/card/cardSlice";
 
 // eslint-disable-next-line react/prop-types
-const SearchQuote = ({ setExtraQuery }) => {
+const Search = ({ setExtraQuery }) => {
   const dispatch = useDispatch();
+  const { pathname } = useLocation();
   const [createdBy, setCreatedBy] = useState("");
   const [projectName, setProjectName] = useState("");
   const [clientName, setClientName] = useState("");
@@ -14,7 +18,6 @@ const SearchQuote = ({ setExtraQuery }) => {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const { initials } = useSelector((state) => state.user);
-
   const [loading, setLoading] = useState(false);
 
   const handleSearch = async () => {
@@ -44,7 +47,13 @@ const SearchQuote = ({ setExtraQuery }) => {
 
     try {
       setLoading(true);
-      const resultAction = await dispatch(searchQuotes(query.slice(1)));
+      console.log(pathname);
+      const resultAction =
+        pathname === "/quotes"
+          ? await dispatch(searchQuotes(query.slice(1)))
+          : pathname === "/contracts"
+          ? await dispatch(searchContracts(query.slice(1)))
+          : await dispatch(searchCards(query.slice(1)));
       setExtraQuery(query.slice(1));
       // eslint-disable-next-line no-unused-vars
       const result = unwrapResult(resultAction);
@@ -167,4 +176,4 @@ const SearchQuote = ({ setExtraQuery }) => {
   );
 };
 
-export default SearchQuote;
+export default Search;

@@ -16,7 +16,10 @@ import {
   NewQuote,
   PopUp2,
   Refresh,
+  Search,
   ViewQuote,
+  PopUp,
+  UpdateQuotation,
 } from "../components";
 import { useDispatch, useSelector } from "react-redux";
 import { getInitials } from "../redux/user/userSlice";
@@ -29,10 +32,8 @@ import {
   // eslint-disable-next-line no-unused-vars
   deleteQuote,
 } from "../redux/quote/quoteSlice";
-import { SearchQuote, UpdateQuotation } from "../components/index.js";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
-import PopUp from "../components/PopUp";
 import { getDotColor } from "../funtions/funtion";
 import { useNavigate } from "react-router-dom";
 import debounce from "lodash.debounce";
@@ -271,7 +272,7 @@ export default function Create() {
             </div>
           </div>
           <div>
-            <SearchQuote setExtraQuery={setExtraQuery} />
+            <Search setExtraQuery={setExtraQuery} />
           </div>
           <div className=" overflow-x-auto ">
             <Table>

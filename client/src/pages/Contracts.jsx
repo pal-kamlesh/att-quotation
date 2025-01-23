@@ -5,12 +5,12 @@ import {
   NewContract,
   PopUpContract,
   Refresh,
-  SearchContract,
   UpdateContract,
   ViewContract,
   PopUp,
   QRbutton,
   HistoryPanelContract,
+  Search,
 } from "../components/index.js";
 import TimeAgo from "react-timeago";
 import { Button, Table } from "flowbite-react";
@@ -151,7 +151,7 @@ function Contracts() {
             </div>
           </div>
           <div>
-            <SearchContract setExtraQuery={setExtraQuery} />
+            <Search setExtraQuery={setExtraQuery} />
           </div>
           <div className=" overflow-x-auto ">
             <Table>

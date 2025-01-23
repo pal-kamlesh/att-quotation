@@ -1,104 +1,111 @@
-/* eslint-disable react/prop-types */
-import { Link } from "react-router-dom";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
-import { MdAccessTime, MdAssignment, MdGroup, MdWarning } from "react-icons/md";
-import { useState } from "react";
+import headerTransparent from "../images/headerTransparent.png";
+import qrcodeSample from "../images/qrcodeSample.png";
+import { useEffect } from "react";
+import { Html5QrcodeScanner } from "html5-qrcode";
 
 const WorkLogDash = () => {
-  // Simulated data - replace with actual data fetching logic
-  const [recentLogs] = useState([
-    { id: 1, task: "Project Planning", duration: "2h 30m", date: "2024-10-11" },
-    { id: 2, task: "Client Meeting", duration: "1h 15m", date: "2024-10-10" },
-    { id: 3, task: "Code Review", duration: "45m", date: "2024-10-09" },
-  ]);
+  useEffect(() => {
+    const qrScanner = new Html5QrcodeScanner(
+      "qr-reader",
+      {
+        fps: 10, // Frames per second
+        qrbox: { width: 250, height: 250 }, // Scanner box dimensions
+      },
+      /* verbose= */ false
+    );
 
-  const chartData = [
-    { name: "Mon", hours: 6 },
-    { name: "Tue", hours: 8 },
-    { name: "Wed", hours: 7 },
-    { name: "Thu", hours: 9 },
-    { name: "Fri", hours: 5 },
-  ];
+    qrScanner.render(
+      (decodedText, decodedResult) => {
+        alert(`QR Code Scanned: ${decodedText}`);
+      },
+      (error) => {
+        console.error(`Error scanning QR code: ${error}`);
+      }
+    );
+
+    return () => {
+      qrScanner.clear();
+    };
+  }, []);
 
   return (
-    <div className="max-w-[1400px] mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">Work Log Dashboard</h1>
+    <div className="max-w-[1400px] mx-auto p-6 grid lg:grid-cols-2 gap-6">
+      {/* Left Section - Service Card */}
+      <div className="bg-pink-400 p-6 rounded-md shadow-md">
+        {/* Header Section */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4">
+          <img
+            src={headerTransparent}
+            className="h-8 mr-2 bg-pink-400"
+            alt="Logo"
+          />
+        </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <StatCard
-          title="Total Hours"
-          value="32h 15m"
-          icon={<MdAccessTime size={24} />}
-        />
-        <StatCard
-          title="Completed Tasks"
-          value="15"
-          icon={<MdAssignment size={24} />}
-        />
-        <StatCard title="Team Members" value="8" icon={<MdGroup size={24} />} />
-        <StatCard
-          title="Pending Approvals"
-          value="3"
-          icon={<MdWarning size={24} />}
-        />
+        {/* Client & Project Details */}
+        <div className="text-white mb-4">
+          <p className="font-medium mb-2">
+            Client: M/s. Cowtown Infotech Services Ltd
+          </p>
+          <p className="mb-2">Project: Lodha Stella Project (Tower B)</p>
+          <p>
+            Address: Kapurbawdi, Ghodbunder Road, Thane (W),
+            <br />
+            Pin Code - 400 607
+          </p>
+        </div>
+
+        {/* Contact Details and QR Code */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+          {/* Contact Details */}
+          <div>
+            <p className="text-white font-medium mb-2">Site Contact Details</p>
+            <p className="text-white text-sm mb-1">
+              Contact Person: Mr. Amey Bannore (P.M)
+            </p>
+            <p className="text-white text-sm mb-1">Telephone: 98191 26973</p>
+            <p className="text-white text-sm mb-1">
+              Email: amey.bannore@lodhagroup.com
+            </p>
+            <p className="text-white text-sm mt-3">
+              Contact Person: Mr. Rohan Singh (S.E)
+            </p>
+            <p className="text-white text-sm">Telephone: 90041 99633</p>
+          </div>
+
+          {/* QR Code */}
+          <div className="flex justify-center items-center">
+            <div className="bg-white p-2 rounded-md">
+              <img
+                src={qrcodeSample}
+                alt="QR Code"
+                className="h-32 w-32 object-contain"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="text-white text-sm mt-6">
+          <p>Ref: EPPL/OTN/ATT/174</p>
+          <p>Date: 30/09/2024</p>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow">
-          <h2 className="text-xl font-semibold mb-4">Weekly Work Hours</h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="hours" fill="#3b82f6" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-xl font-semibold mb-4">Recent Logs</h2>
-          <ul className="space-y-4">
-            {recentLogs.map((log) => (
-              <li key={log.id} className="border-b pb-2">
-                <p className="font-medium">{log.task}</p>
-                <p className="text-sm text-gray-600">
-                  {log.duration} on {log.date}
-                </p>
-              </li>
-            ))}
-          </ul>
-          <Link
-            to="/work-log"
-            className="mt-4 inline-block text-blue-600 hover:underline"
-          >
-            View All Logs
-          </Link>
-        </div>
+      {/* Right Section - QR Code Scanner */}
+      <div className="flex flex-col items-center justify-center bg-gray-100 p-6 rounded-md shadow-md">
+        <h3 className="text-gray-700 font-semibold text-lg mb-4">
+          Scan the Actual Service Card
+        </h3>
+        <div
+          id="qr-reader"
+          className="w-full h-full flex justify-center items-center bg-gray-300 border-2 border-dashed border-gray-500 rounded-md"
+        ></div>
+        <p className="text-gray-500 text-sm text-center mt-4">
+          Point your camera at the QR Code to scan.
+        </p>
       </div>
     </div>
   );
 };
-
-const StatCard = ({ title, value, icon }) => (
-  <div className="bg-white p-6 rounded-lg shadow flex items-center">
-    <div className="mr-4 text-blue-500">{icon}</div>
-    <div>
-      <h3 className="text-lg font-semibold">{title}</h3>
-      <p className="text-2xl font-bold">{value}</p>
-    </div>
-  </div>
-);
 
 export default WorkLogDash;

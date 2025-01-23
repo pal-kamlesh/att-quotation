@@ -108,7 +108,7 @@ export default function Header() {
             as="div"
             active={location.pathname === "/workLog" ? true : false}
           >
-            <Link to="/work-log">Work logs</Link>
+            <Link to="/workLog">Work logs</Link>
           </Navbar.Link>
         )}
         {currentUser?.rights.admin && (

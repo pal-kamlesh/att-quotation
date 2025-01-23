@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getInitials } from "../redux/user/userSlice";
 import { Button, Table } from "flowbite-react";
-import { Loading, Refresh, SearchContract, PopUp } from "../components";
+import { Loading, Refresh, PopUp, Search } from "../components";
 import TimeAgo from "react-timeago";
 import { getDotColor } from "../funtions/funtion";
 import { FcPrint } from "react-icons/fc";
@@ -115,7 +115,7 @@ function Cards() {
             </div>
           </div>
           <div>
-            <SearchContract setExtraQuery={setExtraQuery} />
+            <Search setExtraQuery={setExtraQuery} />
           </div>
           <div className=" overflow-x-auto ">
             <Table>

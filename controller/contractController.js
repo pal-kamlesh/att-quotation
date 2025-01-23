@@ -140,7 +140,6 @@ const contracts = async (req, res, next) => {
       .sort({ updatedAt: sortDirection })
       .skip(startIndex)
       .limit(limit);
-
     // Get today's date for counting today's quotes
     const today = new Date();
     today.setHours(0, 0, 0, 0);

@@ -14,8 +14,7 @@ import InputStandardAdv from "./InputStandardAdv";
 import InputSupplyAdv from "./InputSupplyAdv";
 import InputSupplyApplyAdv from "./InputSupplyApplyAdv";
 import PopUp2 from "./PopUp2";
-import SearchQuote from "./SearchQuote";
-import SearchContract from "./SearchContract";
+import Search from "./Search";
 import UpdateContract from "./UpdateContract";
 import Refresh from "./Refresh";
 import PopUp from "./PopUp";
@@ -45,11 +44,11 @@ export {
   InputSupplyAdv,
   InputSupplyApplyAdv,
   PopUp2,
-  SearchQuote,
-  SearchContract,
-  UpdateContract,
-  Refresh,
   PopUp,
+  Search,
+  UpdateContract,
+  UpdateQuotation,
+  Refresh,
   PopUpContract,
   WorklogForm,
   DCForm,
@@ -58,5 +57,4 @@ export {
   QRbutton,
   HistoryPanelContract,
   HistoryPanelQuote,
-  UpdateQuotation,
 };

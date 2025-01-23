@@ -18,7 +18,7 @@ const LandingPage = () => {
         {getGreeting()}, {currentUser.username}!
       </h1>
       <p className="text-lg text-white mb-4 italic">
-        Welcome to ATT Portal, we're happy to see you here.
+        Welcome to ATT Portal, we&rsquo;re happy to see you here.
       </p>
       <div className="relative mb-8">
         <img
