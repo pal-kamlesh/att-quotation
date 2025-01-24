@@ -16,6 +16,7 @@ const WorkLogDash = () => {
 
     qrScanner.render(
       (decodedText, decodedResult) => {
+        console.log(decodedResult);
         alert(`QR Code Scanned: ${decodedText}`);
       },
       (error) => {
@@ -36,13 +37,13 @@ const WorkLogDash = () => {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4">
           <img
             src={headerTransparent}
-            className="h-8 mr-2 bg-pink-400"
+            className="w-full h-18 mr-2 bg-pink-400"
             alt="Logo"
           />
         </div>
 
         {/* Client & Project Details */}
-        <div className="text-white mb-4">
+        <div className=" mb-4">
           <p className="font-medium mb-2">
             Client: M/s. Cowtown Infotech Services Ltd
           </p>
@@ -58,18 +59,16 @@ const WorkLogDash = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
           {/* Contact Details */}
           <div>
-            <p className="text-white font-medium mb-2">Site Contact Details</p>
-            <p className="text-white text-sm mb-1">
+            <p className=" font-medium mb-2">Site Contact Details</p>
+            <p className=" text-sm mb-1">
               Contact Person: Mr. Amey Bannore (P.M)
             </p>
-            <p className="text-white text-sm mb-1">Telephone: 98191 26973</p>
-            <p className="text-white text-sm mb-1">
-              Email: amey.bannore@lodhagroup.com
-            </p>
-            <p className="text-white text-sm mt-3">
+            <p className=" text-sm mb-1">Telephone: 98191 26973</p>
+            <p className=" text-sm mb-1">Email: amey.bannore@lodhagroup.com</p>
+            <p className=" text-sm mt-3">
               Contact Person: Mr. Rohan Singh (S.E)
             </p>
-            <p className="text-white text-sm">Telephone: 90041 99633</p>
+            <p className=" text-sm">Telephone: 90041 99633</p>
           </div>
 
           {/* QR Code */}
@@ -85,7 +84,7 @@ const WorkLogDash = () => {
         </div>
 
         {/* Footer */}
-        <div className="text-white text-sm mt-6">
+        <div className=" text-sm mt-6">
           <p>Ref: EPPL/OTN/ATT/174</p>
           <p>Date: 30/09/2024</p>
         </div>
