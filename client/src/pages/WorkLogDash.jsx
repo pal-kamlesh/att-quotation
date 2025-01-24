@@ -9,7 +9,7 @@ const WorkLogDash = () => {
       "qr-reader",
       {
         fps: 10, // Frames per second
-        qrbox: { width: 250, height: 250 }, // Scanner box dimensions
+        qrbox: { width: "500px", height: "500px" }, // Scanner box dimensions
       },
       /* verbose= */ false
     );
@@ -30,7 +30,7 @@ const WorkLogDash = () => {
   }, []);
 
   return (
-    <div className="max-w-[1400px] mx-auto p-6 grid lg:grid-cols-2 gap-6">
+    <div className="max-w-[1400px] mx-auto p-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
       {/* Left Section - Service Card */}
       <div className="bg-pink-400 p-6 rounded-md shadow-md">
         {/* Header Section */}
@@ -91,15 +91,15 @@ const WorkLogDash = () => {
       </div>
 
       {/* Right Section - QR Code Scanner */}
-      <div className="flex flex-col items-center justify-center bg-gray-100 p-6 rounded-md shadow-md">
-        <h3 className="text-gray-700 font-semibold text-lg mb-4">
+      <div className=" w-full h-full flex flex-col items-center justify-center bg-gray-100 p-1 rounded-md shadow-md">
+        <h3 className="text-gray-700 font-semibold text-lg mb-2">
           Scan the Actual Service Card
         </h3>
         <div
           id="qr-reader"
-          className="w-full h-full flex justify-center items-center bg-gray-300 border-2 border-dashed border-gray-500 rounded-md"
+          className="w-full h-2/4 lg:h-full flex justify-center items-center bg-gray-300 border-2 border-dashed border-gray-500 rounded-md"
         ></div>
-        <p className="text-gray-500 text-sm text-center mt-4">
+        <p className="text-gray-500 text-sm text-center mt-2">
           Point your camera at the QR Code to scan.
         </p>
       </div>
