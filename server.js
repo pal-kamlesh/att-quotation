@@ -6,6 +6,8 @@ import morgan from "morgan";
 import connectDB from "./config/mongoose.js";
 import errorMiddleware from "./middleware/errorMiddleware.js";
 import rootRouter from "./routes/index.js";
+import Quotation from "./models/quotationModel.js";
+import Contract from "./models/contractModel.js";
 connectDB();
 
 const app = express();
@@ -44,6 +46,42 @@ app.use("/api/v1", rootRouter);
   }
 })();
 
+async function getContractifiedIds() {
+  try {
+    // Fetch all quotation IDs where contractified is true
+    const contractIds = await Quotation.find(
+      { contractified: true },
+      { _id: 1 }
+    ).lean();
+    const contractWithoutQuote = await Contract.find(
+      { quotation: { $exists: true } },
+      { quotation: 1 }
+    ).lean();
+
+    // Extract the ID values
+    const contractIdSet = new Set(contractIds.map(({ _id }) => _id.toString()));
+    const contractWithoutQuoteSet = new Set(
+      contractWithoutQuote.map(({ quotation }) => quotation.toString())
+    );
+
+    // Find unique IDs
+    const uniqueInContractIds = [...contractIdSet].filter(
+      (id) => !contractWithoutQuoteSet.has(id)
+    );
+    const uniqueInContractWithoutQuote = [...contractWithoutQuoteSet].filter(
+      (id) => !contractIdSet.has(id)
+    );
+    console.log("*************************");
+    console.log(uniqueInContractIds);
+    console.log("*************************");
+    console.log(uniqueInContractWithoutQuote);
+  } catch (error) {
+    console.error("Error fetching contractified IDs:", error);
+    throw error;
+  }
+}
+
+getContractifiedIds();
 app.use(errorMiddleware);
 
 const port = process.env.PORT || 5000;

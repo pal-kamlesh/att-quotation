@@ -145,9 +145,14 @@ function Cards() {
                             id={contract._id}
                             approved={contract.approved}
                           />
-                          {contract.contractNo
-                            ? contract.contractNo
-                            : contract._id}
+                          <div className="flex flex-col">
+                            <span>
+                              {contract.contractNo
+                                ? contract.contractNo
+                                : contract._id}
+                            </span>
+                            <span>{contract?.quotation?.quotationNo}</span>
+                          </div>
                         </div>
                       </Table.Cell>
                       <Table.Cell>
@@ -157,9 +162,16 @@ function Cards() {
                       </Table.Cell>
                       <Table.Cell>{contract.createdBy?.username}</Table.Cell>
                       <Table.Cell>
-                        {contract.shipToAddress.projectName}
+                        {contract.shipToAddress.projectName.length > 30
+                          ? contract.shipToAddress.projectName.slice(0, 30) +
+                            "..."
+                          : contract.shipToAddress.projectName}
                       </Table.Cell>
-                      <Table.Cell>{contract.billToAddress.name}</Table.Cell>
+                      <Table.Cell>
+                        {contract.billToAddress.name.length > 30
+                          ? contract.billToAddress.name.slice(0, 30) + "..."
+                          : contract.billToAddress.name}
+                      </Table.Cell>
                       <Table.Cell>
                         <TimeAgo date={new Date(contract.updatedAt)} />
                       </Table.Cell>

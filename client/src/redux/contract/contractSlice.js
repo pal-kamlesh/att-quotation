@@ -7,6 +7,7 @@ const initialState = {
   todayContracts: "",
   approvedCount: "",
   approvePending: "",
+  contractWithoutQuote: "",
   loading: false,
   showMore: true,
 };
@@ -598,6 +599,7 @@ export const contractSlice = createSlice({
         state.totalContracts = payload.totalContracts;
         state.approvedCount = payload.approvedCount;
         state.approvePending = payload.approvePending;
+        state.contractWithoutQuote = payload.contractWithoutQuote;
         if (payload.result.length < 9) {
           state.showMore = false;
         } else {

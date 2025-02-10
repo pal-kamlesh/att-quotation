@@ -137,6 +137,7 @@ const contracts = async (req, res, next) => {
     const contracts = await Contract.find(query)
       .lean()
       .populate("createdBy", "username")
+      .populate("quotation", "quotationNo")
       .sort({ updatedAt: sortDirection })
       .skip(startIndex)
       .limit(limit);
@@ -147,6 +148,9 @@ const contracts = async (req, res, next) => {
     const totalContracts = await Contract.countDocuments();
     const todayContracts = await Contract.countDocuments({
       createdAt: { $gte: today },
+    });
+    const contractWithoutQuote = await Contract.countDocuments({
+      quotation: null,
     });
     const approvedCount = await Contract.countDocuments({ approved: true });
     const approvePending = await Contract.countDocuments({
@@ -159,6 +163,7 @@ const contracts = async (req, res, next) => {
       todayContracts,
       approvedCount,
       approvePending,
+      contractWithoutQuote,
     });
   } catch (error) {
     console.log(error);

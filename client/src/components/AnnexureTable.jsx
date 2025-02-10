@@ -2281,7 +2281,14 @@ const createContractCard = async (data) => {
     ],
   });
   const blob = await Packer.toBlob(doc);
-  saveAs(blob, `Card_${data.contractNo ? data.contractNo : data._id}.docx`);
+  saveAs(
+    blob,
+    `${data.billToAddress.name}-${data.shipToAddress.projectName}-${
+      data.shipToAddress.a4
+    }-${data.shipToAddress.city}-${
+      data.quotationNo ? data.quotationNo : data._id
+    }.docx`
+  );
 };
 
 function getQuoteInfoTable(docType, quoteInfo) {

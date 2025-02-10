@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getInitials } from "../redux/user/userSlice";
 import { getQuotes } from "../redux/quote/quoteSlice";
@@ -35,7 +35,7 @@ const StatCard = ({ title, value, icon, color }) => (
         <p
           className={`text-3xl font-bold ${color.replace("border-", "text-")}`}
         >
-          {value}
+          {value ?? 0}
         </p>
       </div>
       <div className={`text-4xl ${color.replace("border-", "text-")}`}>
@@ -54,69 +54,120 @@ export default function Dashboard() {
     dispatch(getContracts());
   }, [dispatch]);
 
-  const {
-    totalQuotations,
-    todayQuotations,
-    approvePending,
-    approvedCount,
-    contractified,
-  } = useSelector((state) => state.quote);
+  const quoteData = useSelector((state) => state.quote) || {};
+  const contractData = useSelector((state) => state.contract) || {};
 
   const {
-    totalContracts,
-    todayContracts,
-    approvedCount: acContract,
-    approvePending: apContract,
-  } = useSelector((state) => state.contract);
+    totalQuotations = 0,
+    todayQuotations = 0,
+    approvePending = 0,
+    approvedCount = 0,
+    contractified = 0,
+  } = quoteData;
 
-  const quotePieData = [
-    { name: "Approved", value: approvedCount },
-    { name: "Pending", value: approvePending },
-    { name: "Contractified", value: contractified },
+  const {
+    totalContracts = 0,
+    todayContracts = 0,
+    approvedCount: approvedContracts = 0,
+    approvePending: pendingContracts = 0,
+    contractWithoutQuote = 0,
+  } = contractData;
+
+  const quotePieData = useMemo(
+    () => [
+      { name: "Approved", value: approvedCount },
+      { name: "Pending", value: approvePending },
+      { name: "Contractified", value: contractified },
+    ],
+    [approvedCount, approvePending, contractified]
+  );
+
+  const barChartData = useMemo(
+    () => [
+      { name: "Quotations", total: totalQuotations, today: todayQuotations },
+      { name: "Contracts", total: totalContracts, today: todayContracts },
+    ],
+    [totalQuotations, todayQuotations, totalContracts, todayContracts]
+  );
+
+  const stats = [
+    {
+      title: "Total Quotations",
+      value: totalQuotations,
+      icon: <MdDescription />,
+      color: "border-blue-500",
+    },
+    {
+      title: "Total Contractified",
+      value: contractified,
+      icon: <MdAssignment />,
+      color: "border-green-500",
+    },
+    {
+      title: "Today's Quotations",
+      value: todayQuotations,
+      icon: <MdToday />,
+      color: "border-purple-500",
+    },
+    {
+      title: "Approved Quotes",
+      value: approvedCount,
+      icon: <MdCheckCircle />,
+      color: "border-indigo-500",
+    },
+    {
+      title: "Pending Approval",
+      value: approvePending,
+      icon: <MdHourglassEmpty />,
+      color: "border-yellow-500",
+    },
   ];
 
-  const barChartData = [
-    { name: "Quotations", total: totalQuotations, today: todayQuotations },
-    { name: "Contracts", total: totalContracts, today: todayContracts },
+  const contractStats = [
+    {
+      title: "Total Contracts",
+      value: totalContracts,
+      icon: <MdAssignment />,
+      color: "border-blue-500",
+    },
+    {
+      title: "Today's Contracts",
+      value: todayContracts,
+      icon: <MdToday />,
+      color: "border-green-500",
+    },
+    {
+      title: "Approved Contracts",
+      value: approvedContracts,
+      icon: <MdCheckCircle />,
+      color: "border-indigo-500",
+    },
+    {
+      title: "Pending Contracts",
+      value: pendingContracts,
+      icon: <MdHourglassEmpty />,
+      color: "border-yellow-500",
+    },
+    {
+      title: "Direct Contracts",
+      value: contractWithoutQuote,
+      icon: <MdHourglassEmpty />,
+      color: "border-yellow-500",
+    },
   ];
 
   return (
     <div className="max-w-7xl mx-auto min-h-screen p-4 bg-gray-100">
       <h1 className="text-3xl font-bold mb-6 text-center">Dashboard</h1>
 
+      {/* Quotations Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-8">
-        <StatCard
-          title="Total Quotations"
-          value={totalQuotations}
-          icon={<MdDescription />}
-          color="border-blue-500"
-        />
-        <StatCard
-          title="Total Contractified"
-          value={contractified}
-          icon={<MdAssignment />}
-          color="border-green-500"
-        />
-        <StatCard
-          title="Today's Quotations"
-          value={todayQuotations}
-          icon={<MdToday />}
-          color="border-purple-500"
-        />
-        <StatCard
-          title="Approved Quotes"
-          value={approvedCount}
-          icon={<MdCheckCircle />}
-          color="border-indigo-500"
-        />
-        <StatCard
-          title="Pending Approval"
-          value={approvePending}
-          icon={<MdHourglassEmpty />}
-          color="border-yellow-500"
-        />
+        {stats.map((stat) => (
+          <StatCard key={stat.title} {...stat} />
+        ))}
       </div>
 
+      {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
         <div className="bg-white p-6 rounded-lg shadow-md">
           <h2 className="text-2xl font-semibold mb-4">
@@ -163,31 +214,11 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* Contracts Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
-          title="Total Contracts"
-          value={totalContracts}
-          icon={<MdAssignment />}
-          color="border-blue-500"
-        />
-        <StatCard
-          title="Today's Contracts"
-          value={todayContracts}
-          icon={<MdToday />}
-          color="border-green-500"
-        />
-        <StatCard
-          title="Approved Contracts"
-          value={acContract}
-          icon={<MdCheckCircle />}
-          color="border-indigo-500"
-        />
-        <StatCard
-          title="Pending Approval"
-          value={apContract}
-          icon={<MdHourglassEmpty />}
-          color="border-yellow-500"
-        />
+        {contractStats.map((stat) => (
+          <StatCard key={stat.title} {...stat} />
+        ))}
       </div>
     </div>
   );

@@ -3,84 +3,103 @@ import { Button, Label, Select, Spinner, TextInput } from "flowbite-react";
 import { useDispatch, useSelector } from "react-redux";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { searchQuotes } from "../redux/quote/quoteSlice";
-import { useLocation } from "react-router-dom";
 import { searchContracts } from "../redux/contract/contractSlice";
 import { searchCards } from "../redux/card/cardSlice";
+import { useLocation } from "react-router-dom";
 
 // eslint-disable-next-line react/prop-types
 const Search = ({ setExtraQuery }) => {
   const dispatch = useDispatch();
   const { pathname } = useLocation();
-  const [createdBy, setCreatedBy] = useState("");
-  const [projectName, setProjectName] = useState("");
-  const [clientName, setClientName] = useState("");
-  const [quotationNo, setQuotationNo] = useState("");
-  const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState("");
   const { initials } = useSelector((state) => state.user);
   const [loading, setLoading] = useState(false);
 
+  // Determine if the current route is for quotes
+  const isQuotes = pathname === "/quotes";
+
+  // Compute field names and labels based on the current route
+  const documentField = isQuotes ? "quotationNo" : "contractNo";
+  const documentLabel = isQuotes ? "Quotation No" : "Contract No";
+  const dateLabelFrom = isQuotes ? "Quotation Date/From" : "Contract Date/From";
+  const dateLabelTo = isQuotes ? "Quotation Date/To" : "Contract Date/To";
+
+  // Consolidate all form fields into one state object
+  const [formData, setFormData] = useState({
+    createdBy: "",
+    projectName: "",
+    clientName: "",
+    quotationNo: "",
+    contractNo: "",
+    fromDate: "",
+    toDate: "",
+  });
+
+  // A generic change handler that updates formData based on the input's name
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // Build the query string using URLSearchParams
   const handleSearch = async () => {
-    let query = "";
+    const params = new URLSearchParams();
 
-    if (createdBy) {
-      query += `&createdBy=${createdBy}`;
-    }
+    // Add common fields
+    if (formData.createdBy) params.append("createdBy", formData.createdBy);
+    if (formData.projectName)
+      params.append("projectName", formData.projectName);
+    if (formData.clientName) params.append("clientName", formData.clientName);
+    if (formData.fromDate) params.append("fromDate", formData.fromDate);
+    if (formData.toDate) params.append("toDate", formData.toDate);
 
-    if (projectName !== "") {
-      query += `&projectName=${projectName}`;
-    }
-    if (clientName !== "") {
-      query += `&clientName=${clientName}`;
-    }
-
-    if (fromDate !== "") {
-      query += `&fromDate=${fromDate}`;
-    }
-    if (toDate !== "") {
-      query += `&toDate=${toDate}`;
+    // Add the document-specific field
+    if (isQuotes && formData.quotationNo) {
+      params.append("quotationNo", formData.quotationNo);
+    } else if (!isQuotes && formData.contractNo) {
+      params.append("contractNo", formData.contractNo);
     }
 
-    if (quotationNo !== "") {
-      query += `&quotationNo=${quotationNo}`;
-    }
+    const query = params.toString();
+
+    // Choose the appropriate search action based on the route
+    const searchAction =
+      pathname === "/quotes"
+        ? searchQuotes
+        : pathname === "/contracts"
+        ? searchContracts
+        : searchCards;
 
     try {
       setLoading(true);
-      console.log(pathname);
-      const resultAction =
-        pathname === "/quotes"
-          ? await dispatch(searchQuotes(query.slice(1)))
-          : pathname === "/contracts"
-          ? await dispatch(searchContracts(query.slice(1)))
-          : await dispatch(searchCards(query.slice(1)));
-      setExtraQuery(query.slice(1));
-      // eslint-disable-next-line no-unused-vars
-      const result = unwrapResult(resultAction);
-      setLoading(false);
+      const resultAction = await dispatch(searchAction(query));
+      setExtraQuery(query);
+      // Unwrap the result to throw if there is an error
+      unwrapResult(resultAction);
     } catch (error) {
-      setLoading(false);
       console.error("Error fetching tickets:", error);
+    } finally {
+      setLoading(false);
     }
   };
+
   return (
     <div className="max-w-[1400px] mx-auto">
-      <div className="flex items-center  sm:justify-evenly  pr-6 flex-wrap">
+      <div className="flex items-center sm:justify-evenly pr-6 flex-wrap">
         <div>
-          <Label htmlFor="quotationNo" className="font-bold text-blue-600">
-            Quotation No
+          <Label htmlFor={documentField} className="font-bold text-blue-600">
+            {documentLabel}
           </Label>
           <div className="flex items-center justify-center">
             <TextInput
               type="text"
-              name="quotationNo"
-              id="quotationNo"
-              value={quotationNo}
-              onChange={(e) => setQuotationNo(e.target.value)}
+              name={documentField}
+              id={documentField}
+              value={formData[documentField]}
+              onChange={handleChange}
             />
           </div>
         </div>
-        <div className="">
+        <div>
           <Label htmlFor="createdBy" className="font-bold text-blue-600">
             Created By
           </Label>
@@ -88,75 +107,74 @@ const Search = ({ setExtraQuery }) => {
             <Select
               name="createdBy"
               id="createdBy"
-              value={createdBy}
-              onChange={(e) => setCreatedBy(e.target.value)}
+              value={formData.createdBy}
+              onChange={handleChange}
             >
-              <option></option>
-              {initials.length > 0 &&
-                initials.map((initial) => (
-                  <option value={initial._id} key={initial._id}>
-                    {initial.initials} {initial.username}
-                  </option>
-                ))}
+              <option value=""></option>
+              {initials?.map((initial) => (
+                <option value={initial._id} key={initial._id}>
+                  {initial.initials} {initial.username}
+                </option>
+              ))}
             </Select>
           </div>
         </div>
         <div>
-          <Label htmlFor="projectName" className=" font-bold text-blue-600">
+          <Label htmlFor="projectName" className="font-bold text-blue-600">
             Project Name
           </Label>
           <div className="flex items-center justify-center">
             <TextInput
               type="text"
-              value={projectName}
               name="projectName"
               id="projectName"
-              onChange={(e) => setProjectName(e.target.value)}
+              value={formData.projectName}
+              onChange={handleChange}
             />
           </div>
         </div>
         <div>
-          <Label htmlFor="projectName" className=" font-bold text-blue-600">
+          <Label htmlFor="clientName" className="font-bold text-blue-600">
             Client Name
           </Label>
           <div className="flex items-center justify-center">
             <TextInput
               type="text"
-              value={clientName}
               name="clientName"
               id="clientName"
-              onChange={(e) => setClientName(e.target.value)}
+              value={formData.clientName}
+              onChange={handleChange}
             />
           </div>
         </div>
         <div>
-          <Label htmlFor="" className="font-bold text-blue-600">
-            Quotation Date/From
+          <Label htmlFor="fromDate" className="font-bold text-blue-600">
+            {dateLabelFrom}
           </Label>
           <div className="flex items-center justify-center">
             <input
               type="date"
-              value={fromDate}
               name="fromDate"
               id="fromDate"
+              value={formData.fromDate}
               className="w-full px-3 py-2 border rounded-md"
-              onChange={(e) => setFromDate(e.target.value)}
-            ></input>
+              onChange={handleChange}
+            />
           </div>
         </div>
         <div>
-          <Label htmlFor="" className="font-bold text-blue-600">
-            Quotation Date/To
+          <Label htmlFor="toDate" className="font-bold text-blue-600">
+            {dateLabelTo}
           </Label>
           <div className="flex items-center justify-center">
             <input
               type="date"
-              value={toDate}
               name="toDate"
               id="toDate"
+              value={formData.toDate}
               className="w-full px-3 py-2 border rounded-md"
-              onChange={(e) => setToDate(e.target.value)}
-            ></input>
+              onChange={handleChange}
+            />
           </div>
         </div>
       </div>
@@ -164,7 +182,7 @@ const Search = ({ setExtraQuery }) => {
         <Button gradientDuoTone="redToYellow" onClick={handleSearch}>
           {loading ? (
             <div className="flex items-center justify-center">
-              <span className=" pr-3">Searching...</span>
+              <span className="pr-3">Searching...</span>
               <Spinner size="sm" />
             </div>
           ) : (
