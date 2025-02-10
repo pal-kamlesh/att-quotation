@@ -387,10 +387,10 @@ const ViewQuote = forwardRef((props) => {
                   <td className="w-1/4 p-2  font-bold">Service Warranty:</td>
                   <td className="w-3/4 p-2 text-justify ">
                     10 Years In case of subterranean or ground dwelling of
-                    termite infestation during the guarantee period, we
-                    undertake to treat the same and eradicate the termite
-                    infestation without any extra cost to you. This guarantee
-                    will be forwarded on stamp paper.
+                    termite infestation during the warranty period, we undertake
+                    to treat the same and eradicate the termite infestation
+                    without any extra cost to you. This warranty will be
+                    forwarded on stamp paper.
                   </td>
                 </tr>
                 {quote.note && quote.note.trim() !== "" ? (

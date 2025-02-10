@@ -662,9 +662,10 @@ const genReport = async (req, res, next) => {
 
     const endOfWeek = new Date(lastMonday);
     endOfWeek.setUTCDate(lastMonday.getUTCDate() + 7);
-
+    const startDate = new Date(Date.UTC(2025, 0, 18)); // 18 Jan 2025 (UTC)
+    const endDate = new Date(Date.UTC(2025, 0, 25));
     const weeklyDataQuote = await Quotation.find({
-      quotationDate: { $gte: lastMonday, $lt: endOfWeek },
+      quotationDate: { $gte: startDate, $lt: endDate },
     })
       .populate("quoteInfo")
       .populate("salesPerson")
@@ -771,19 +772,6 @@ const genReport = async (req, res, next) => {
       subdata,
     });
 
-    // // Set response headers and send the file
-    // res.setHeader(
-    //   "Content-Disposition",
-    //   "attachment; filename=Contract_List.xlsx"
-    // );
-    // res.setHeader(
-    //   "Content-Type",
-    //   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    // );
-    // res.status(200).json({
-    //   message: "Report Generated",
-    //   file: base64File,
-    // });
     res.status(200).json("ok");
   } catch (error) {
     console.log(error);

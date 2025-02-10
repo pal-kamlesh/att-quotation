@@ -508,7 +508,7 @@ const QuotationGenerator = ({ id, color, onClick, text, annexure }) => {
       {
         label: "Service Warranty:",
         value:
-          "10 Years In case of subterranean or ground dwelling of termite infestation during the guarantee period, we undertake to treat the same and eradicate the termite infestation without any extra cost to you. This guarantee will be forwarded on stamp paper.",
+          "10 Years. In case of subterranean or ground dwelling of termite infestation during the warranty period, we undertake to treat the same and eradicate the termite infestation without any extra cost to you. This warranty will be forwarded on stamp paper.",
       },
     ];
 
