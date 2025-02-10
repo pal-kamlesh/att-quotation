@@ -347,7 +347,11 @@ function NewQuote({ onClose }) {
               <option></option>
               {initials.length > 0 &&
                 initials.map((initial) => (
-                  <option value={initial._id} key={initial._id}>
+                  <option
+                    selected={quote.salePerson}
+                    value={initial._id}
+                    key={initial._id}
+                  >
                     {initial.initials} {initial.username}
                   </option>
                 ))}

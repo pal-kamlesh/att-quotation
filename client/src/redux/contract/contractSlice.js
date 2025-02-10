@@ -381,6 +381,26 @@ export const getChemicals = createAsyncThunk(
     }
   }
 );
+export const getDashboardData = createAsyncThunk(
+  "get/dashboarddata",
+  async (data, { rejectWithValue }) => {
+    try {
+      const url = "/api/v1/contract/dashboard";
+      const response = await fetch(url, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        return rejectWithValue(errorData);
+      }
+      const result = await response.json();
+      return result;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
 
 export const deleteContract = createAsyncThunk(
   "contract/delete",

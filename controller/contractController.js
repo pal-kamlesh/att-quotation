@@ -25,6 +25,7 @@ import {
   sendExel,
   createExcelBuilder1,
 } from "../utils/modules.js";
+import dayjs from "dayjs";
 
 const create = async (req, res, next) => {
   try {
@@ -841,6 +842,155 @@ const genMonthlyReport = async (req, res, next) => {
   }
 };
 
+const dashboardData = async (req, res, next) => {
+  try {
+    const data = await getBarChartData();
+    res.status(200).json({ data });
+  } catch (error) {
+    next(error);
+  }
+};
+
+async function getBarChartData() {
+  const now = dayjs();
+  let currentFYStart, currentFYEnd, lastFYStart, lastFYEnd;
+  const currentYear = now.year();
+
+  if (now.month() >= 3) {
+    // If current month is April (3) or later:
+    // Current FY: April 1 of current year to March 31 of next year.
+    currentFYStart = dayjs(new Date(currentYear, 3, 1));
+    currentFYEnd = dayjs(new Date(currentYear + 1, 2, 31, 23, 59, 59, 999));
+
+    // Last FY: April 1 of previous year to March 31 of current year.
+    lastFYStart = dayjs(new Date(currentYear - 1, 3, 1));
+    lastFYEnd = dayjs(new Date(currentYear, 2, 31, 23, 59, 59, 999));
+  } else {
+    // If before April:
+    // Current FY: April 1 of previous year to March 31 of current year.
+    currentFYStart = dayjs(new Date(currentYear - 1, 3, 1));
+    currentFYEnd = dayjs(new Date(currentYear, 2, 31, 23, 59, 59, 999));
+
+    // Last FY: April 1 of two years ago to March 31 of previous year.
+    lastFYStart = dayjs(new Date(currentYear - 2, 3, 1));
+    lastFYEnd = dayjs(new Date(currentYear - 1, 2, 31, 23, 59, 59, 999));
+  }
+
+  // ---------------------
+  // Aggregation for the current financial year:
+  const currentFYData = await Quotation.aggregate([
+    {
+      $match: {
+        quotationDate: {
+          $gte: currentFYStart.toDate(),
+          $lte: currentFYEnd.toDate(),
+        },
+      },
+    },
+    {
+      $addFields: {
+        // Get the calendar month (1-12)
+        calMonth: { $month: "$quotationDate" },
+      },
+    },
+    {
+      $addFields: {
+        // Convert calendar month to financial month:
+        // If calMonth >= 4, finMonth = calMonth - 3;
+        // Else, finMonth = calMonth + 9.
+        finMonth: {
+          $cond: [
+            { $gte: ["$calMonth", 4] },
+            { $subtract: ["$calMonth", 3] },
+            { $add: ["$calMonth", 9] },
+          ],
+        },
+      },
+    },
+    {
+      $group: {
+        _id: "$finMonth",
+        count: { $sum: 1 },
+      },
+    },
+  ]);
+
+  // ---------------------
+  // Aggregation for the last financial year:
+  const lastFYData = await Quotation.aggregate([
+    {
+      $match: {
+        quotationDate: {
+          $gte: lastFYStart.toDate(),
+          $lte: lastFYEnd.toDate(),
+        },
+      },
+    },
+    {
+      $addFields: {
+        calMonth: { $month: "$quotationDate" },
+      },
+    },
+    {
+      $addFields: {
+        finMonth: {
+          $cond: [
+            { $gte: ["$calMonth", 4] },
+            { $subtract: ["$calMonth", 3] },
+            { $add: ["$calMonth", 9] },
+          ],
+        },
+      },
+    },
+    {
+      $group: {
+        _id: "$finMonth",
+        count: { $sum: 1 },
+      },
+    },
+  ]);
+
+  // ---------------------
+  // Create lookup maps for easy access.
+  const currentFYMap = {};
+  currentFYData.forEach((item) => {
+    currentFYMap[item._id] = item.count;
+  });
+  const lastFYMap = {};
+  lastFYData.forEach((item) => {
+    lastFYMap[item._id] = item.count;
+  });
+
+  // Mapping of financial month index to month abbreviations:
+  // 1 => Apr, 2 => May, …, 9 => Dec, 10 => Jan, 11 => Feb, 12 => Mar.
+  const monthMapping = {
+    1: "Apr",
+    2: "May",
+    3: "Jun",
+    4: "Jul",
+    5: "Aug",
+    6: "Sep",
+    7: "Oct",
+    8: "Nov",
+    9: "Dec",
+    10: "Jan",
+    11: "Feb",
+    12: "Mar",
+  };
+
+  // Build the final array for the bar chart.
+  const barChartData = [];
+  for (let i = 1; i <= 12; i++) {
+    barChartData.push({
+      name: monthMapping[i],
+      thisYear: currentFYMap[i] || 0,
+      lastYear: lastFYMap[i] || 0,
+    });
+  }
+
+  return barChartData;
+}
+
 export {
   create,
   contracts,
@@ -863,4 +1013,5 @@ export {
   getArchive,
   genReport,
   genMonthlyReport,
+  dashboardData,
 };

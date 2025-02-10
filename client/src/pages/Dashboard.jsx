@@ -1,15 +1,17 @@
 /* eslint-disable react/prop-types */
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getInitials } from "../redux/user/userSlice";
 import { getQuotes } from "../redux/quote/quoteSlice";
-import { getContracts } from "../redux/contract/contractSlice";
+import {
+  getContracts,
+  getDashboardData,
+} from "../redux/contract/contractSlice";
 import {
   BarChart,
   Bar,
   XAxis,
   YAxis,
-  CartesianGrid,
   Tooltip,
   Legend,
   ResponsiveContainer,
@@ -24,6 +26,7 @@ import {
   MdCheckCircle,
   MdHourglassEmpty,
 } from "react-icons/md";
+import { unwrapResult } from "@reduxjs/toolkit";
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
@@ -47,13 +50,18 @@ const StatCard = ({ title, value, icon, color }) => (
 
 export default function Dashboard() {
   const dispatch = useDispatch();
-
+  const [barChartData, setBarChartData] = useState();
   useEffect(() => {
+    async function fn() {
+      const result = await dispatch(getDashboardData());
+      const data = await unwrapResult(result);
+      setBarChartData(data.data);
+    }
+    fn();
     dispatch(getInitials());
     dispatch(getQuotes());
     dispatch(getContracts());
   }, [dispatch]);
-
   const quoteData = useSelector((state) => state.quote) || {};
   const contractData = useSelector((state) => state.contract) || {};
 
@@ -82,14 +90,9 @@ export default function Dashboard() {
     [approvedCount, approvePending, contractified]
   );
 
-  const barChartData = useMemo(
-    () => [
-      { name: "Quotations", total: totalQuotations, today: todayQuotations },
-      { name: "Contracts", total: totalContracts, today: todayContracts },
-    ],
-    [totalQuotations, todayQuotations, totalContracts, todayContracts]
-  );
-
+  const quoteContractConversionRatio = Number(
+    (contractified / totalQuotations) * 100
+  ).toFixed(2);
   const stats = [
     {
       title: "Total Quotations",
@@ -118,6 +121,12 @@ export default function Dashboard() {
     {
       title: "Pending Approval",
       value: approvePending,
+      icon: <MdHourglassEmpty />,
+      color: "border-yellow-500",
+    },
+    {
+      title: "Quote to Contract conversion ratio",
+      value: quoteContractConversionRatio,
       icon: <MdHourglassEmpty />,
       color: "border-yellow-500",
     },
@@ -170,46 +179,85 @@ export default function Dashboard() {
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
         <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-2xl font-semibold mb-4">
-            Quotations vs Contracts
-          </h2>
+          <h2 className="text-2xl font-semibold mb-4">Quotations By Months</h2>
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={barChartData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
+            <BarChart
+              data={barChartData}
+              margin={{
+                top: 20,
+                right: 30,
+                left: 20,
+                bottom: 5,
+              }}
+            >
+              <XAxis
+                dataKey="name"
+                tick={{ fill: "#666" }}
+                padding={{ left: 10, right: 10 }}
+              />
               <YAxis />
               <Tooltip />
-              <Legend />
-              <Bar dataKey="total" fill="#8884d8" name="Total" />
-              <Bar dataKey="today" fill="#82ca9d" name="Today" />
+              <Legend
+                wrapperStyle={{ paddingTop: "20px" }}
+                payload={[
+                  { value: "This Year", type: "rect", color: "#8884d8" },
+                  { value: "Last Year", type: "rect", color: "#82ca9d" },
+                ]}
+              />
+              <Bar
+                dataKey="thisYear"
+                fill="#8884d8"
+                name="This Year"
+                radius={[4, 4, 0, 0]}
+              />
+              <Bar
+                dataKey="lastYear"
+                fill="#82ca9d"
+                name="Last Year"
+                radius={[4, 4, 0, 0]}
+              />
             </BarChart>
           </ResponsiveContainer>
         </div>
         <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-2xl font-semibold mb-4">Quotation Status</h2>
+          <h2 className="text-2xl font-semibold mb-4">Contracts By Months</h2>
           <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={quotePieData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                outerRadius={100}
-                fill="#8884d8"
-                dataKey="value"
-                label={({ name, percent }) =>
-                  `${name} ${(percent * 100).toFixed(0)}%`
-                }
-              >
-                {quotePieData.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={COLORS[index % COLORS.length]}
-                  />
-                ))}
-              </Pie>
+            <BarChart
+              data={barChartData}
+              margin={{
+                top: 20,
+                right: 30,
+                left: 20,
+                bottom: 5,
+              }}
+            >
+              <XAxis
+                dataKey="name"
+                tick={{ fill: "#666" }}
+                padding={{ left: 10, right: 10 }}
+              />
+              <YAxis />
               <Tooltip />
-            </PieChart>
+              <Legend
+                wrapperStyle={{ paddingTop: "20px" }}
+                payload={[
+                  { value: "This Year", type: "rect", color: "#8884d8" },
+                  { value: "Last Year", type: "rect", color: "#82ca9d" },
+                ]}
+              />
+              <Bar
+                dataKey="thisYear"
+                fill="#8884d8"
+                name="This Year"
+                radius={[4, 4, 0, 0]}
+              />
+              <Bar
+                dataKey="lastYear"
+                fill="#82ca9d"
+                name="Last Year"
+                radius={[4, 4, 0, 0]}
+              />
+            </BarChart>
           </ResponsiveContainer>
         </div>
       </div>

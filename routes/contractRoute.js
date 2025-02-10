@@ -21,12 +21,14 @@ import {
   getArchive,
   genReport,
   genMonthlyReport,
+  dashboardData,
 } from "../controller/contractController.js";
 import { verifyToken } from "../middleware/verifyUser.js";
 
 const router = Router();
 
 router.post("/create", verifyToken, create);
+router.get("/dashboard", verifyToken, dashboardData);
 router.get("/create/:id", verifyToken, contractify);
 router.get("/getContracts", verifyToken, contracts);
 router.get("/approve/:id", verifyToken, approve);
@@ -45,7 +47,6 @@ router.get("/:id", verifyToken, singleContract);
 router.post("/:id", verifyToken, update);
 router.delete("/:contractId", verifyToken, deletedContract);
 router.get("/archive/:id", verifyToken, getArchive);
-router.get("/reports/r1", genReport);
-router.get("/automated/reports/r1", genMonthlyReport);
-
+router.get("/reports/r1", verifyToken, genReport);
+router.get("/automated/reports/r1", verifyToken, genMonthlyReport);
 export default router;
