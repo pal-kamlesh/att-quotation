@@ -472,7 +472,7 @@ const ViewQuote = forwardRef((props) => {
                                 ? "bg-red-200"
                                 : ""
                             }`}
-                          >{`₹ ${info.serviceRate} ${info.serviceRateUnit}`}</td>
+                          >{`Rs ${info.serviceRate} ${info.serviceRateUnit}`}</td>
                           <td
                             className={`border border-black p-1 text-center ${
                               substringsExistInArray(

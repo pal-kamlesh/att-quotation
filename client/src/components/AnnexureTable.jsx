@@ -111,11 +111,11 @@ const createQuoteInfoTableApplySupply = (quoteInfo) => {
               if (header.key === "workArea") {
                 text = `${info.workArea} ${info.workAreaUnit}`;
               } else if (header.key === "applyRate" && info.applyRate) {
-                text = `₹ ${info.applyRate} ${info.applyRateUnit}`;
+                text = `Rs ${info.applyRate} ${info.applyRateUnit}`;
               } else if (header.key === "chemicalQuantity") {
                 text = `${info.chemicalQuantity} Ltr.`;
               } else if (header.key === "chemicalRate" && info.chemicalRate) {
-                text = `₹ ${info.chemicalRate} ${info.chemicalRateUnit}`;
+                text = `Rs ${info.chemicalRate} ${info.chemicalRateUnit}`;
               }
 
               return new TableCell({
@@ -163,11 +163,11 @@ const createQuoteInfoTableSupply = (quoteInfo) => {
               if (header.key === "workArea") {
                 text = `${info.workArea} ${info.workAreaUnit}`;
               } else if (header.key === "applyRate" && info.applyRate) {
-                text = `₹ ${info.applyRate} ${info.applyRateUnit}`;
+                text = `Rs ${info.applyRate} ${info.applyRateUnit}`;
               } else if (header.key === "chemicalQuantity") {
                 text = `${info.chemicalQuantity} Ltr.`;
               } else if (header.key === "chemicalRate" && info.chemicalRate) {
-                text = `₹ ${info.chemicalRate} ${info.chemicalRateUnit}`;
+                text = `Rs ${info.chemicalRate} ${info.chemicalRateUnit}`;
               }
 
               return new TableCell({
@@ -343,7 +343,7 @@ const generateStandardDoc = async (data) => {
             width: { size: 1500, type: WidthType.DXA },
             children: [
               new Paragraph({
-                text: `₹${item.serviceRate + " " + item.serviceRateUnit}`,
+                text: `Rs ${item.serviceRate + " " + item.serviceRateUnit}`,
                 bold: true,
                 alignment: AlignmentType.CENTER,
                 spacing: { before: 200, after: 200 },
@@ -516,7 +516,7 @@ const generateSupplyDoc = async (data) => {
             width: { size: 1500, type: WidthType.DXA },
             children: [
               new Paragraph({
-                text: `₹ ${item.chemicalRate} ${item.chemicalRateUnit}`,
+                text: `Rs ${item.chemicalRate} ${item.chemicalRateUnit}`,
                 bold: true,
                 alignment: AlignmentType.CENTER,
                 spacing: { before: 200, after: 200 },
@@ -737,7 +737,7 @@ const generateSupplyApplyDoc = async (data) => {
             width: { size: 1500, type: WidthType.DXA },
             children: [
               new Paragraph({
-                text: `₹ ${item.applyRate} ${item.applyRateUnit}`,
+                text: `Rs ${item.applyRate} ${item.applyRateUnit}`,
                 bold: true,
                 alignment: AlignmentType.CENTER,
                 spacing: { before: 200, after: 200 },
@@ -759,7 +759,7 @@ const generateSupplyApplyDoc = async (data) => {
             width: { size: 1500, type: WidthType.DXA },
             children: [
               new Paragraph({
-                text: `₹ ${item.chemicalRate} ${item.chemicalRateUnit}`,
+                text: `Rs ${item.chemicalRate} ${item.chemicalRateUnit}`,
                 bold: true,
                 alignment: AlignmentType.CENTER,
                 spacing: { before: 200, after: 200 },
