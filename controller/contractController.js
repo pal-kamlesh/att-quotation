@@ -157,6 +157,14 @@ const contracts = async (req, res, next) => {
     const approvePending = await Contract.countDocuments({
       approved: false,
     });
+    const withoutNumberContract = await Contract.countDocuments({
+      $or: [
+        { contractNo: { $exists: false } },
+        { contractNo: "" },
+        { contractNo: null },
+      ],
+    });
+
     res.status(200).json({
       message: "Contracts Retrieved",
       result: contracts,
@@ -165,6 +173,7 @@ const contracts = async (req, res, next) => {
       approvedCount,
       approvePending,
       contractWithoutQuote,
+      withoutNumberContract,
     });
   } catch (error) {
     console.log(error);
@@ -844,125 +853,88 @@ const genMonthlyReport = async (req, res, next) => {
 
 const dashboardData = async (req, res, next) => {
   try {
-    const data = await getBarChartData();
-    res.status(200).json({ data });
+    const quotationData = await getBarChartData(Quotation, "quotationDate");
+    const contractData = await getBarChartData(Contract, "contractDate");
+    res.status(200).json({ quotationData, contractData });
   } catch (error) {
     next(error);
   }
 };
 
-async function getBarChartData() {
+async function getBarChartData(db, dateField) {
   const now = dayjs();
   let currentFYStart, currentFYEnd, lastFYStart, lastFYEnd;
   const currentYear = now.year();
 
   if (now.month() >= 3) {
-    // If current month is April (3) or later:
-    // Current FY: April 1 of current year to March 31 of next year.
     currentFYStart = dayjs(new Date(currentYear, 3, 1));
     currentFYEnd = dayjs(new Date(currentYear + 1, 2, 31, 23, 59, 59, 999));
 
-    // Last FY: April 1 of previous year to March 31 of current year.
     lastFYStart = dayjs(new Date(currentYear - 1, 3, 1));
     lastFYEnd = dayjs(new Date(currentYear, 2, 31, 23, 59, 59, 999));
   } else {
-    // If before April:
-    // Current FY: April 1 of previous year to March 31 of current year.
     currentFYStart = dayjs(new Date(currentYear - 1, 3, 1));
     currentFYEnd = dayjs(new Date(currentYear, 2, 31, 23, 59, 59, 999));
 
-    // Last FY: April 1 of two years ago to March 31 of previous year.
     lastFYStart = dayjs(new Date(currentYear - 2, 3, 1));
     lastFYEnd = dayjs(new Date(currentYear - 1, 2, 31, 23, 59, 59, 999));
   }
 
   // ---------------------
-  // Aggregation for the current financial year:
-  const currentFYData = await Quotation.aggregate([
-    {
-      $match: {
-        quotationDate: {
-          $gte: currentFYStart.toDate(),
-          $lte: currentFYEnd.toDate(),
+  // Helper function to get aggregated data for a given financial year range
+  async function getFYData(startDate, endDate) {
+    return db.aggregate([
+      {
+        $match: {
+          [dateField]: {
+            $gte: startDate.toDate(),
+            $lte: endDate.toDate(),
+          },
         },
       },
-    },
-    {
-      $addFields: {
-        // Get the calendar month (1-12)
-        calMonth: { $month: "$quotationDate" },
-      },
-    },
-    {
-      $addFields: {
-        // Convert calendar month to financial month:
-        // If calMonth >= 4, finMonth = calMonth - 3;
-        // Else, finMonth = calMonth + 9.
-        finMonth: {
-          $cond: [
-            { $gte: ["$calMonth", 4] },
-            { $subtract: ["$calMonth", 3] },
-            { $add: ["$calMonth", 9] },
-          ],
+      {
+        $addFields: {
+          calMonth: { $month: `$${dateField}` },
         },
       },
-    },
-    {
-      $group: {
-        _id: "$finMonth",
-        count: { $sum: 1 },
+      {
+        $addFields: {
+          finMonth: {
+            $cond: [
+              { $gte: ["$calMonth", 4] },
+              { $subtract: ["$calMonth", 3] },
+              { $add: ["$calMonth", 9] },
+            ],
+          },
+        },
       },
-    },
+      {
+        $group: {
+          _id: "$finMonth",
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+  }
+
+  // Fetch data for both financial years
+  const [currentFYData, lastFYData] = await Promise.all([
+    getFYData(currentFYStart, currentFYEnd),
+    getFYData(lastFYStart, lastFYEnd),
   ]);
 
   // ---------------------
-  // Aggregation for the last financial year:
-  const lastFYData = await Quotation.aggregate([
-    {
-      $match: {
-        quotationDate: {
-          $gte: lastFYStart.toDate(),
-          $lte: lastFYEnd.toDate(),
-        },
-      },
-    },
-    {
-      $addFields: {
-        calMonth: { $month: "$quotationDate" },
-      },
-    },
-    {
-      $addFields: {
-        finMonth: {
-          $cond: [
-            { $gte: ["$calMonth", 4] },
-            { $subtract: ["$calMonth", 3] },
-            { $add: ["$calMonth", 9] },
-          ],
-        },
-      },
-    },
-    {
-      $group: {
-        _id: "$finMonth",
-        count: { $sum: 1 },
-      },
-    },
-  ]);
+  // Convert data arrays into lookup maps
+  const createMap = (data) =>
+    data.reduce((acc, item) => {
+      acc[item._id] = item.count;
+      return acc;
+    }, {});
 
-  // ---------------------
-  // Create lookup maps for easy access.
-  const currentFYMap = {};
-  currentFYData.forEach((item) => {
-    currentFYMap[item._id] = item.count;
-  });
-  const lastFYMap = {};
-  lastFYData.forEach((item) => {
-    lastFYMap[item._id] = item.count;
-  });
+  const currentFYMap = createMap(currentFYData);
+  const lastFYMap = createMap(lastFYData);
 
-  // Mapping of financial month index to month abbreviations:
-  // 1 => Apr, 2 => May, …, 9 => Dec, 10 => Jan, 11 => Feb, 12 => Mar.
+  // Month index to abbreviation mapping
   const monthMapping = {
     1: "Apr",
     2: "May",
@@ -978,17 +950,12 @@ async function getBarChartData() {
     12: "Mar",
   };
 
-  // Build the final array for the bar chart.
-  const barChartData = [];
-  for (let i = 1; i <= 12; i++) {
-    barChartData.push({
-      name: monthMapping[i],
-      thisYear: currentFYMap[i] || 0,
-      lastYear: lastFYMap[i] || 0,
-    });
-  }
-
-  return barChartData;
+  // Build the final bar chart data
+  return Array.from({ length: 12 }, (_, i) => ({
+    name: monthMapping[i + 1],
+    thisYear: currentFYMap[i + 1] || 0,
+    lastYear: lastFYMap[i + 1] || 0,
+  }));
 }
 
 export {

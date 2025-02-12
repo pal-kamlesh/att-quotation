@@ -147,6 +147,25 @@ export const getInitials = createAsyncThunk(
     }
   }
 );
+export const getNextNum = createAsyncThunk(
+  "get/nextNum",
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await fetch(`/api/v1/user/nextNumbers`, {
+        method: "GET",
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        return rejectWithValue(errorData);
+      }
+      const result = await response.json();
+      return result;
+    } catch (error) {
+      console.log(error);
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
 
 export const userSlice = createSlice({
   name: "user",

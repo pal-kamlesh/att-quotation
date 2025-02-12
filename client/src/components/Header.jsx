@@ -111,14 +111,11 @@ export default function Header() {
             <Link to="/workLog">Work logs</Link>
           </Navbar.Link>
         )}
-        {currentUser?.rights.admin && (
-          <Navbar.Link
-            as="div"
-            active={location.pathname === "/dashboard" ? true : false}
-          >
+        {currentUser?.rights.admin || currentUser?.initials === "VNT" ? (
+          <Navbar.Link as="div" active={location.pathname === "/dashboard"}>
             <Link to="/dashboard">Dashboard</Link>
           </Navbar.Link>
-        )}
+        ) : null}
 
         {currentUser?.rights.admin && (
           <Navbar.Link

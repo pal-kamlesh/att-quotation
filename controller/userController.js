@@ -1,6 +1,6 @@
 import { createToken } from "../middleware/verifyUser.js";
 import { errorHandler } from "../utils/error.js";
-import { User } from "../models/index.js";
+import { Counter, User } from "../models/index.js";
 const login = async (req, res, next) => {
   const { username, password } = req.body;
   if (!username || !password || username === "" || password === "") {
@@ -131,5 +131,14 @@ const initials = async (req, res, next) => {
     next(error);
   }
 };
+const getNextNumber = async (req, res, next) => {
+  try {
+    const quoteNextNum = await Counter.findById("quotationCounter");
+    const contractNextNum = await Counter.findById("contractCounter");
+    res.status(200).json({ result: { quoteNextNum, contractNextNum } });
+  } catch (error) {
+    next(error);
+  }
+};
 
-export { login, logout, register, users, deleteUser, initials };
+export { login, logout, register, users, deleteUser, initials, getNextNumber };

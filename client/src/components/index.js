@@ -27,6 +27,7 @@ import QRbutton from "./QRbutton";
 import HistoryPanelContract from "./HistoryPanelContract";
 import HistoryPanelQuote from "./HistoryPanelQuote";
 import UpdateQuotation from "./UpdateQuotation";
+import StatCard from "./StatCard";
 export {
   CustomModal,
   NewQuote,
@@ -57,4 +58,5 @@ export {
   QRbutton,
   HistoryPanelContract,
   HistoryPanelQuote,
+  StatCard,
 };

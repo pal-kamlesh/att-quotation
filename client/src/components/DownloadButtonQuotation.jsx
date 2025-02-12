@@ -386,7 +386,7 @@ const QuotationGenerator = ({ id, color, onClick, text, annexure }) => {
                     }),
                   ],
                 }),
-                new Paragraph({ text: billTo.a1 + " " + billTo.a2 + "," }),
+                new Paragraph({ text: billTo.a1 + "," + billTo.a2 + "," }),
                 new Paragraph({ text: billTo.a3 + "," }),
                 new Paragraph({ text: billTo.a4 + "," }),
                 new Paragraph({

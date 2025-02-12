@@ -13,7 +13,7 @@ const LandingPage = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center bg-gradient-to-r from-blue-400 to-purple-500 min-h-screen p-8">
+    <div className=" mx-3 flex flex-col items-center justify-center bg-gradient-to-r from-blue-400 to-purple-500 min-h-screen p-8">
       <h1 className="text-5xl font-extrabold text-white mb-6 drop-shadow-lg">
         {getGreeting()}, {currentUser.username}!
       </h1>

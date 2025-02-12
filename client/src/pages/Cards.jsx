@@ -95,7 +95,7 @@ function Cards() {
     }
   }
   return (
-    <div className=" max-w-[1400px] mx-auto ">
+    <div className="mx-3 ">
       {loading ? <Loading /> : null}
       <div className="h-full mt-3">
         <div className=" mt-2 h-full">

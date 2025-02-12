@@ -22,7 +22,7 @@ import {
   UpdateQuotation,
 } from "../components";
 import { useDispatch, useSelector } from "react-redux";
-import { getInitials } from "../redux/user/userSlice";
+import { getInitials, getNextNum } from "../redux/user/userSlice";
 import {
   getQuotes,
   approve,
@@ -94,15 +94,21 @@ export default function Create() {
     quoteInfo: [],
   });
   const [name, setName] = useState("");
-
+  const [nextQuoteNo, setNextQuoteNo] = useState("");
   useEffect(() => {
     if (quotations.length <= 0) {
       dispatch(getInitials());
       dispatch(getQuotes());
     }
+    fn();
+    async function fn() {
+      const result = await dispatch(getNextNum());
+      const data = await unwrapResult(result);
+      setNextQuoteNo(data.result.quoteNextNum.seq);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch]);
-
+  console.log(nextQuoteNo);
   useEffect(() => {
     if (
       currentUser.rights.createQuote ||
@@ -236,13 +242,19 @@ export default function Create() {
   //   toast.success(result.message);
   // }
   return (
-    <div className=" max-w-[1400px] mx-auto ">
+    <div className=" mx-3 ">
       {loading ? <Loading /> : null}
       <div className="h-full mt-3">
         <div className=" mt-2 h-full">
           <div className="h-16 text-lg flex items-center justify-between font-medium bg-[#6FDCE3] border border-black rounded-tl-lg rounded-br-lg">
             <div className="m-2">
               <Refresh loading={pending} onRefresh={handleRefresh} />
+            </div>
+            <div>
+              <span>Next Quotation No: </span>
+              <span className="bg-yellow-300 text-black font-bold px-2 py-1 rounded-md">
+                {nextQuoteNo + 1}
+              </span>
             </div>
             <div className="flex-grow mr-4 flex items-center justify-evenly ">
               <div className="flex items-center justify-center">

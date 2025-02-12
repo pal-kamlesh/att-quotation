@@ -15,7 +15,7 @@ import {
 import TimeAgo from "react-timeago";
 import { Button, Table } from "flowbite-react";
 import { useDispatch, useSelector } from "react-redux";
-import { getInitials } from "../redux/user/userSlice.js";
+import { getInitials, getNextNum } from "../redux/user/userSlice.js";
 import {
   approve,
   // eslint-disable-next-line no-unused-vars
@@ -46,6 +46,7 @@ function Contracts() {
   const [archiveModel, setArchiveModel] = useState(false);
   const [warModel, setWarModel] = useState(false);
   const [contractNo, setContractNo] = useState(null);
+  const [nextContractNo, setNextContractNo] = useState(0);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -70,6 +71,12 @@ function Contracts() {
       dispatch(getInitials());
       dispatch(getContracts());
     }
+    async function fn() {
+      const result = await dispatch(getNextNum());
+      const data = await unwrapResult(result);
+      setNextContractNo(data.result.contractNextNum.seq);
+    }
+    fn();
   }, [dispatch]);
 
   useEffect(() => {
@@ -128,7 +135,7 @@ function Contracts() {
   //   toast.success(result.message);
   // }
   return (
-    <div className=" max-w-[1400px] mx-auto ">
+    <div className="mx-3 ">
       {loading ? <Loading /> : null}
       <div className="h-full mt-3">
         <div className=" mt-2 h-full">
@@ -136,7 +143,13 @@ function Contracts() {
             <div className="m-2">
               <Refresh loading={pending} onRefresh={handleRefresh} />
             </div>
-            <div className="flex-grow mr-4 flex items-center justify-evenly ">
+            <div>
+              <span>Next Contract No: </span>
+              <span className="bg-yellow-300 text-black font-bold px-2 py-1 rounded-md">
+                {nextContractNo + 1}
+              </span>
+            </div>
+            <div className="flex-grow mr-4 flex items-center justify-evenly">
               <div className="flex items-center justify-center">
                 <h3>Recent Contracts</h3>
               </div>
@@ -150,6 +163,7 @@ function Contracts() {
               </button>
             </div>
           </div>
+
           <div>
             <Search setExtraQuery={setExtraQuery} />
           </div>

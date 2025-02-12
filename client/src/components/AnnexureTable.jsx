@@ -2109,11 +2109,7 @@ const createContractCard = async (data) => {
           }),
           ...emptyParagraph(1),
           // Final Small Table
-          createParagraph(
-            "Area details & service charges",
-            true,
-            AlignmentType.LEFT
-          ),
+          createParagraph("Area details", true, AlignmentType.LEFT),
           new Table({
             rows: [
               new TableRow({

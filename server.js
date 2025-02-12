@@ -46,6 +46,7 @@ app.use("/api/v1", rootRouter);
   }
 })();
 
+//funtion to find out mismatch in direct contract and contractified contract tally.
 async function getContractifiedIds() {
   try {
     // Fetch all quotation IDs where contractified is true
@@ -81,7 +82,6 @@ async function getContractifiedIds() {
   }
 }
 
-getContractifiedIds();
 app.use(errorMiddleware);
 
 const port = process.env.PORT || 5000;

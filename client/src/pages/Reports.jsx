@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import {
   LineChart,
   Line,
@@ -70,7 +71,7 @@ const Reports = () => {
   );
 
   return (
-    <div className="max-w-[1400px] mx-auto p-6">
+    <div className="mx-3 p-6">
       <h1 className="text-3xl font-bold mb-6">Reports Dashboard</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
