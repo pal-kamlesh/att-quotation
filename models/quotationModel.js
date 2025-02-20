@@ -46,6 +46,10 @@ const quotationSchema = mongoose.Schema(
             },
             email: {
               type: String,
+              set: (value) => {
+                if (value === "") return "";
+                return value.trim().toLowerCase();
+              },
             },
           },
         ],
@@ -71,11 +75,13 @@ const quotationSchema = mongoose.Schema(
             designation: {
               type: String,
             },
-            contact: {
-              type: String,
-            },
+            contact: { type: String },
             email: {
               type: String,
+              set: (value) => {
+                if (value === "") return "";
+                return value.trim().toLowerCase();
+              },
             },
           },
         ],

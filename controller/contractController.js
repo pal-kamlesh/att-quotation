@@ -18,6 +18,7 @@ import {
   createExcelBuilder,
   getStatsForEmail,
   generateAndSendReport2,
+  removeIdFromDocuments,
 } from "../utils/functions.js";
 import Warranty from "../models/warrantyModel.js";
 import {
@@ -47,6 +48,8 @@ const create = async (req, res, next) => {
       paymentTerms,
       groupBy,
     } = contract;
+    billToAddress.kci = removeIdFromDocuments(billToAddress.kci);
+    shipToAddress.kci = removeIdFromDocuments(shipToAddress.kci);
     let quoteInfoIds = [];
     for (let i = 0; i < quoteInfo.length; i++) {
       const quoteData = remove_IdFromObj(quoteInfo[i]);
@@ -71,10 +74,14 @@ const create = async (req, res, next) => {
       quoteInfo: quoteInfoIds,
       createdBy: req.user.id,
     });
-    const hmhm = await Contract.findById(newContract._id)
-      .populate("quoteInfo")
-      .populate("createdBy");
-    res.status(200).json({ message: "Contract Created!", result: hmhm });
+    const populatedContract = await newContract.populate(
+      "createdBy",
+      "username"
+    );
+
+    res
+      .status(200)
+      .json({ message: "Contract Created!", result: populatedContract });
   } catch (error) {
     console.log(error);
     next(error);

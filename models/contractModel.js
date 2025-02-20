@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { Counter } from "./index.js";
+import mongooseLeanVirtuals from "mongoose-lean-virtuals";
 
 const contractSchema = mongoose.Schema(
   {
@@ -33,20 +34,26 @@ const contractSchema = mongoose.Schema(
       a6: String,
       city: String,
       pincode: String,
-      kci: [
-        {
-          name: String,
-          designation: String,
-          contact: String,
-          email: {
-            type: String,
-            set: (value) => {
-              if (value === "") return "";
-              return value.trim().toLowerCase();
+      kci: {
+        type: [
+          {
+            name: {
+              type: String,
+            },
+            designation: {
+              type: String,
+            },
+            contact: { type: String },
+            email: {
+              type: String,
+              set: (value) => {
+                if (value === "") return "";
+                return value.trim().toLowerCase();
+              },
             },
           },
-        },
-      ],
+        ],
+      },
     },
     shipToAddress: {
       projectName: String,
@@ -57,20 +64,26 @@ const contractSchema = mongoose.Schema(
       a5: String,
       city: String,
       pincode: String,
-      kci: [
-        {
-          name: String,
-          designation: String,
-          contact: String,
-          email: {
-            type: String,
-            set: (value) => {
-              if (value === "") return ""; // Allow empty string
-              return value.trim().toLowerCase(); // Trim and lowercase
+      kci: {
+        type: [
+          {
+            name: {
+              type: String,
+            },
+            designation: {
+              type: String,
+            },
+            contact: { type: String },
+            email: {
+              type: String,
+              set: (value) => {
+                if (value === "") return "";
+                return value.trim().toLowerCase();
+              },
             },
           },
-        },
-      ],
+        ],
+      },
     },
     paymentTerms: {
       type: String,
@@ -126,6 +139,7 @@ const contractSchema = mongoose.Schema(
   },
   { timestamps: true }
 );
+contractSchema.plugin(mongooseLeanVirtuals);
 
 contractSchema.virtual("archive", {
   ref: "QuoteArchive",
@@ -142,8 +156,8 @@ contractSchema.virtual("workLog", {
 });
 
 // Set the virtual property to be populated by default
-contractSchema.set("toObject", { virtuals: false });
-contractSchema.set("toJSON", { virtuals: false });
+contractSchema.set("toObject", { virtuals: true });
+contractSchema.set("toJSON", { virtuals: true });
 
 //######Uncomment contractDate for automatic No###########
 contractSchema.methods.approve = async function () {
