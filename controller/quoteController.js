@@ -1,12 +1,18 @@
-import { Quotation, QuoteInfo } from "../models/index.js";
+import { Quotation, QuoteInfo, ReminderEmail } from "../models/index.js";
 import { isValidObjectId } from "mongoose";
 import {
   removeIdFromDocuments,
   remove_IdFromObj,
   differenceBetweenArrays,
   createQuoteArchiveEntry,
+  findSimilarQuotations,
 } from "../utils/functions.js";
 import { Groups } from "../models/counterModel.js";
+import QuotationGenerator from "../utils/documentRelated.js";
+import { cloudinaryService } from "../config/cloudinary.js";
+import { sendEmailToClient } from "../utils/emailService.js";
+import path from "path";
+import fs from "fs";
 
 const create = async (req, res, next) => {
   try {
@@ -68,14 +74,9 @@ const create = async (req, res, next) => {
       "createdBy",
       "username"
     );
-
-    if (newQuotation) {
-      res
-        .status(200)
-        .json({ message: "Quotation Created!", result: populatedQuotation });
-    } else {
-      res.status(500).json({ message: "Quotation creation failed." });
-    }
+    res
+      .status(200)
+      .json({ message: "Quotation Created!", result: populatedQuotation });
   } catch (error) {
     console.log(error);
     next(error);
@@ -319,6 +320,10 @@ const approving = async (req, res, next) => {
       .populate({ path: "salesPerson", select: "-password" })
       .populate({ path: "createdBy", select: "-password" });
     await finalData.approve();
+    await ReminderEmail.create({
+      quotationId: id,
+      nextEmailDate: new Date(),
+    });
     res.status(200).json({
       message: "Quotation Approved.",
       result: finalData,
@@ -465,6 +470,93 @@ const deletedQuote = async (req, res, next) => {
   }
 };
 
+const sendEmail = async (req, res, next) => {
+  const generator = new QuotationGenerator();
+  try {
+    const today = new Date();
+    const activeToday = await ReminderEmail.find({
+      nextEmailDate: { $lte: today },
+    });
+
+    console.log(`Found ${activeToday.length} reminders to process`);
+
+    for (const reminder of activeToday) {
+      try {
+        const { quotationId, _id } = reminder;
+        const data = await Quotation.findById(quotationId)
+          .populate("quoteInfo")
+          .populate("salesPerson")
+          .populate("createdBy")
+          .lean({ virtuals: ["subject"] });
+
+        if (!data) {
+          console.warn(`Quotation not found for ID: ${quotationId}`);
+          await ReminderEmail.findByIdAndUpdate(_id, { status: "skipped" }); // Mark as skipped
+          continue;
+        }
+
+        const { buffer, fileName } = await generator.generateQuotation(data);
+        const uploadDir = path.join(process.cwd(), "uploads");
+
+        // Ensure the directory exists
+        await fs.promises.mkdir(uploadDir, { recursive: true });
+
+        // Sanitize file names to avoid spaces & special characters
+        const safeFileName = fileName.replace(/[^a-zA-Z0-9.-]/g, "_");
+        const filePath = path.join(uploadDir, safeFileName);
+
+        // Write the file
+        await fs.promises.writeFile(filePath, buffer);
+
+        // Upload the file to Cloudinary
+        const uploadResult = await cloudinaryService.uploadDocument(
+          filePath,
+          quotationId
+        );
+
+        // Delete the file after successful upload
+        await fs.promises.unlink(filePath);
+        //get simler three projects
+        const similerQuote = await findSimilarQuotations(quotationId, 3);
+        const params = {
+          projectDetails: data.shipToAddress?.projectName || "Unknown Project",
+          url: uploadResult.url,
+          clientName: `${data.billToAddress.prefix} ${data.billToAddress.name}`,
+          similerPrject1: similerQuote[0].billToAddress.name,
+          similerPrject1Area: `${similerQuote[0].quoteInfo[0].workArea} ${similerQuote[0].quoteInfo[0].workAreaUnit}`,
+          similerPrject2: similerQuote[1].billToAddress.name,
+          similerPrject2Area: `${similerQuote[1].quoteInfo[0].workArea} ${similerQuote[1].quoteInfo[0].workAreaUnit}`,
+          similerPrject3: similerQuote[2].billToAddress.name,
+          similerPrject3Area: `${similerQuote[2].quoteInfo[0].workArea} ${similerQuote[2].quoteInfo[0].workAreaUnit}`,
+        };
+        await sendEmailToClient(params);
+
+        const nextEmailDate = new Date();
+        nextEmailDate.setDate(nextEmailDate.getDate() + 15);
+
+        await ReminderEmail.findByIdAndUpdate(_id, {
+          link: uploadResult.url,
+          emailCount: reminder.emailCount + 1,
+        });
+
+        console.log(
+          `Reminder updated for ID: ${_id}, next email on: ${nextEmailDate.toISOString()}`
+        );
+      } catch (emailError) {
+        console.error(
+          `Error processing reminder ID: ${reminder._id}`,
+          emailError
+        );
+      }
+    }
+
+    res.status(200).json({ message: "Emails processed successfully" });
+  } catch (error) {
+    console.error("Unexpected error in sendEmail:", error);
+    next(error);
+  }
+};
+
 export {
   create,
   quotes,
@@ -478,4 +570,5 @@ export {
   getAllGroup,
   getGroupData,
   deletedQuote,
+  sendEmail,
 };

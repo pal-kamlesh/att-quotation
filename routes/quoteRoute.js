@@ -13,6 +13,7 @@ import {
   getAllGroup,
   getGroupData,
   deletedQuote,
+  sendEmail,
 } from "../controller/quoteController.js";
 import { verifyToken } from "../middleware/verifyUser.js";
 
@@ -30,5 +31,6 @@ router.get("/docx/:id", verifyToken, docData);
 router.get("/approve/:id", verifyToken, approving);
 router.get("/archive/:id", verifyToken, getArchive);
 router.delete("/delete/:id", verifyToken, deletedQuote);
+router.get("/bro/:id/sendEmail", sendEmail);
 
 export default router;

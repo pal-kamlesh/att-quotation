@@ -6,7 +6,7 @@ import QuoteInfo from "./quoteInfoModel.js";
 import User from "./userModel.js";
 import DC from "./dcModel.js";
 import WorkLogs from "./workLogModel.js";
-
+import ReminderEmail from "./reminderEmailModel.js";
 export {
   Quotation,
   Contract,
@@ -17,4 +17,5 @@ export {
   DC,
   WorkLogs,
   ChemicalBatchNos,
+  ReminderEmail,
 };

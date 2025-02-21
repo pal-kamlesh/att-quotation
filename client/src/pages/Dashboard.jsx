@@ -126,7 +126,7 @@ export default function Dashboard() {
       icons: [],
     },
     {
-      title: "Pending Contracts",
+      title: "Pending Approval by Admin",
       value: pendingContracts,
       icon: "😕", // Concerned or cautious about what's still pending
       color: "border-yellow-500",
@@ -155,7 +155,16 @@ export default function Dashboard() {
         if (quoteContractConversionRatio > 30) return "🤔"; // Needs attention
         return "😟"; // Low conversion, concerning
       })(),
-      color: "border-lime-500",
+      color: (() => {
+        if (quoteContractConversionRatio > 70) return "border-green-500"; // Excellent conversion rate
+        if (
+          quoteContractConversionRatio < 70 &&
+          quoteContractConversionRatio > 50
+        )
+          return "border-orange-500"; // Good, but room for improvement
+        if (quoteContractConversionRatio > 30) return "border-red-500"; // Needs attention
+        return "border-red-500"; // Low conversion, concerning
+      })(),
       icons: [
         { id: "A", icon: "😟", text: "Low conversion, concerning" },
         { id: "B", icon: "🤔", text: "Needs attention" },
@@ -168,6 +177,12 @@ export default function Dashboard() {
   return (
     <div className="mx-3 min-h-screen p-4 bg-gray-100">
       <h1 className="text-3xl font-bold mb-6 text-center">Dashboard</h1>
+      {/* Quotations Stats */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-8">
+        {stats.map((stat) => (
+          <StatCard key={stat.title} {...stat} />
+        ))}
+      </div>
       {/* Contracts Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {contractStats.map((stat) => (
@@ -258,13 +273,6 @@ export default function Dashboard() {
             </BarChart>
           </ResponsiveContainer>
         </div>
-      </div>
-
-      {/* Quotations Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-8">
-        {stats.map((stat) => (
-          <StatCard key={stat.title} {...stat} />
-        ))}
       </div>
     </div>
   );

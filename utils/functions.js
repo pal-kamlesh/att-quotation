@@ -387,6 +387,88 @@ async function generateAndSendReport2({ data, emailConfig, sheetConfigs }) {
   }
 }
 
+/**
+ *
+ * @param {string} id
+ * @param {number} limit
+ * @returns {Array}
+ */
+async function findSimilarQuotations(referenceId, limit = 3) {
+  try {
+    const referenceQuotation = await Quotation.findById(referenceId).populate(
+      "quoteInfo"
+    );
+
+    if (!referenceQuotation) {
+      console.log("Reference quotation not found");
+      return [];
+    }
+
+    const referenceName = referenceQuotation.billToAddress?.name || "";
+    const referenceWorkAreas = referenceQuotation.quoteInfo
+      .map((q) => q.workArea)
+      .filter(Boolean);
+
+    // Fetch all quotations
+    const allQuotations = await Quotation.find().populate("quoteInfo");
+
+    // Step 1: Filter by name similarity (≥ 80%)
+    const filteredQuotations = allQuotations.filter((q) => {
+      const currentName = q.billToAddress?.name || "";
+      return similarityPercentage(referenceName, currentName) >= 80;
+    });
+
+    // Step 2: Filter by workArea closeness (within 10%)
+    const finalQuotations = filteredQuotations.filter((q) => {
+      const targetWorkAreas = q.quoteInfo
+        .map((q) => q.workArea)
+        .filter(Boolean);
+      return isWorkAreaClose(referenceWorkAreas, targetWorkAreas);
+    });
+    return finalQuotations.slice(0, limit);
+  } catch (error) {
+    console.error("Error fetching quotations:", error);
+    return [];
+  }
+}
+
+function levenshteinDistance(a, b) {
+  const m = a.length,
+    n = b.length;
+  const dp = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
+
+  for (let i = 0; i <= m; i++) dp[i][0] = i;
+  for (let j = 0; j <= n; j++) dp[0][j] = j;
+
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      dp[i][j] = Math.min(
+        dp[i - 1][j] + 1,
+        dp[i][j - 1] + 1,
+        dp[i - 1][j - 1] + cost
+      );
+    }
+  }
+  return dp[m][n];
+}
+
+function similarityPercentage(str1, str2) {
+  const distance = levenshteinDistance(str1.toLowerCase(), str2.toLowerCase());
+  const maxLength = Math.max(str1.length, str2.length);
+  return ((1 - distance / maxLength) * 100).toFixed(2); // Percentage similarity
+}
+
+function isWorkAreaClose(referenceWorkAreas, targetWorkAreas, tolerance = 0.1) {
+  return referenceWorkAreas.some((refArea) =>
+    targetWorkAreas.some((targetArea) => {
+      const diff = Math.abs(refArea - targetArea);
+      const threshold = refArea * tolerance; // 10% of refArea
+      return diff <= threshold;
+    })
+  );
+}
+
 export {
   generateAndSendReport,
   generateAndSendReport2,
@@ -400,4 +482,5 @@ export {
   createContractArchiveEntry,
   createExcelBuilder,
   getStatsForEmail,
+  findSimilarQuotations,
 };
