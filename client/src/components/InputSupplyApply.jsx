@@ -23,7 +23,7 @@ const nanoid = customAlphabet(
   21
 );
 
-function InputSupplyApplyAdv({ quote, setQuote, changedFileds, orignalQuote }) {
+function InputSupplyApply({ quote, setQuote, changedFileds, orignalQuote }) {
   const [validInput, setValidInput] = useState(false);
   const [infoObj, setInfoObj] = useState({
     _id: nanoid(),
@@ -427,4 +427,4 @@ function InputSupplyApplyAdv({ quote, setQuote, changedFileds, orignalQuote }) {
   );
 }
 
-export default InputSupplyApplyAdv;
+export default InputSupplyApply;

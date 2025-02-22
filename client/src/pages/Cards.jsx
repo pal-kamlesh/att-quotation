@@ -12,9 +12,9 @@ import {
   showMoreCard,
 } from "../redux/card/cardSlice";
 import { useNavigate } from "react-router-dom";
-import { createContractCard } from "../components/AnnexureTable";
 import { unwrapResult } from "@reduxjs/toolkit";
 import debounce from "lodash.debounce";
+import { createContractCard } from "../funtions/docxFn";
 
 function Cards() {
   const { cards = [], showMore, loading } = useSelector((state) => state.card);

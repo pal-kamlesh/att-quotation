@@ -8,30 +8,31 @@ import {
   TextInput,
   Textarea,
 } from "flowbite-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
+import { createContract } from "../redux/contract/contractSlice";
+import { duplicateBillToShipTo } from "../funtions/funtion";
 import {
   KCI,
   Loading,
-  InputStandardAdv,
-  InputSupplyAdv,
-  InputSupplyApplyAdv,
+  InputStandard,
+  InputSupply,
+  InputSupplyApply,
   CustomModal,
 } from "./index.js";
-import {
-  getSingleContract,
-  updateContract,
-} from "../redux/contract/contractSlice";
-import { getValueFromNestedObject } from "../funtions/funtion.js";
+import { getGroup, getGroups } from "../redux/quote/quoteSlice.js";
 
-// eslint-disable-next-line react/prop-types
-function UpdateContract({ onClose, activeId }) {
-  const { loading } = useSelector((state) => state.contract);
-  const [contract, setContract] = useState({
-    contractNo: "",
+const getInitialContractState = () => {
+  const savedData = localStorage.getItem("newContract");
+  if (savedData) {
+    const { contract } = JSON.parse(savedData);
+    return contract;
+  }
+  return {
     salesPerson: "",
+    os: false,
     billToAddress: {
       prefix: "",
       name: "",
@@ -63,53 +64,58 @@ function UpdateContract({ onClose, activeId }) {
     workOrderDate: "",
     gstNo: "",
     paymentTerms: "",
-  });
-  const [doc, setDoc] = useState(contract?.docType);
+    groupBy: null,
+  };
+};
+// eslint-disable-next-line react/prop-types
+function NewContract({ onClose }) {
+  const { loading } = useSelector((state) => state.contract);
+  const initialState = useMemo(() => getInitialContractState(), []);
+  const [contract, setContract] = useState(initialState);
+  const [doc, setDoc] = useState(contract.docType);
   const [disableRadio, setDisableRadio] = useState(false);
   const [areaTypeModel, setAreaTypeModel] = useState(false);
-  const [message, setMessage] = useState("");
+  const [subPaymentTerm, setSubPaymentTerm] = useState("");
   const dispatch = useDispatch();
   const { initials } = useSelector((state) => state.user);
-  const changedFileds = useRef([]);
-  const orignalContract = useRef({});
+  const [groups, setGroups] = useState([]);
+  const [selectedGroup, setSelectedGroup] = useState(null);
+
+  // Save data to local storage whenever contract or infoArray changes
+  useEffect(() => {
+    localStorage.setItem("newContract", JSON.stringify({ contract }));
+  }, [contract]);
 
   useEffect(() => {
-    async function initial() {
-      if (activeId) {
-        try {
-          const actionResult = await dispatch(getSingleContract(activeId));
-          const result = unwrapResult(actionResult);
-          // Use optional chaining and handle the case when workOrderDate is not present
-          const isoDateStr = result.result?.workOrderDate ?? ""; // Default to empty string if not present
-
-          // Only create a Date object if isoDateStr is a valid date string
-          let formattedDate = "";
-          if (isoDateStr) {
-            const date = new Date(isoDateStr);
-            if (!isNaN(date.getTime())) {
-              // Check if the date is valid
-              formattedDate = date.toISOString().split("T")[0];
-            }
-          }
-
-          setContract({ ...result.result, workOrderDate: formattedDate });
-          setDoc(result.result.docType);
-          orignalContract.current = result.result;
-        } catch (error) {
-          console.error("Failed to fetch contract:", error);
-        }
-      }
+    async function fetchGroups() {
+      const actionResult = await dispatch(getGroups());
+      const result = unwrapResult(actionResult);
+      setGroups(result.groups);
     }
-    initial();
-  }, [activeId, dispatch]);
+    fetchGroups();
+  }, [dispatch]);
 
+  useEffect(() => {
+    async function fetchGroups() {
+      const actionResult = await dispatch(getGroup(selectedGroup));
+      const result = unwrapResult(actionResult);
+      setContract(() => result.group.data);
+      setContract((prev) => ({ ...prev, groupBy: result.group._id }));
+    }
+    if (selectedGroup) {
+      fetchGroups();
+    }
+  }, [selectedGroup]);
+  console.log(contract);
   function handleDocType(e) {
     if (contract.quoteInfo.length <= 0) {
       const { value } = e.target;
       setDoc(value);
     }
   }
-
+  useEffect(() => {
+    setContract((prev) => ({ ...prev, paymentTerms: subPaymentTerm }));
+  }, [subPaymentTerm]);
   useEffect(() => {
     if (contract.quoteInfo.length <= 0) {
       setDisableRadio(false);
@@ -118,51 +124,9 @@ function UpdateContract({ onClose, activeId }) {
       setDisableRadio(true);
       setContract((prev) => ({ ...prev, docType: doc }));
     }
-  }, [doc, contract?.quoteInfo.length]);
-
-  useEffect(() => {
-    if (!contract) return; // Ensure contract is defined
-    let cNo = contract?.contractNo;
-    let parts;
-    if (cNo) {
-      parts = cNo.split("/");
-    } else {
-      return;
-    }
-
-    if (contract.os) {
-      if (parts[0] !== "OS") {
-        parts.unshift("OS");
-      }
-    } else {
-      if (parts[0] === "OS") {
-        parts.shift();
-      }
-    }
-
-    const updatedContractNo = parts.join("/");
-    setContract((prev) => ({ ...prev, contractNo: updatedContractNo }));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [contract?.os, contract?.contractNo]);
-
-  function handleContractChange(e) {
+  }, [doc, contract.quoteInfo.length]);
+  function handleQuoteChange(e) {
     const { name, value } = e.target;
-    const oldValue = getValueFromNestedObject(orignalContract.current, name);
-    if (
-      value.trim() !== String(contract[name]).trim() &&
-      !changedFileds.current.includes(String(name))
-    ) {
-      changedFileds.current = [...changedFileds.current, name];
-    }
-    if (
-      value.trim() === oldValue &&
-      changedFileds.current.includes(String(name))
-    ) {
-      changedFileds.current = changedFileds.current.filter(
-        (keys) => keys !== name
-      );
-    }
-
     setContract((prev) => ({ ...prev, [name]: value }));
   }
   function handleAddress(e) {
@@ -177,20 +141,6 @@ function UpdateContract({ onClose, activeId }) {
           [fieldName]: value,
         },
       }));
-      const oldValue = getValueFromNestedObject(orignalContract.current, name);
-      if (
-        oldValue.trim() !== value.trim() &&
-        !changedFileds.current.includes(String(name))
-      ) {
-        changedFileds.current = [...changedFileds.current, name];
-      } else if (
-        oldValue.trim() === value.trim() &&
-        changedFileds.current.includes(String(name))
-      ) {
-        changedFileds.current = changedFileds.current.filter(
-          (keys) => keys !== name
-        );
-      }
     } else {
       setContract((prev) => ({
         ...prev,
@@ -198,49 +148,47 @@ function UpdateContract({ onClose, activeId }) {
       }));
     }
   }
-
-  function duplicateBillToShipTo() {
-    const { billToAddress } = contract;
-    const { shipToAddress } = contract;
-
-    // Create an object to hold the duplicated fields
-    const updatedShipToAddress = {};
-
-    // Loop through billToAddress keys and copy only those present in shipToAddress
-    Object.keys(billToAddress).forEach((key) => {
-      if (Object.prototype.hasOwnProperty.call(shipToAddress, key)) {
-        updatedShipToAddress[key] = billToAddress[key];
-      }
-    });
-
-    // Update the shipToAddress in the state
-    setContract({
-      ...contract,
-      shipToAddress: { ...shipToAddress, ...updatedShipToAddress },
-    });
-  }
-  async function handleSubmitApproved(e) {
-    e.preventDefault();
-    if (message === "") {
-      toast.error("Please provide resion for Revision.");
-      return;
-    }
-    if (contract.quoteInfo.length <= 0) {
-      toast.error("Please fill the number details.");
-      return;
-    }
+  function dummyQuote() {
     const data = {
-      id: contract._id,
-      contract,
-      message,
-      modified: changedFileds.current,
+      contract: {
+        billToAddress: {
+          prefix: "M/s.",
+          name: "KEC International Ltd.",
+          a1: "Raghuram Heights",
+          a2: "463",
+          a3: "Dr Annie Besant Raod",
+          a4: "Worli",
+          a5: "Opposite Hell",
+          city: "Mumbai",
+          pincode: "400030",
+          kci: [],
+        },
+        shipToAddress: {
+          projectName: "Prestige City Rehab Project",
+          a1: "Raghuram Heights",
+          a2: "463",
+          a3: "Dr Annie Besant Raod",
+          a4: "Worli",
+          a5: "Opposite Hell",
+          city: "Mumbai",
+          pincode: "400030",
+          kci: [],
+        },
+        kindAttentionPrefix: "Mr.",
+        kindAttention: "Malahari Naik",
+        reference: "Our earlier quotation No EPPL/ATT/QTN/401",
+        specification: "As per IS 6313 (Part 2):2013",
+        note: "",
+        quoteInfo: [],
+        activeClauses: {
+          taxation: true,
+          warranty: true,
+        },
+      },
     };
-    const actionResult = await dispatch(updateContract(data));
-    // eslint-disable-next-line no-unused-vars
-    const result = unwrapResult(actionResult);
-    onClose();
+    setContract(data.contract);
   }
-  async function handleSubmitNotApproved(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
     if (
       contract.billToAddress.name === "" ||
@@ -250,6 +198,7 @@ function UpdateContract({ onClose, activeId }) {
       contract.billToAddress.a4 === "" ||
       contract.billToAddress.a5 === "" ||
       contract.billToAddress.city === "" ||
+      contract.billToAddress.kci.length < 1 ||
       contract.shipToAddress.name === "" ||
       contract.shipToAddress.a1 === "" ||
       contract.shipToAddress.pincode === "" ||
@@ -258,7 +207,8 @@ function UpdateContract({ onClose, activeId }) {
       contract.shipToAddress.a4 === "" ||
       contract.shipToAddress.a5 === "" ||
       contract.shipToAddress.city === "" ||
-      contract.shipToAddress.pincode === ""
+      contract.shipToAddress.pincode === "" ||
+      contract.shipToAddress.kci.length < 1
     ) {
       toast.error("BillTo/ShipTo Information is incomplete!");
       return;
@@ -272,9 +222,12 @@ function UpdateContract({ onClose, activeId }) {
       return;
     }
 
-    const data = { contract, id: activeId };
-    const actionResult = await dispatch(updateContract(data));
-    await unwrapResult(actionResult);
+    const data = { contract };
+    const actionResult = await dispatch(createContract(data));
+    const result = await unwrapResult(actionResult);
+    if (result.message === "Contract Created!") {
+      localStorage.removeItem("newContract");
+    }
     onClose();
   }
   return (
@@ -282,42 +235,14 @@ function UpdateContract({ onClose, activeId }) {
       {loading ? <Loading /> : null}
       <form className="">
         <div className="flex items-center justify-evenly gap-4 mb-4 flex-wrap">
-          <div className="max-w-full p-4">
-            {contract?.contractNo ? (
-              <div className="mb-2">
-                <Label htmlFor="contractNo" value="Contract No" />
-                <TextInput
-                  id="contractNo"
-                  name="contractNo"
-                  value={contract?.contractNo}
-                  onChange={handleContractChange}
-                  className="mt-1"
-                  disabled
-                />
-              </div>
-            ) : null}
-          </div>
-          <div className="flex items-center gap-2">
-            <Checkbox
-              checked={contract.os}
-              onChange={() =>
-                setContract((prev) => ({
-                  ...prev,
-                  os: !prev.os,
-                }))
-              }
-              id="os"
-            />
-            <Label htmlFor="os">OS</Label>
-          </div>
           <div className="max-w-full">
             <div className="mb-2 block">
               <Label htmlFor="workOrderNo" value="Work Order No" />
             </div>
             <TextInput
               name="workOrderNo"
-              value={contract?.workOrderNo}
-              onChange={handleContractChange}
+              value={contract.workOrderNo}
+              onChange={handleQuoteChange}
             />
           </div>
           <div className="max-w-full">
@@ -327,8 +252,8 @@ function UpdateContract({ onClose, activeId }) {
             <input
               name="workOrderDate"
               type="date"
-              value={contract?.workOrderDate}
-              onChange={handleContractChange}
+              value={contract.workOrderDate}
+              onChange={handleQuoteChange}
             />
           </div>
           <div className="max-w-full">
@@ -338,12 +263,16 @@ function UpdateContract({ onClose, activeId }) {
                 <span className=" text-red-500">*</span>
               </Label>
             </div>
-            <Select name="salesPerson" onChange={handleContractChange}>
+            <Select
+              name="salesPerson"
+              onChange={handleQuoteChange}
+              value={contract.salesPerson}
+            >
               <option></option>
               {initials.length > 0 &&
                 initials.map((initial) => (
                   <option
-                    selected={contract?.salesPerson?._id === initial._id}
+                    selected={contract.salesPerson === initial._id}
                     key={initial._id}
                     value={initial._id}
                   >
@@ -352,28 +281,54 @@ function UpdateContract({ onClose, activeId }) {
                 ))}
             </Select>
           </div>
-
-          <div className="col-span-5">
-            <div className="mb-2 block">
-              <Label htmlFor="emailTo">
-                <span>Email To: </span>
-              </Label>
+          <div className="max-w-full flex gap-3">
+            <div className="flex items-center gap-2">
+              <Checkbox
+                checked={contract.os}
+                onChange={() =>
+                  setContract((prev) => ({
+                    ...prev,
+                    os: !prev.os,
+                  }))
+                }
+                id="os"
+              />
+              <Label htmlFor="os">OS</Label>
             </div>
-            <TextInput
-              type="email"
-              name="emailTo"
-              onChange={handleContractChange}
-              value={contract?.emailTo}
-            />
+          </div>
+          <div className="">
+            <div className="mb-2 block">
+              <Label htmlFor="groupBy" value="Group By"></Label>
+            </div>
+            <Select
+              name="groupBy"
+              value={contract.groupBy}
+              onChange={(e) => [
+                setSelectedGroup(e.target.value),
+                handleQuoteChange(e),
+              ]}
+            >
+              <option></option>
+              {groups?.map((group) => (
+                <option key={group._id} value={group._id}>
+                  {group.name}
+                </option>
+              ))}
+            </Select>
           </div>
         </div>
         <div className="flex items-center justify-center w-full">
           <Button
             outline
             gradientMonochrome="cyan"
-            onClick={duplicateBillToShipTo}
+            onClick={() =>
+              duplicateBillToShipTo({ quote: contract, setQuote: setContract })
+            }
           >
             Copy BillTo/ShipTo
+          </Button>
+          <Button outline gradientMonochrome="cyan" onClick={dummyQuote}>
+            Dummy contract
           </Button>
         </div>
         <div className="grid grid-cols-8 gap-4 border mb-4 rounded-md">
@@ -384,16 +339,20 @@ function UpdateContract({ onClose, activeId }) {
                 <div className="mb-2">
                   <Label htmlFor="billToAddress.prefix" value="Prefix" />
                 </div>
-                <Select name="billToAddress.prefix" onChange={handleAddress}>
+                <Select
+                  name="billToAddress.prefix"
+                  onChange={handleAddress}
+                  value={contract.billToAddress.prefix}
+                >
                   <option></option>
                   <option
-                    selected={contract?.billToAddress.prefix === "M/s."}
+                    selected={contract.billToAddress.prefix === "M/s."}
                     value="M/s."
                   >
                     M/s.
                   </option>
                   <option
-                    selected={contract?.billToAddress.prefix === "Mr."}
+                    selected={contract.billToAddress.prefix === "Mr."}
                     value="Mr."
                   >
                     Mr.
@@ -416,7 +375,7 @@ function UpdateContract({ onClose, activeId }) {
                 <TextInput
                   type="text"
                   name="billToAddress.name"
-                  value={contract?.billToAddress.name}
+                  value={contract.billToAddress.name}
                   onChange={handleAddress}
                 />
               </div>
@@ -431,7 +390,7 @@ function UpdateContract({ onClose, activeId }) {
               <TextInput
                 name="billToAddress.a1"
                 onChange={handleAddress}
-                value={contract?.billToAddress.a1}
+                value={contract.billToAddress.a1}
                 placeholder="Building/Office name"
               />
             </div>
@@ -445,7 +404,7 @@ function UpdateContract({ onClose, activeId }) {
               <TextInput
                 name="billToAddress.a2"
                 onChange={handleAddress}
-                value={contract?.billToAddress.a2}
+                value={contract.billToAddress.a2}
                 placeholder="Flat/Office No"
               />
             </div>
@@ -459,7 +418,7 @@ function UpdateContract({ onClose, activeId }) {
               <TextInput
                 name="billToAddress.a3"
                 onChange={handleAddress}
-                value={contract?.billToAddress.a3}
+                value={contract.billToAddress.a3}
                 placeholder="Road/Lanename"
               />
             </div>
@@ -473,7 +432,7 @@ function UpdateContract({ onClose, activeId }) {
               <TextInput
                 name="billToAddress.a4"
                 onChange={handleAddress}
-                value={contract?.billToAddress.a4}
+                value={contract.billToAddress.a4}
                 placeholder="Location"
               />
             </div>
@@ -487,7 +446,7 @@ function UpdateContract({ onClose, activeId }) {
               <TextInput
                 name="billToAddress.a5"
                 onChange={handleAddress}
-                value={contract?.billToAddress.a5}
+                value={contract.billToAddress.a5}
                 placeholder="NearBy: Landmark"
               />
             </div>
@@ -500,7 +459,7 @@ function UpdateContract({ onClose, activeId }) {
               </div>
               <TextInput
                 name="billToAddress.city"
-                value={contract?.billToAddress.city}
+                value={contract.billToAddress.city}
                 onChange={handleAddress}
               />
             </div>
@@ -514,7 +473,7 @@ function UpdateContract({ onClose, activeId }) {
               <TextInput
                 name="billToAddress.pincode"
                 onChange={handleAddress}
-                value={contract?.billToAddress.pincode}
+                value={contract.billToAddress.pincode}
               />
             </div>
 
@@ -522,8 +481,6 @@ function UpdateContract({ onClose, activeId }) {
               quote={contract}
               setQuote={setContract}
               addressKey="billToAddress"
-              changedFileds={changedFileds}
-              orignalQuote={orignalContract}
             />
           </div>
           <div className="p-4 col-span-4">
@@ -538,7 +495,7 @@ function UpdateContract({ onClose, activeId }) {
               <TextInput
                 name="shipToAddress.projectName"
                 onChange={handleAddress}
-                value={contract?.shipToAddress.projectName}
+                value={contract.shipToAddress.projectName}
                 type="text"
               />
             </div>
@@ -553,7 +510,7 @@ function UpdateContract({ onClose, activeId }) {
               <TextInput
                 name="shipToAddress.a1"
                 onChange={handleAddress}
-                value={contract?.shipToAddress.a1}
+                value={contract.shipToAddress.a1}
                 placeholder="Building/Office name"
               />
             </div>
@@ -567,7 +524,7 @@ function UpdateContract({ onClose, activeId }) {
               <TextInput
                 name="shipToAddress.a2"
                 onChange={handleAddress}
-                value={contract?.shipToAddress.a2}
+                value={contract.shipToAddress.a2}
                 placeholder="Flat/Office No"
               />
             </div>
@@ -641,8 +598,6 @@ function UpdateContract({ onClose, activeId }) {
               quote={contract}
               setQuote={setContract}
               addressKey="shipToAddress"
-              changedFileds={changedFileds}
-              orignalQuote={orignalContract}
             />
           </div>
         </div>
@@ -655,7 +610,7 @@ function UpdateContract({ onClose, activeId }) {
               <TextInput
                 name="gstNo"
                 value={contract.gstNo}
-                onChange={handleContractChange}
+                onChange={handleQuoteChange}
               />
             </div>
           </div>
@@ -708,73 +663,55 @@ function UpdateContract({ onClose, activeId }) {
               </div>
             </div>
           </div>
-          <div className="col-span-4 gap-4 mb-4">
+          <div className="col-span-4 gap-4 mb-4 border-1 border-gray-200 rounded-md">
             <div className="max-w-full">
               <div className="mb-2 block">
-                <Label htmlFor="paymentTerms" value="Payment Terms" />
+                <Label htmlFor="paymentTerms" className="grid grid-cols-12">
+                  <span className=" col-span-2">
+                    Payment Terms: <span className="text-red-500">*</span>
+                  </span>
+                  <Select
+                    name="paymentTerms"
+                    onChange={(e) => setSubPaymentTerm(e.target.value)}
+                    className="col-span-10"
+                    value={subPaymentTerm}
+                  >
+                    <option></option>
+                    <option>
+                      Within 15 days from the date of submission of bill.
+                    </option>
+                  </Select>
+                </Label>
               </div>
               <TextInput
                 name="paymentTerms"
                 value={contract.paymentTerms}
-                onChange={handleContractChange}
+                onChange={handleQuoteChange}
               />
             </div>
           </div>
         </div>
 
         {doc === "standard" && (
-          <InputStandardAdv
-            quote={contract}
-            setQuote={setContract}
-            changedFileds={changedFileds}
-            orignalQuote={orignalContract}
-          />
+          <InputStandard quote={contract} setQuote={setContract} />
         )}
 
         {doc === "supply" && (
-          <InputSupplyAdv
-            quote={contract}
-            setQuote={setContract}
-            changedFileds={changedFileds}
-            orignalQuote={orignalContract}
-          />
+          <InputSupply quote={contract} setQuote={setContract} />
         )}
         {doc === "supply/apply" && (
-          <InputSupplyApplyAdv
-            quote={contract}
-            setQuote={setContract}
-            changedFileds={changedFileds}
-            orignalQuote={orignalContract}
-          />
+          <InputSupplyApply quote={contract} setQuote={setContract} />
         )}
-        {contract.approved ? (
-          <div className="col-span-1 mb-4">
-            <Label>
-              <span>Revision Reason:</span>
-              <span className="text-red-500">*</span>
-            </Label>
-            <Textarea
-              name="message"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-            />
-          </div>
-        ) : null}
         <div className="col-span-1 mb-4">
           <Label>Notes: </Label>
           <Textarea
             name="note"
-            onChange={handleContractChange}
+            onChange={handleQuoteChange}
             value={contract.note}
           />
         </div>
-        <Button
-          type="submit"
-          onClick={
-            contract.approved ? handleSubmitApproved : handleSubmitNotApproved
-          }
-        >
-          Update
+        <Button type="submit" onClick={handleSubmit}>
+          Submit
         </Button>
       </form>
       <CustomModal
@@ -788,4 +725,4 @@ function UpdateContract({ onClose, activeId }) {
   );
 }
 
-export default UpdateContract;
+export default NewContract;

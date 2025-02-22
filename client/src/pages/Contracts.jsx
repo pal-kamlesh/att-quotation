@@ -3,7 +3,6 @@ import {
   CustomModal,
   Loading,
   NewContract,
-  PopUpContract,
   Refresh,
   UpdateContract,
   ViewContract,
@@ -11,6 +10,8 @@ import {
   QRbutton,
   HistoryPanelContract,
   Search,
+  PopUpMorpheus,
+  ContractDownloadButton,
 } from "../components/index.js";
 import TimeAgo from "react-timeago";
 import { Button, Table } from "flowbite-react";
@@ -293,10 +294,25 @@ function Contracts() {
                           >
                             Warrenty
                           </Button>
-                          <PopUpContract
+                          <PopUpMorpheus
                             id={contract._id}
-                            setActiveId={setActiveId}
-                          />
+                            setQuoteId={setActiveId}
+                          >
+                            <div className="flex justify-center gap-4">
+                              <ContractDownloadButton
+                                id={contract._id}
+                                color="failure"
+                                text="With ANNEXURE"
+                                annexure={true}
+                              />
+                              <ContractDownloadButton
+                                id={contract._id}
+                                color="blue"
+                                text="Without ANNEXURE"
+                                annexure={false}
+                              />
+                            </div>
+                          </PopUpMorpheus>
                         </div>
                       </Table.Cell>
                     </Table.Row>

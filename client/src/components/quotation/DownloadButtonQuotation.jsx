@@ -1,17 +1,17 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { unwrapResult } from "@reduxjs/toolkit";
-import { docxData } from "../redux/contract/contractSlice.js";
-
+import { docxData } from "../../redux/quote/quoteSlice.js";
 import { Button } from "flowbite-react";
-import { generateStandardContractAdv } from "./AnnexureTable.jsx";
+import { generateQuotation } from "../../funtions/docxFn.js";
 
-// eslint-disable-next-line react/prop-types, no-unused-vars
-const ContractGenerator = ({ id, color, onClick, text, annexure }) => {
+// eslint-disable-next-line react/prop-types
+const QuotationGenerator = ({ id, color, onClick, text, annexure }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const dispatch = useDispatch();
-  const generateContract = async () => {
+
+  const makeQuotation = async () => {
     setIsLoading(true);
     setError(null);
     try {
@@ -19,7 +19,7 @@ const ContractGenerator = ({ id, color, onClick, text, annexure }) => {
       const actionResult = await dispatch(docxData(id));
       const result = unwrapResult(actionResult);
       const data = result.result;
-      await generateStandardContractAdv(data, annexure);
+      await generateQuotation(data, annexure);
     } catch (err) {
       console.log(err);
       setError(err.message);
@@ -32,7 +32,7 @@ const ContractGenerator = ({ id, color, onClick, text, annexure }) => {
     <div>
       <Button
         color={color}
-        onClick={() => [generateContract(), onClick()]}
+        onClick={() => [makeQuotation(), onClick()]}
         disabled={isLoading}
       >
         {isLoading ? "Generating..." : `${text}`}
@@ -42,4 +42,4 @@ const ContractGenerator = ({ id, color, onClick, text, annexure }) => {
   );
 };
 
-export default ContractGenerator;
+export default QuotationGenerator;

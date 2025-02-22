@@ -23,7 +23,7 @@ const nanoid = customAlphabet(
   21
 );
 
-function InputStandardAdv({ quote, setQuote, changedFileds, orignalQuote }) {
+function InputStandard({ quote, setQuote, changedFileds, orignalQuote }) {
   const [validInput, setValidInput] = useState(false);
   const [chemicalList, setChemicalList] = useState([]);
   const [infoObj, setInfoObj] = useState({
@@ -360,4 +360,4 @@ function InputStandardAdv({ quote, setQuote, changedFileds, orignalQuote }) {
   );
 }
 
-export default InputStandardAdv;
+export default InputStandard;

@@ -1,10 +1,10 @@
 /* eslint-disable react/prop-types */
 import { Button } from "flowbite-react";
 import { base64Url } from "../funtions/funtion.js";
-import { workLogdocx } from "./AnnexureTable.jsx";
 import { Document, Packer } from "docx";
 import { saveAs } from "file-saver";
 import { MdFileDownload } from "react-icons/md";
+import { workLogdocx } from "../funtions/docxFn.js";
 
 const QRCodeComponent = ({ id, data }) => {
   const downloadQRCode = async () => {

@@ -2,13 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getSingleQuote, updateQuote } from "../redux/quote/quoteSlice";
 import { unwrapResult } from "@reduxjs/toolkit";
-import {
-  InputStandardAdv,
-  InputSupplyAdv,
-  InputSupplyApplyAdv,
-  KCI,
-  Loading,
-} from ".";
+import { InputStandard, InputSupply, InputSupplyApply, KCI, Loading } from ".";
 import { Button, Label, Select, Textarea, TextInput } from "flowbite-react";
 import { toast } from "react-toastify";
 import {
@@ -706,7 +700,7 @@ function UpdateQuotation({ quoteId, onClose }) {
       </div>
 
       {quote.docType === "standard" && (
-        <InputStandardAdv
+        <InputStandard
           quote={quote}
           setQuote={setQuote}
           changedFileds={changedFileds}
@@ -715,7 +709,7 @@ function UpdateQuotation({ quoteId, onClose }) {
       )}
 
       {quote.docType === "supply" && (
-        <InputSupplyAdv
+        <InputSupply
           quote={quote}
           setQuote={setQuote}
           changedFileds={changedFileds}
@@ -723,7 +717,7 @@ function UpdateQuotation({ quoteId, onClose }) {
         />
       )}
       {quote.docType === "supply/apply" && (
-        <InputSupplyApplyAdv
+        <InputSupplyApply
           quote={quote}
           setQuote={setQuote}
           changedFileds={changedFileds}

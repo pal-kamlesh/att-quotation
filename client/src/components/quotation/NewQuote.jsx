@@ -15,9 +15,9 @@ import { toast } from "react-toastify";
 import {
   KCI,
   Loading,
-  InputStandardAdv,
-  InputSupplyAdv,
-  InputSupplyApplyAdv,
+  InputStandard,
+  InputSupply,
+  InputSupplyApply,
 } from "./index.js";
 import { duplicateBillToShipTo } from "../funtions/funtion";
 
@@ -882,14 +882,12 @@ function NewQuote({ onClose }) {
         </div>
 
         {doc === "standard" && (
-          <InputStandardAdv quote={quote} setQuote={setQuote} />
+          <InputStandard quote={quote} setQuote={setQuote} />
         )}
 
-        {doc === "supply" && (
-          <InputSupplyAdv quote={quote} setQuote={setQuote} />
-        )}
+        {doc === "supply" && <InputSupply quote={quote} setQuote={setQuote} />}
         {doc === "supply/apply" && (
-          <InputSupplyApplyAdv quote={quote} setQuote={setQuote} />
+          <InputSupplyApply quote={quote} setQuote={setQuote} />
         )}
         <div className="col-span-1 mb-4">
           <Label>Notes: </Label>

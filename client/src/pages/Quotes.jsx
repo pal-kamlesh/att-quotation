@@ -14,12 +14,13 @@ import {
   KCI,
   Loading,
   NewQuote,
-  PopUp2,
   Refresh,
   Search,
   ViewQuote,
   PopUp,
   UpdateQuotation,
+  PopUpMorpheus,
+  QuotationDownloadButton,
 } from "../components";
 import { useDispatch, useSelector } from "react-redux";
 import { getInitials, getNextNum } from "../redux/user/userSlice";
@@ -426,7 +427,25 @@ export default function Create() {
                               History
                             </Button>
                           ) : null}
-                          <PopUp2 setQuoteId={setQuoteId} id={ticket._id} />
+                          <PopUpMorpheus
+                            setQuoteId={setQuoteId}
+                            id={ticket._id}
+                          >
+                            <div className="flex justify-center gap-4">
+                              <QuotationDownloadButton
+                                id={ticket._id}
+                                color="failure"
+                                text="With ANNEXURE"
+                                annexure={true}
+                              />
+                              <QuotationDownloadButton
+                                id={ticket._id}
+                                color="blue"
+                                text="Without ANNEXURE"
+                                annexure={false}
+                              />
+                            </div>
+                          </PopUpMorpheus>
                         </div>
                       </Table.Cell>
                     </Table.Row>
