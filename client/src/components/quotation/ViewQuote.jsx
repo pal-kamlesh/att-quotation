@@ -2,18 +2,18 @@
 import { unwrapResult } from "@reduxjs/toolkit";
 import { useReactToPrint } from "react-to-print";
 import { forwardRef, useEffect, useRef, useState } from "react";
-import { docxData } from "../redux/quote/quoteSlice";
 import { useDispatch, useSelector } from "react-redux";
-import Loading from "./Loading";
+import { docxData } from "../../redux/quote/quoteSlice.js";
 import {
   isRevised,
   saprateQuoteInfo,
   substringsExistInArray,
-} from "../funtions/funtion.js";
+} from "../../funtions/funtion.js";
 import { Button } from "flowbite-react";
-import headerImage from "../images/header.png";
-import footerImage from "../images/footer.png";
-import stamp from "../images/stamp.png";
+import headerImage from "../../images/header.png";
+import footerImage from "../../images/footer.png";
+import stamp from "../../images/stamp.png";
+import { Loading } from "../../components";
 
 // eslint-disable-next-line react/prop-types, react/display-name
 const ViewQuote = forwardRef((props) => {

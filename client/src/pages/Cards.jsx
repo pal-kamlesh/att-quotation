@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getInitials } from "../redux/user/userSlice";
 import { Button, Table } from "flowbite-react";
-import { Loading, Refresh, PopUp, Search } from "../components";
+import { Loading, PopUp, Search, PageHeader } from "../components";
 import TimeAgo from "react-timeago";
 import { getDotColor } from "../funtions/funtion";
 import { FcPrint } from "react-icons/fc";
@@ -20,7 +20,6 @@ function Cards() {
   const { cards = [], showMore, loading } = useSelector((state) => state.card);
   const { currentUser } = useSelector((state) => state.user);
   const [extraQuery, setExtraQuery] = useState("&approved=true");
-  const [pending, setPending] = useState(false);
   const [activeId, setActiveId] = useState("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -80,11 +79,6 @@ function Cards() {
     };
   }, [handleScroll]);
 
-  async function handleRefresh() {
-    setPending(true);
-    await dispatch(searchCards("&approved=true"));
-    setPending(false);
-  }
   async function handlePrint(id) {
     try {
       const actionResult = await dispatch(incPrintCount(id));
@@ -99,24 +93,16 @@ function Cards() {
       {loading ? <Loading /> : null}
       <div className="h-full mt-3">
         <div className=" mt-2 h-full">
-          <div className="h-16 text-lg flex items-center justify-between font-medium bg-[#F6E96B] border border-black rounded-tl-lg rounded-br-lg">
-            <div className="m-2">
-              <Refresh loading={pending} onRefresh={handleRefresh} />
-            </div>
-            <div className="flex-grow mr-4 flex items-center justify-evenly ">
-              <div className="flex items-center justify-center">
-                <h3>Recent cards</h3>
-              </div>
-            </div>
-            <div>
-              <button className="bg-[#A2CA71] hover:bg-[#BEDC74] font-medium py-2 px-4 rounded-tl-lg rounded-br-lg mr-2">
+          <PageHeader
+            bgColor="bg-[#F6E96B]"
+            recentTitle="Recent cards"
+            buttons={
+              <button className="bg-[#A2CA71] hover:bg-[#BEDC74] font-medium py-2 px-4 rounded-tl-lg rounded-br-lg">
                 Cards
               </button>
-            </div>
-          </div>
-          <div>
-            <Search setExtraQuery={setExtraQuery} />
-          </div>
+            }
+          />
+          <Search setExtraQuery={setExtraQuery} />
           <div className=" overflow-x-auto ">
             <Table>
               <Table.Head>

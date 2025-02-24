@@ -9,7 +9,7 @@ import {
 } from "flowbite-react";
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { createQuote, getGroup, getGroups } from "../redux/quote/quoteSlice";
+import { createQuote, getGroup, getGroups } from "../../redux/quote/quoteSlice";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
 import {
@@ -18,8 +18,8 @@ import {
   InputStandard,
   InputSupply,
   InputSupplyApply,
-} from "./index.js";
-import { duplicateBillToShipTo } from "../funtions/funtion";
+} from "../index.js";
+import { duplicateBillToShipTo } from "../../funtions/funtion";
 
 const getInitialQuoteState = () => {
   const savedData = localStorage.getItem("newQuote");
@@ -105,6 +105,7 @@ function NewQuote({ onClose }) {
     if (selectedGroup) {
       fetchGroups();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedGroup]);
   // Save data to local storage whenever quote or infoArray changes
   useEffect(() => {

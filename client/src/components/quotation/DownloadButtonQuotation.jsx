@@ -6,7 +6,7 @@ import { Button } from "flowbite-react";
 import { generateQuotation } from "../../funtions/docxFn.js";
 
 // eslint-disable-next-line react/prop-types
-const QuotationGenerator = ({ id, color, onClick, text, annexure }) => {
+const DownloadButtonQuotation = ({ id, color, onClick, text, annexure }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const dispatch = useDispatch();
@@ -42,4 +42,4 @@ const QuotationGenerator = ({ id, color, onClick, text, annexure }) => {
   );
 };
 
-export default QuotationGenerator;
+export default DownloadButtonQuotation;

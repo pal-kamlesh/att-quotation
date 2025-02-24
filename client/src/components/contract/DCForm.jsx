@@ -2,7 +2,7 @@
 import { Button, TextInput, Label, Select, Spinner } from "flowbite-react";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { createDC, getChemicals } from "../redux/contract/contractSlice";
+import { createDC, getChemicals } from "../../redux/contract/contractSlice";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
 

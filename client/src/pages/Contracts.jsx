@@ -3,7 +3,6 @@ import {
   CustomModal,
   Loading,
   NewContract,
-  Refresh,
   UpdateContract,
   ViewContract,
   PopUp,
@@ -11,7 +10,9 @@ import {
   HistoryPanelContract,
   Search,
   PopUpMorpheus,
-  ContractDownloadButton,
+  DownloadButtonContract,
+  PageHeader,
+  Warrenty,
 } from "../components/index.js";
 import TimeAgo from "react-timeago";
 import { Button, Table } from "flowbite-react";
@@ -29,7 +30,6 @@ import { getDotColor } from "../funtions/funtion.js";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { useNavigate } from "react-router-dom";
 import debounce from "lodash.debounce";
-import Test from "./Test.jsx";
 
 function Contracts() {
   const {
@@ -43,7 +43,6 @@ function Contracts() {
   const [updateModel, setUpdateModel] = useState(false);
   const [viewModel, setViewModel] = useState(false);
   const [activeId, setActiveId] = useState("");
-  const [pending, setPending] = useState(false);
   const [archiveModel, setArchiveModel] = useState(false);
   const [warModel, setWarModel] = useState(false);
   const [contractNo, setContractNo] = useState(null);
@@ -51,6 +50,7 @@ function Contracts() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleShowMore = useCallback(
     debounce(async () => {
       const startIndex = contracts.length;
@@ -78,6 +78,7 @@ function Contracts() {
       setNextContractNo(data.result.contractNextNum.seq);
     }
     fn();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch]);
 
   useEffect(() => {
@@ -110,11 +111,6 @@ function Contracts() {
       window.removeEventListener("scroll", handleScroll);
     };
   }, [handleScroll]);
-  async function handleRefresh() {
-    setPending(true);
-    await dispatch(getContracts());
-    setPending(false);
-  }
 
   async function handleClick(id) {
     if (!currentUser.rights.admin && !currentUser.rights.approve) {
@@ -140,34 +136,20 @@ function Contracts() {
       {loading ? <Loading /> : null}
       <div className="h-full mt-3">
         <div className=" mt-2 h-full">
-          <div className="h-16 text-lg flex items-center justify-between font-medium bg-[#E36F6F] border border-black rounded-tl-lg rounded-br-lg">
-            <div className="m-2">
-              <Refresh loading={pending} onRefresh={handleRefresh} />
-            </div>
-            <div>
-              <span>Next Contract No: </span>
-              <span className="bg-yellow-300 text-black font-bold px-2 py-1 rounded-md">
-                {nextContractNo + 1}
-              </span>
-            </div>
-            <div className="flex-grow mr-4 flex items-center justify-evenly">
-              <div className="flex items-center justify-center">
-                <h3>Recent Contracts</h3>
-              </div>
-            </div>
-            <div>
+          <PageHeader
+            bgColor="bg-[#E36F6F]"
+            recentTitle="Recent Contracts"
+            nextNumber={{ label: "Next Contract No", value: nextContractNo }}
+            buttons={
               <button
-                className="bg-[#FFFDB5] hover:bg-yellow-200 font-medium py-2 px-4 rounded-tl-lg rounded-br-lg mr-2"
+                className="bg-[#FFFDB5] hover:bg-yellow-200 font-medium py-2 px-4 rounded-tl-lg rounded-br-lg"
                 onClick={() => setCreateModel(true)}
               >
                 Create Contracts
               </button>
-            </div>
-          </div>
-
-          <div>
-            <Search setExtraQuery={setExtraQuery} />
-          </div>
+            }
+          />
+          <Search setExtraQuery={setExtraQuery} />
           <div className=" overflow-x-auto ">
             <Table>
               <Table.Head>
@@ -299,13 +281,13 @@ function Contracts() {
                             setQuoteId={setActiveId}
                           >
                             <div className="flex justify-center gap-4">
-                              <ContractDownloadButton
+                              <DownloadButtonContract
                                 id={contract._id}
                                 color="failure"
                                 text="With ANNEXURE"
                                 annexure={true}
                               />
-                              <ContractDownloadButton
+                              <DownloadButtonContract
                                 id={contract._id}
                                 color="blue"
                                 text="Without ANNEXURE"
@@ -390,18 +372,17 @@ function Contracts() {
           onClose={() => [setArchiveModel(!archiveModel)]}
         />
       </CustomModal>
-
       <CustomModal
         isOpen={warModel}
         onClose={() => [setWarModel(!warModel)]}
         size="7xl"
         heading={
           <div className="flex items-center justify-center">
-            <span>View/Edit</span>
+            <span>View Warrenty</span>
           </div>
         }
       >
-        <Test id={activeId} />
+        <Warrenty id={activeId} />
       </CustomModal>
     </div>
   );

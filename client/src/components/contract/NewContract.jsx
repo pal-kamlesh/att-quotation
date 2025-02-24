@@ -12,8 +12,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
-import { createContract } from "../redux/contract/contractSlice";
-import { duplicateBillToShipTo } from "../funtions/funtion";
+import { createContract } from "../../redux/contract/contractSlice";
+import { duplicateBillToShipTo } from "../../funtions/funtion";
 import {
   KCI,
   Loading,
@@ -21,8 +21,8 @@ import {
   InputSupply,
   InputSupplyApply,
   CustomModal,
-} from "./index.js";
-import { getGroup, getGroups } from "../redux/quote/quoteSlice.js";
+} from "../index.js";
+import { getGroup, getGroups } from "../../redux/quote/quoteSlice.js";
 
 const getInitialContractState = () => {
   const savedData = localStorage.getItem("newContract");
@@ -105,6 +105,7 @@ function NewContract({ onClose }) {
     if (selectedGroup) {
       fetchGroups();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedGroup]);
   console.log(contract);
   function handleDocType(e) {

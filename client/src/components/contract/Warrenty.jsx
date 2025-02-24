@@ -2,10 +2,12 @@ import { Button } from "flowbite-react";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useReactToPrint } from "react-to-print";
-import { getSingleContract } from "../redux/contract/contractSlice";
+import { getSingleContract } from "../../redux/contract/contractSlice";
 import { unwrapResult } from "@reduxjs/toolkit";
+import { Loading } from "..";
 
-const Test = ({ id }) => {
+// eslint-disable-next-line react/prop-types
+const Warrenty = ({ id }) => {
   const dispatch = useDispatch();
   const [contract, setContract] = useState(null);
   const componentRef = useRef(null);
@@ -17,17 +19,19 @@ const Test = ({ id }) => {
     warrantyDetails: [],
   });
   const [workArea, setWorkArea] = useState([]);
-  console.log(warranty);
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
     async function fn() {
+      setLoading(true);
       const actionResult = await dispatch(getSingleContract(id));
       const result = unwrapResult(actionResult);
       setContract(result.result);
+      setLoading(false);
     }
     if (id) {
       fn();
     }
-  }, [dispatch, id]);
+  }, [id]);
 
   useEffect(() => {
     if (contract) {
@@ -38,11 +42,14 @@ const Test = ({ id }) => {
     content: () => componentRef.current,
     onAfterPrint: async () => {},
   });
+  if (loading) {
+    return <Loading />;
+  }
   return (
     <>
       <div
         ref={componentRef}
-        className="max-w-5xl bg-slate-100 mx-auto p-6 rounded-lg border border-gray-300 shadow-lg print:max-w-none print:bg-white"
+        className="max-w-5xl bg-slate-100 mx-auto rounded-lg border border-gray-300 shadow-lg print:max-w-none print:bg-white"
       >
         <div className="border border-gray-400 p-6 bg-white shadow-md rounded-md">
           <p className="flex justify-end mb-4 text-gray-700">
@@ -271,4 +278,4 @@ const Test = ({ id }) => {
   );
 };
 
-export default Test;
+export default Warrenty;

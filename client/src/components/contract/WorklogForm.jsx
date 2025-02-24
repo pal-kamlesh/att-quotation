@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { useDispatch } from "react-redux";
-import { createWorklog } from "../redux/contract/contractSlice";
+import { createWorklog } from "../../redux/contract/contractSlice";
 
 function WorklogForm({ id, contract, setWorkLogs, onClose }) {
   const dispatch = useDispatch();

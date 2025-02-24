@@ -25,7 +25,7 @@ import {
   TextInput,
 } from "flowbite-react";
 import { unwrapResult } from "@reduxjs/toolkit";
-import { CustomModal } from "../components/index.js";
+import { CustomModal, PageHeader } from "../components/index.js";
 import { toast } from "react-toastify";
 
 const userInit = {
@@ -194,37 +194,32 @@ export default function User() {
   return (
     <div className="mx-3 ">
       <div className=" mt-3 h-full">
-        <div className="h-16 text-lg flex items-center justify-between font-medium bg-[#6FDCE3] border border-black rounded-tl-lg rounded-br-lg">
-          <div className="flex-grow mr-4 ">
-            <div className="flex items-center justify-center">
-              <h3>All Users</h3>
-            </div>
-          </div>
-          <div>
-            <button
-              className="bg-[#FFFDB5] hover:bg-yellow-200 font-medium py-2 px-4 rounded mr-2"
-              onClick={() => setChemicalModel(true)}
-            >
-              Chemical
-            </button>
-          </div>
-          <div>
-            <button
-              onClick={() => setBatchModel(true)}
-              className="bg-[#FFFDB5] hover:bg-yellow-200 font-medium py-2 px-4 rounded mr-2"
-            >
-              Batch No
-            </button>
-          </div>
-          <div>
-            <button
-              onClick={() => setOpenModal(true)}
-              className="bg-[#FFFDB5] hover:bg-yellow-200 font-medium py-2 px-4 rounded mr-2"
-            >
-              New User
-            </button>
-          </div>
-        </div>
+        <PageHeader
+          bgColor="bg-[#6FDCE3]"
+          recentTitle="All Users"
+          buttons={
+            <>
+              <button
+                className="bg-[#FFFDB5] hover:bg-yellow-200 font-medium py-2 px-4 rounded mr-2"
+                onClick={() => setChemicalModel(true)}
+              >
+                Chemical
+              </button>
+              <button
+                onClick={() => setBatchModel(true)}
+                className="bg-[#FFFDB5] hover:bg-yellow-200 font-medium py-2 px-4 rounded mr-2"
+              >
+                Batch No
+              </button>
+              <button
+                onClick={() => setOpenModal(true)}
+                className="bg-[#FFFDB5] hover:bg-yellow-200 font-medium py-2 px-4 rounded mr-2"
+              >
+                New User
+              </button>
+            </>
+          }
+        />
         <div className=" overflow-x-auto ">
           <Table>
             <Table.Head>

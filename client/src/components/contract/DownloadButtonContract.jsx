@@ -5,7 +5,7 @@ import { docxData } from "../../redux/contract/contractSlice.js";
 import { Button } from "flowbite-react";
 import { generateContract } from "../../funtions/docxFn.js";
 // eslint-disable-next-line react/prop-types, no-unused-vars
-const ContractGenerator = ({ id, color, onClick, text, annexure }) => {
+const DownloadButtonContract = ({ id, color, onClick, text, annexure }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const dispatch = useDispatch();
@@ -40,4 +40,4 @@ const ContractGenerator = ({ id, color, onClick, text, annexure }) => {
   );
 };
 
-export default ContractGenerator;
+export default DownloadButtonContract;

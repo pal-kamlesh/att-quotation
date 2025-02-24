@@ -2,11 +2,11 @@ import { unwrapResult } from "@reduxjs/toolkit";
 import { Button } from "flowbite-react";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
-import { getWorklogs } from "../redux/contract/contractSlice";
-import { WorklogForm, CustomModal } from "../components/index.js";
-
+import { getWorklogs } from "../../redux/contract/contractSlice";
+import { WorklogForm } from "./index";
+import { CustomModal } from "../index";
 // eslint-disable-next-line react/prop-types
-function PrintWorkLogs({ id, contract }) {
+function ManageWorkLog({ id, contract }) {
   const [workLogs, setWorkLogs] = useState([]);
   const [form, setForm] = useState(false);
   const [detailModel, setDetailModel] = useState(false);
@@ -90,4 +90,4 @@ function PrintWorkLogs({ id, contract }) {
   );
 }
 
-export default PrintWorkLogs;
+export default ManageWorkLog;

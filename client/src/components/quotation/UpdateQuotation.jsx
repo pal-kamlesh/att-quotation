@@ -1,14 +1,20 @@
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getSingleQuote, updateQuote } from "../redux/quote/quoteSlice";
+import { getSingleQuote, updateQuote } from "../../redux/quote/quoteSlice";
 import { unwrapResult } from "@reduxjs/toolkit";
-import { InputStandard, InputSupply, InputSupplyApply, KCI, Loading } from ".";
+import {
+  InputStandard,
+  InputSupply,
+  InputSupplyApply,
+  KCI,
+  Loading,
+} from "../index.js";
 import { Button, Label, Select, Textarea, TextInput } from "flowbite-react";
 import { toast } from "react-toastify";
 import {
   duplicateBillToShipTo,
   getValueFromNestedObject,
-} from "../funtions/funtion";
+} from "../../funtions/funtion";
 
 // eslint-disable-next-line react/prop-types
 function UpdateQuotation({ quoteId, onClose }) {

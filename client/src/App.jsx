@@ -14,7 +14,6 @@ import {
   PageNotFound,
   LandingPage,
 } from "../src/pages/index.js";
-import Test from "./pages/Test.jsx";
 
 const AppRoutes = () => (
   <Routes>
@@ -22,7 +21,6 @@ const AppRoutes = () => (
     <Route path="/" element={<Layout />}>
       <Route index element={<LandingPage />} />
       <Route path="dashboard" element={<Dashboard />} />
-      <Route path="test" element={<Test id="66fe222681323e43678e1d7c" />} />
       <Route path="quotes" element={<Quotes />} />
       <Route path="contracts" element={<Contracts />} />
       <Route path="cards" element={<Cards />} />

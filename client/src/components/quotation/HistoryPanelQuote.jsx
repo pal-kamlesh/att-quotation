@@ -1,9 +1,9 @@
 /* eslint-disable react/prop-types */
 import { useDispatch } from "react-redux";
-import { archiveData } from "../redux/quote/quoteSlice.js";
+import { archiveData } from "../../redux/quote/quoteSlice.js";
 import { useEffect, useState } from "react";
 import { unwrapResult } from "@reduxjs/toolkit";
-import { Loading, RevisionHistoryCard, ViewQuote } from "./index.js";
+import { Loading, RevisionHistoryCard, ViewQuote } from "../index.js";
 
 function HistoryPanelQuote({ quoteId }) {
   const dispatch = useDispatch();

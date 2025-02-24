@@ -9,7 +9,6 @@ import Cards from "./Cards";
 import Reports from "./Reports";
 import WorkLog from "./WorkLog";
 import WorkLogDash from "./WorkLogDash";
-import PrintWorkLogs from "../components/PrintWorkLogs";
 import LandingPage from "./LandingPage";
 export {
   User,
@@ -23,6 +22,5 @@ export {
   Reports,
   WorkLog,
   WorkLogDash,
-  PrintWorkLogs,
   LandingPage,
 };

@@ -3,15 +3,14 @@ import { unwrapResult } from "@reduxjs/toolkit";
 import { useReactToPrint } from "react-to-print";
 import { forwardRef, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import Loading from "./Loading";
 import {
   saprateQuoteInfo,
   substringsExistInArray,
-} from "../funtions/funtion.js";
+} from "../../funtions/funtion.js";
 import { Button } from "flowbite-react";
-import { getSingleContract } from "../redux/contract/contractSlice.js";
-import headerImage from "../images/header.png";
-
+import { getSingleContract } from "../../redux/contract/contractSlice.js";
+import headerImage from "../../images/header.png";
+import { Loading } from "../../components";
 function longestKey() {
   return Math.max(
     "Date".length,

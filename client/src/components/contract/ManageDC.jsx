@@ -2,15 +2,15 @@ import { unwrapResult } from "@reduxjs/toolkit";
 import { Button } from "flowbite-react";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
-import { getdcs } from "../redux/contract/contractSlice";
-import { CustomModal, DCForm } from "../components/index.js";
-import TestChalan from "../pages/TestChalan.jsx";
+import { getdcs } from "../../redux/contract/contractSlice.js";
+import { CustomModal, DCForm } from "../index.js";
+import TestChalan from "../../pages/TestChalan.jsx";
 import html2canvas from "html2canvas";
-import { getFormattedDateTime } from "../funtions/funtion.js";
+import { getFormattedDateTime } from "../../funtions/funtion.js";
 import jsPDF from "jspdf";
 
 // eslint-disable-next-line react/prop-types
-function PrintDC({ id, contract }) {
+function ManageDC({ id, contract }) {
   const [dcs, setDCs] = useState([]);
   const [form, setForm] = useState(false);
   const [detailModel, setDetailModel] = useState(false);
@@ -119,4 +119,4 @@ function PrintDC({ id, contract }) {
   );
 }
 
-export default PrintDC;
+export default ManageDC;

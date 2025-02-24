@@ -1,3 +1,24 @@
+import {
+  NewContract,
+  HistoryPanelContract,
+  UpdateContract,
+  ViewContract,
+  DownloadButtonContract,
+  Warrenty,
+  ManageDC,
+  ManageWorkLog,
+  WorklogForm,
+  DCForm,
+} from "./contract";
+
+import {
+  NewQuote,
+  DownloadButtonQuotation,
+  HistoryPanelQuote,
+  UpdateQuotation,
+  ViewQuote,
+} from "./quotation";
+
 import CustomModal from "./CustomModal";
 import Header from "./Header";
 import ProtectedRoute from "./ProtectedRoute";
@@ -9,21 +30,12 @@ import InputSupply from "./InputSupply";
 import InputSupplyApply from "./InputSupplyApply";
 import PopUpMorpheus from "./PopUpMorpheus";
 import Search from "./Search";
-import Refresh from "./Refresh";
 import PopUp from "./PopUp";
-import WorklogForm from "./WorklogForm";
-import DCForm from "./DCForm";
-import PrintDC from "./PrintDC";
-import PrintWorkLogs from "./PrintWorkLogs";
 import QRbutton from "./QRbutton";
 import StatCard from "./StatCard";
-import {
-  NewContract,
-  DownloadButtonContract,
-  HistoryPanelContract,
-  UpdateContract,
-  ViewContract,
-} from "./contract";
+import PageHeader from "./PageHeader";
+import Refresh from "./Refresh";
+
 export {
   CustomModal,
   NewQuote,
@@ -33,8 +45,6 @@ export {
   Loading,
   ViewQuote,
   ViewContract,
-  QuotationDownloadButton,
-  ContractDownloadButton,
   RevisionHistoryCard,
   KCI,
   InputStandard,
@@ -45,13 +55,17 @@ export {
   Search,
   UpdateContract,
   UpdateQuotation,
-  Refresh,
   WorklogForm,
   DCForm,
-  PrintDC,
-  PrintWorkLogs,
   QRbutton,
   HistoryPanelContract,
   HistoryPanelQuote,
   StatCard,
+  DownloadButtonQuotation,
+  DownloadButtonContract,
+  PageHeader,
+  Refresh,
+  Warrenty,
+  ManageDC,
+  ManageWorkLog,
 };

@@ -14,13 +14,13 @@ import {
   KCI,
   Loading,
   NewQuote,
-  Refresh,
   Search,
   ViewQuote,
   PopUp,
   UpdateQuotation,
   PopUpMorpheus,
-  QuotationDownloadButton,
+  DownloadButtonQuotation,
+  PageHeader,
 } from "../components";
 import { useDispatch, useSelector } from "react-redux";
 import { getInitials, getNextNum } from "../redux/user/userSlice";
@@ -54,7 +54,6 @@ export default function Create() {
   const [quoteId, setQuoteId] = useState("");
   const [quoteNo, setQuoteNo] = useState("");
   const [extraQuery, setExtraQuery] = useState(null);
-  const [pending, setPending] = useState(false);
   const navigate = useNavigate();
   const [groupModal, setGroupModal] = useState(false);
   const [quote, setQuote] = useState({
@@ -109,7 +108,6 @@ export default function Create() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch]);
-  console.log(nextQuoteNo);
   useEffect(() => {
     if (
       currentUser.rights.createQuote ||
@@ -183,11 +181,6 @@ export default function Create() {
       console.log(error);
     }
   }
-  async function handleRefresh() {
-    setPending(true);
-    await dispatch(getQuotes());
-    setPending(false);
-  }
 
   function handleQuoteChange(e) {
     const { name, value } = e.target;
@@ -228,6 +221,7 @@ export default function Create() {
   async function handleSubmit(e) {
     e.preventDefault();
     const actionResult = await dispatch(createGroup({ name, data: quote }));
+    // eslint-disable-next-line no-unused-vars
     const result = await unwrapResult(actionResult);
     setGroupModal(false);
   }
@@ -247,46 +241,28 @@ export default function Create() {
       {loading ? <Loading /> : null}
       <div className="h-full mt-3">
         <div className=" mt-2 h-full">
-          <div className="h-16 text-lg flex items-center justify-between font-medium bg-[#6FDCE3] border border-black rounded-tl-lg rounded-br-lg">
-            <div className="m-2">
-              <Refresh loading={pending} onRefresh={handleRefresh} />
-            </div>
-            <div>
-              <span>Next Quotation No: </span>
-              <span className="bg-yellow-300 text-black font-bold px-2 py-1 rounded-md">
-                {nextQuoteNo + 1}
-              </span>
-            </div>
-            <div className="flex-grow mr-4 flex items-center justify-evenly ">
-              <div className="flex items-center justify-center">
-                <h3>Recent Quotations</h3>
-              </div>
-            </div>
-            <div>
-              <button
-                onClick={() => setGroupModal(true)}
-                className="bg-[#FFFDB5] hover:bg-yellow-200 font-medium py-2 px-4 rounded mr-2"
-              >
-                Create Group
-              </button>
-            </div>
-            <div>
-              <button
-                className="bg-[#FFFDB5] hover:bg-yellow-200 font-medium py-2 px-4 rounded-tl-lg rounded-br-lg mr-2"
-                onClick={() => setCreateModel(true)}
-                disabled={
-                  currentUser.rights.createQuote || currentUser.rights.admin
-                    ? false
-                    : true
-                }
-              >
-                Create Quotation
-              </button>
-            </div>
-          </div>
-          <div>
-            <Search setExtraQuery={setExtraQuery} />
-          </div>
+          <PageHeader
+            bgColor="bg-[#6FDCE3]"
+            recentTitle="Recent Quotations"
+            nextNumber={{ label: "Next Quotation No", value: nextQuoteNo }}
+            buttons={
+              <>
+                <button
+                  className="bg-[#FFFDB5] hover:bg-yellow-200 font-medium py-2 px-4 rounded"
+                  onClick={() => setGroupModal(true)}
+                >
+                  Create Group
+                </button>
+                <button
+                  className="bg-[#FFFDB5] hover:bg-yellow-200 font-medium py-2 px-4 rounded-tl-lg rounded-br-lg"
+                  onClick={() => setCreateModel(true)}
+                >
+                  Create Quotation
+                </button>
+              </>
+            }
+          />
+          <Search setExtraQuery={setExtraQuery} />
           <div className=" overflow-x-auto ">
             <Table>
               <Table.Head>
@@ -432,13 +408,13 @@ export default function Create() {
                             id={ticket._id}
                           >
                             <div className="flex justify-center gap-4">
-                              <QuotationDownloadButton
+                              <DownloadButtonQuotation
                                 id={ticket._id}
                                 color="failure"
                                 text="With ANNEXURE"
                                 annexure={true}
                               />
-                              <QuotationDownloadButton
+                              <DownloadButtonQuotation
                                 id={ticket._id}
                                 color="blue"
                                 text="Without ANNEXURE"

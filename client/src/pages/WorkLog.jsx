@@ -4,16 +4,14 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { getSingleContract } from "../redux/contract/contractSlice";
 import { unwrapResult } from "@reduxjs/toolkit";
-import { Refresh, PrintWorkLogs, PrintDC } from "../components";
+import { PageHeader, ManageDC, ManageWorkLog } from "../components";
 
 function WorkLog() {
   const [contract, setContract] = useState();
   const [activeForm, setActiveForm] = useState(null);
-  const [pending, setPending] = useState(false);
-  const { id } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
+  const { id } = useParams();
   useEffect(() => {
     async function fn() {
       try {
@@ -25,25 +23,16 @@ function WorkLog() {
       }
     }
     fn();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, id]);
-  async function handleRefresh() {
-    setPending(true);
-    await dispatch(getSingleContract(id));
-    setPending(false);
-  }
+
   return (
     <div className="max-w-[1400px] mx-auto">
-      <div className="h-16 text-lg flex items-center justify-between font-medium bg-[#6FDCE3] border border-black rounded-tl-lg rounded-br-lg mb-2">
-        <div className="m-2">
-          <Refresh loading={pending} onRefresh={handleRefresh} />
-        </div>
-        <div className="flex-grow mr-4 flex items-center justify-evenly ">
-          <div className="flex items-center justify-center">
-            <h3>Select an action to proceed</h3>
-          </div>
-        </div>
-      </div>
-      <div className="flex justify-center mb-6">
+      <PageHeader
+        bgColor="bg-[#6FDCE3]"
+        recentTitle="Select an action to proceed"
+      />
+      <div className="flex justify-center mt-6">
         <Button
           onClick={() => setActiveForm("dc")}
           className={`mx-2 ${
@@ -62,10 +51,10 @@ function WorkLog() {
         </Button>
       </div>
       {activeForm === "dc" && (
-        <PrintDC id={contract?._id} contract={contract} />
+        <ManageDC id={contract?._id} contract={contract} />
       )}
       {activeForm === "worklog" && (
-        <PrintWorkLogs id={contract?._id} contract={contract} />
+        <ManageWorkLog id={contract?._id} contract={contract} />
       )}
     </div>
   );

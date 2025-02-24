@@ -19,12 +19,12 @@ import {
   InputSupply,
   InputSupplyApply,
   CustomModal,
-} from "./index.js";
+} from "../index.js";
 import {
   getSingleContract,
   updateContract,
-} from "../redux/contract/contractSlice";
-import { getValueFromNestedObject } from "../funtions/funtion.js";
+} from "../../redux/contract/contractSlice";
+import { getValueFromNestedObject } from "../../funtions/funtion.js";
 
 // eslint-disable-next-line react/prop-types
 function UpdateContract({ onClose, activeId }) {

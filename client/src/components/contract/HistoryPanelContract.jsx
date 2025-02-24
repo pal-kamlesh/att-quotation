@@ -2,8 +2,8 @@
 import { useDispatch } from "react-redux";
 import { useEffect, useState } from "react";
 import { unwrapResult } from "@reduxjs/toolkit";
-import { Loading, RevisionHistoryCard, ViewContract } from "./index.js";
-import { archiveDataContract } from "../redux/contract/contractSlice.js";
+import { Loading, RevisionHistoryCard, ViewContract } from "../index.js";
+import { archiveDataContract } from "../../redux/contract/contractSlice.js";
 
 function HistoryPanelContract({ contractId }) {
   const dispatch = useDispatch();
