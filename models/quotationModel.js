@@ -148,7 +148,7 @@ const quotationSchema = mongoose.Schema(
     },
     quoteInfo: [{ type: mongoose.Schema.Types.ObjectId, ref: "QuoteInfo" }],
   },
-  { timestamps: true }
+  { timestamps: true, toJSON: { virtual: true }, toObject: { virtual: true } }
 );
 quotationSchema.plugin(mongooseLeanVirtuals);
 
@@ -164,10 +164,6 @@ quotationSchema.virtual("archive", {
   foreignField: "quotationId",
   justOne: true,
 });
-
-// Set the virtual property to be populated by default
-quotationSchema.set("toObject", { virtuals: true });
-quotationSchema.set("toJSON", { virtuals: true });
 
 quotationSchema.pre("remove", async function (next) {
   const quoteHistory = await QuoteArchive.findOne({

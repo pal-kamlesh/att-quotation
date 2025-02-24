@@ -30,6 +30,7 @@ import { getDotColor } from "../funtions/funtion.js";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { useNavigate } from "react-router-dom";
 import debounce from "lodash.debounce";
+import CorresponUI from "../components/CorresponUI.jsx";
 
 function Contracts() {
   const {
@@ -42,6 +43,7 @@ function Contracts() {
   const [createModel, setCreateModel] = useState(false);
   const [updateModel, setUpdateModel] = useState(false);
   const [viewModel, setViewModel] = useState(false);
+  const [correspondModel, setCorrespondModel] = useState(false);
   const [activeId, setActiveId] = useState("");
   const [archiveModel, setArchiveModel] = useState(false);
   const [warModel, setWarModel] = useState(false);
@@ -276,6 +278,14 @@ function Contracts() {
                           >
                             Warrenty
                           </Button>
+                          <Button
+                            onClick={() => [
+                              setCorrespondModel(true),
+                              setActiveId(contract._id),
+                            ]}
+                          >
+                            Manage files
+                          </Button>
                           <PopUpMorpheus
                             id={contract._id}
                             setQuoteId={setActiveId}
@@ -383,6 +393,18 @@ function Contracts() {
         }
       >
         <Warrenty id={activeId} />
+      </CustomModal>
+      <CustomModal
+        isOpen={correspondModel}
+        onClose={() => [setCorrespondModel(false)]}
+        size="7xl"
+        heading={
+          <div className="flex items-center justify-center">
+            <span>Manage Correspondence</span>
+          </div>
+        }
+      >
+        <CorresponUI />
       </CustomModal>
     </div>
   );

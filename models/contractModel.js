@@ -137,7 +137,11 @@ const contractSchema = mongoose.Schema(
     },
     warranty: { type: mongoose.Schema.ObjectId, ref: "Warranty" },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    toObject: { virtuals: true },
+    toJSON: { virtuals: true },
+  }
 );
 contractSchema.plugin(mongooseLeanVirtuals);
 
