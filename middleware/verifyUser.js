@@ -5,6 +5,7 @@ function createToken(user) {
   const token = jwt.sign(
     {
       id: user._id,
+      username: user.username,
       rights: user.rights,
       active: user.active,
     },

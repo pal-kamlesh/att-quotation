@@ -4,6 +4,7 @@ import storage from "redux-persist/lib/storage";
 import userReducer, { handleLogout } from "./user/userSlice";
 import quoteReducer from "./quote/quoteSlice";
 import contractReducer from "./contract/contractSlice";
+import correspondenceReducer from "./correspondence/correspondenceSlice.js";
 import cardReducer from "./card/cardSlice";
 import persistStore from "redux-persist/es/persistStore";
 
@@ -12,6 +13,7 @@ const rootReducer = combineReducers({
   quote: quoteReducer,
   contract: contractReducer,
   card: cardReducer,
+  correspondence: correspondenceReducer,
 });
 
 const persistConfig = {

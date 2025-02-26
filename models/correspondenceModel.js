@@ -12,22 +12,10 @@ const fileSchema = new mongoose.Schema(
       type: String,
       required: [true, "Cloudinary public ID is required"],
     },
-    originalName: {
-      type: String,
-      required: [true, "Original filename is required"],
-    },
     title: {
       type: String,
       required: [true, "Document title is required"],
       maxlength: [200, "Title cannot exceed 200 characters"],
-    },
-    date: {
-      type: Date,
-      default: Date.now,
-      validate: {
-        validator: (v) => v <= Date.now(),
-        message: "Document date cannot be in the future",
-      },
     },
     description: {
       type: String,
@@ -58,16 +46,11 @@ const fileSchema = new mongoose.Schema(
       },
     },
     tags: {
-      type: [String],
-      validate: {
-        validator: (v) => v.length <= 10,
-        message: "Cannot have more than 10 tags",
-      },
+      type: String,
     },
     uploadedBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: [true, "Uploader reference is required"],
+      type: String,
+      required: [true, "Uploader name is required"],
     },
     fileType: {
       type: String,
@@ -90,12 +73,6 @@ const correspondenceSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Contract",
       index: true,
-    },
-    referenceNumber: {
-      type: String,
-      unique: true,
-      index: true,
-      required: [true, "Reference number is required"],
     },
     outward: {
       files: [fileSchema],

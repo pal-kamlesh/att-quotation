@@ -404,7 +404,7 @@ function Contracts() {
           </div>
         }
       >
-        <CorresponUI />
+        <CorresponUI contractId={activeId} />
       </CustomModal>
     </div>
   );

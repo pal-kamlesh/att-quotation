@@ -1,7 +1,7 @@
 import Correspondence from "../models/correspondenceModel.js";
 import Quotation from "../models/quotationModel.js";
 import Contract from "../models/contractModel.js";
-
+import { cloudinaryService } from "../config/cloudinary.js";
 // Helper function to validate parent document
 const validateParentDocument = async (quotationId, contractId) => {
   if (quotationId) {
@@ -19,8 +19,7 @@ const validateParentDocument = async (quotationId, contractId) => {
 export const addFileToCorrespondence = async (req, res, next) => {
   try {
     const { quotationId, contractId, direction } = req.body;
-    const fileData = req.body.file;
-
+    console.log(req.body);
     // Validate input
     if (!quotationId && !contractId) {
       return res
@@ -36,7 +35,16 @@ export const addFileToCorrespondence = async (req, res, next) => {
     if (!parent) {
       return res.status(404).json({ error: "Parent document not found" });
     }
+    const data = await cloudinaryService.uploadDocument(
+      req.file.buffer,
+      quotationId ? quotationId : contractId,
+      req.file.originalname
+    );
 
+    req.body.url = data.url;
+    req.body.publicId = data.publicId;
+    req.body.uploadedBy = req.user.username;
+    console.log(req.body);
     // Find or create correspondence
     let correspondence = await Correspondence.findOne({
       [parent.parentField]: parent.parentId,
@@ -45,10 +53,10 @@ export const addFileToCorrespondence = async (req, res, next) => {
     if (!correspondence) {
       correspondence = new Correspondence({
         [parent.parentField]: parent.parentId,
-        [direction]: { files: [fileData] },
+        [direction]: { files: [req.body] },
       });
     } else {
-      correspondence[direction].files.push(fileData);
+      correspondence[direction].files.push(req.body);
     }
 
     await correspondence.save();

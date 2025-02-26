@@ -1,16 +1,19 @@
 import {
   Badge,
   Button,
-  Card,
   FileInput,
   Modal,
   Select,
   Tabs,
+  Textarea,
   TextInput,
 } from "flowbite-react";
-import { useState } from "react";
-import { HiEye, HiTrash, HiOutlineUpload } from "react-icons/hi";
+import { useEffect, useState } from "react";
+import { HiOutlineUpload } from "react-icons/hi";
 import FileSection from "./FileSection";
+import { useDispatch, useSelector } from "react-redux";
+import { createCorrespondence } from "../redux/correspondence/correspondenceSlice";
+import { unwrapResult } from "@reduxjs/toolkit";
 const dummyFiles = [
   {
     publicId: "inward_123",
@@ -49,23 +52,83 @@ const dummyFiles = [
     originalName: "quotation_rev2.pdf",
   },
 ];
-const CorresponUI = () => {
-  const [activeTab, setActiveTab] = useState(1);
+const CorresponUI = ({ contractId, quotationId }) => {
+  // const { inputData, fetching } = useSelector((state) => state.correspondence);
+  const [activeTab, setActiveTab] = useState(0);
   const [files, setFiles] = useState(dummyFiles);
   const [isAddFileOpen, setIsAddFileOpen] = useState(false);
+  const [inputData, setInputData] = useState({
+    file: "",
+    tags: "",
+    sender: {
+      name: "",
+      designation: "",
+      organization: "",
+      contact: {
+        email: "",
+        phone: "",
+      },
+    },
+    category: "",
+    description: "",
+    title: "",
+    quotationId: quotationId ? quotationId : "",
+    contractId: contractId ? contractId : "",
+    direction: activeTab === 0 ? "inward" : "outward",
+  });
+  const dispatch = useDispatch();
+  useEffect(() => {
+    setInputData((prev) => ({
+      ...prev,
+      direction: activeTab === 0 ? "inward" : "outward",
+    }));
+  }, [activeTab]);
+  async function handleFileSubmit() {
+    const result = await dispatch(createCorrespondence(inputData));
+    const data = await unwrapResult(result);
+    console.log(data);
+  }
+  const handleChange = (e) => {
+    const { name, value, type, checked, files } = e.target;
 
-  function handlePreview(file) {
-    window.open(file.url, "_blank");
-  }
-  function handleDelete(file) {
-    setFiles(files.filter((f) => f.publicId !== file.publicId));
-  }
-  function handleFileUpload() {}
-  function handleFileSubmit() {}
-  function onAddFile() {}
+    setInputData((prev) => {
+      const newState = { ...prev };
+      let current = newState;
+
+      // For file inputs, use the File object from files array
+      if (type === "file") {
+        current[name] = files[0];
+        return newState;
+      }
+
+      // Split nested paths (e.g., "sender.contact.email")
+      const keys = name.split(".");
+
+      // Traverse nested keys (except last one)
+      for (let i = 0; i < keys.length - 1; i++) {
+        current = current[keys[i]] = { ...current[keys[i]] };
+      }
+
+      // Handle arrays (e.g., tags, category)
+      if (Array.isArray(current[keys.at(-1)])) {
+        const lastKey = keys.at(-1);
+        current[lastKey] = checked
+          ? [...current[lastKey], value]
+          : current[lastKey].filter((item) => item !== value);
+      }
+      // Handle regular fields
+      else {
+        current[keys.at(-1)] = type === "checkbox" ? checked : value;
+      }
+
+      return newState;
+    });
+  };
+
+  console.log(inputData);
   return (
     <div>
-      <div className="p-4 space-y-6">
+      <div className="p-4 space-y-6 relative">
         <Tabs
           aria-label="Correspondence tabs"
           style="underline"
@@ -82,7 +145,7 @@ const CorresponUI = () => {
               </div>
             }
           >
-            <FileSection type="inward" files={files} onAddFile={onAddFile} />
+            <FileSection type="inward" files={files} />
           </Tabs.Item>
 
           <Tabs.Item
@@ -95,49 +158,10 @@ const CorresponUI = () => {
               </div>
             }
           >
-            <FileSection type="outward" files={files} onAddFile={onAddFile} />
+            <FileSection type="outward" files={files} />
           </Tabs.Item>
         </Tabs>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {files.map((file) => (
-            <Card key={file.id} className="relative">
-              <div className="flex justify-between items-start">
-                <div>
-                  <h5 className="text-lg font-bold text-gray-900 dark:text-white">
-                    {file.title}
-                  </h5>
-                  <span className="text-sm text-gray-500">{file.date}</span>
-                </div>
-                <div className="flex gap-2">
-                  <Button size="xs" onClick={() => handlePreview(file)}>
-                    <HiEye className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    size="xs"
-                    color="failure"
-                    onClick={() => handleDelete(file)}
-                  >
-                    <HiTrash className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Badge color={file.category === "legal" ? "purple" : "info"}>
-                  {file.category}
-                </Badge>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  {file.description}
-                </p>
-                <div className="text-sm">
-                  <p className="font-medium">From: {file.sender.name}</p>
-                  <p className="text-gray-500">{file.sender.organization}</p>
-                </div>
-              </div>
-            </Card>
-          ))}
-        </div>
-        <div className="flex justify-end">
+        <div className="flex justify-end absolute top-0 right-0">
           <Button onClick={() => setIsAddFileOpen(true)}>
             <HiOutlineUpload className="mr-2 h-5 w-5" />
             Add New File
@@ -158,35 +182,93 @@ const CorresponUI = () => {
           <div className="space-y-6">
             <FileInput
               id="file-upload"
+              name="file"
               helperText="Upload PDF, DOC, or image files"
-              onChange={handleFileUpload}
+              onChange={handleChange}
             />
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <TextInput label="Title" placeholder="Document title" required />
-              <Select label="Category" defaultValue="general">
-                <option value="legal">Legal</option>
-                <option value="technical">Technical</option>
-                <option value="financial">Financial</option>
-                <option value="general">General</option>
+              <TextInput
+                label="Title"
+                name="title"
+                placeholder="Document title"
+                required
+                onChange={handleChange}
+              />
+              <Select
+                label="Category"
+                name="category"
+                value={inputData.category}
+                onChange={handleChange}
+              >
+                <option selected={inputData.category === "legal"} value="legal">
+                  Legal
+                </option>
+                <option
+                  selected={inputData.category === "technical"}
+                  value="technical"
+                >
+                  Technical
+                </option>
+                <option
+                  selected={inputData.category === "financial"}
+                  value="financial"
+                >
+                  Financial
+                </option>
+                <option
+                  selected={inputData.category === "general"}
+                  value="general"
+                >
+                  General
+                </option>
               </Select>
             </div>
-
-            <TextInput
-              label="Description"
-              placeholder="Document description"
-              helperText="Optional description for the file"
-            />
-
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <Textarea
+                label="Description"
+                name="description"
+                placeholder="Document description"
+                value={inputData.description}
+                onChange={handleChange}
+              />
+              <TextInput
+                label="Tags"
+                name="tags"
+                placeholder="Comma saprated Tags"
+                value={inputData.tags}
+                onChange={handleChange}
+              />
+            </div>
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-900 dark:text-white">
                 Sender Details
               </label>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <TextInput placeholder="Sender name" />
-                <TextInput placeholder="Organization" />
-                <TextInput placeholder="Email" type="email" />
-                <TextInput placeholder="Phone number" />
+                <TextInput
+                  name="sender.name"
+                  placeholder="Sender name"
+                  onChange={handleChange}
+                />
+                <TextInput
+                  name="sender.organization"
+                  value={inputData.organization}
+                  placeholder="Organization"
+                  onChange={handleChange}
+                />
+                <TextInput
+                  name="sender.contact.email"
+                  value={inputData.sender.contact.email}
+                  placeholder="Email"
+                  type="email"
+                  onChange={handleChange}
+                />
+                <TextInput
+                  name="sender.contact.phone"
+                  value={inputData.sender.contact.phone}
+                  placeholder="Phone number"
+                  onChange={handleChange}
+                />
               </div>
             </div>
           </div>

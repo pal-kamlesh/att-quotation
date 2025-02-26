@@ -1,0 +1,72 @@
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+
+const initialState = {
+  inputData: {},
+  fetching: false,
+};
+
+export const createCorrespondence = createAsyncThunk(
+  "correspondence/create",
+  async (inputData, { rejectWithValue }) => {
+    try {
+      const formData = new FormData();
+
+      formData.append("file", inputData.file);
+
+      // Append other fields
+      formData.append("title", inputData.title);
+      formData.append("description", inputData.description);
+      formData.append("category", inputData.category);
+      formData.append("tags", inputData.tags);
+      formData.append("direction", inputData.direction);
+      // Append sender information
+      formData.append("sender[name]", inputData.sender.name);
+      formData.append("sender[designation]", inputData.sender.designation);
+      formData.append("sender[organization]", inputData.sender.organization);
+      formData.append("sender[contact][email]", inputData.sender.contact.email);
+      formData.append("sender[contact][phone]", inputData.sender.contact.phone);
+
+      // Append parent document reference
+      if (inputData.quotationId) {
+        formData.append("quotationId", inputData.quotationId);
+      }
+      if (inputData.contractId) {
+        formData.append("contractId", inputData.contractId);
+      }
+
+      const response = await fetch("/api/v1/correspondence/files", {
+        method: "POST",
+        body: formData,
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        return rejectWithValue(errorData);
+      }
+      const result = await response.json();
+      return result;
+    } catch (error) {
+      console.log(error);
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
+export const correspondenceSlice = createSlice({
+  name: "correspondence",
+  initialState,
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(createCorrespondence.pending, (state) => {
+        state.fetching = true;
+      })
+      .addCase(createCorrespondence.fulfilled, (state) => {
+        state.fetching = false;
+      })
+      .addCase(createCorrespondence.rejected, (state) => {
+        state.fetching = false;
+      });
+  },
+});
+
+export default correspondenceSlice.reducer;

@@ -3,14 +3,21 @@ import cors from "cors";
 import path from "path";
 import cookieParser from "cookie-parser";
 import morgan from "morgan";
+import multer from "multer";
 import connectDB from "./config/mongoose.js";
 import errorMiddleware from "./middleware/errorMiddleware.js";
 import rootRouter from "./routes/index.js";
 import Quotation from "./models/quotationModel.js";
 import Contract from "./models/contractModel.js";
 connectDB();
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fieldSize: 10 * 1024 * 1024 },
+});
 
 const app = express();
+// Make multer middleware available to route
+app.locals.upload = upload;
 
 //Root Middleware
 app.use(

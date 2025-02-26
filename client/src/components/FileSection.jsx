@@ -1,8 +1,8 @@
 /* eslint-disable react/prop-types */
 import { Button, Card, Badge } from "flowbite-react";
-import { HiOutlineUpload, HiEye, HiTrash } from "react-icons/hi";
+import { HiEye, HiTrash } from "react-icons/hi";
 
-const FileSection = ({ type, files, onAddFile }) => {
+const FileSection = ({ type, files }) => {
   const sectionTitle = type === "inward" ? "Received Files" : "Sent Files";
   const filteredFiles = files.filter((file) => file.type === type);
 
@@ -17,10 +17,6 @@ const FileSection = ({ type, files, onAddFile }) => {
         <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
           {sectionTitle}
         </h3>
-        <Button onClick={() => onAddFile(type)}>
-          <HiOutlineUpload className="mr-2 h-5 w-5" />
-          Add New File
-        </Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -74,10 +70,10 @@ const FileSection = ({ type, files, onAddFile }) => {
           <p className="text-gray-500 dark:text-gray-400 mb-4">
             No {type} files found
           </p>
-          <Button onClick={() => onAddFile(type)}>
+          {/* <Button onClick={() => onAddFi}>
             <HiOutlineUpload className="mr-2 h-5 w-5" />
             Upload First File
-          </Button>
+          </Button> */}
         </div>
       )}
     </div>

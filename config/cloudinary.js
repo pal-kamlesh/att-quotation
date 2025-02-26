@@ -28,23 +28,33 @@ class CloudinaryService {
   /**
    * Uploads a document to Cloudinary
    * @param {string} filePath - Path to the file to upload
-   * @param {string} quotationId - Unique identifier for the quotation
+   * @param {string} id - Unique identifier for the quotation
    * @param {Object} options - Additional upload options
    * @returns {Promise<string>} - The secure URL of the uploaded document
    */
 
-  async uploadDocument(input, quotationId, fileName) {
+  async uploadDocument(input, id, fileName) {
     try {
-      let uploadOptions = {
-        resource_type: "raw",
-        public_id: `quotations/${quotationId}`,
+      // Determine folder based on file extension
+      const fileExtension = fileName.split(".").pop().toLowerCase();
+      const folder = fileExtension === "docx" ? "att/docx" : "att/files";
+
+      // Create full public ID with folder structure
+      const baseName = fileName.replace(/\.[^/.]+$/, ""); // Remove extension
+      const publicId = `${folder}/${id}/${baseName}`;
+
+      const uploadOptions = {
+        resource_type: "auto",
+        public_id: publicId,
         overwrite: true,
+        filename_override: fileName, // Preserve original filename in Cloudinary
+        use_filename: true,
       };
 
       let response;
 
       if (Buffer.isBuffer(input)) {
-        // If input is a buffer, upload it directly
+        // Buffer upload with stream
         const stream = Readable.from(input);
         response = await new Promise((resolve, reject) => {
           const uploadStream = cloudinary.uploader.upload_stream(
@@ -57,7 +67,7 @@ class CloudinaryService {
           stream.pipe(uploadStream);
         });
       } else {
-        // If input is a file path, upload the file
+        // File path upload
         response = await cloudinary.uploader.upload(input, uploadOptions);
       }
 
@@ -67,11 +77,14 @@ class CloudinaryService {
         format: response.format,
         size: response.bytes,
         createdAt: response.created_at,
+        fullPath: `${response.public_id}.${response.format}`, // Full path with extension
       };
     } catch (error) {
+      console.log(error);
       throw new Error(`Upload failed: ${error.message}`);
     }
   }
+
   /**
    * Deletes a document from Cloudinary
    * @param {string} publicId - Public ID of the document to delete

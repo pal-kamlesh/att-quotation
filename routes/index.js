@@ -9,5 +9,4 @@ router.use("/user", userRoute);
 router.use("/quotation", quoteRoute);
 router.use("/contract", contractRoute);
 router.use("/correspondence", correspondenceRoute);
-
 export default router;
