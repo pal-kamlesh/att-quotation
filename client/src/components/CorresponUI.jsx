@@ -12,7 +12,10 @@ import { useEffect, useState } from "react";
 import { HiOutlineUpload } from "react-icons/hi";
 import FileSection from "./FileSection";
 import { useDispatch, useSelector } from "react-redux";
-import { createCorrespondence } from "../redux/correspondence/correspondenceSlice";
+import {
+  createCorrespondence,
+  getCorrespondence,
+} from "../redux/correspondence/correspondenceSlice";
 import { unwrapResult } from "@reduxjs/toolkit";
 const dummyFiles = [
   {
@@ -83,6 +86,15 @@ const CorresponUI = ({ contractId, quotationId }) => {
       direction: activeTab === 0 ? "inward" : "outward",
     }));
   }, [activeTab]);
+  useEffect(() => {
+    async function fn() {
+      const resut = await dispatch(getCorrespondence({ contractId }));
+      const data = await unwrapResult(resut);
+      setFiles(data);
+    }
+    fn();
+  }, []);
+  console.log(files);
   async function handleFileSubmit() {
     const result = await dispatch(createCorrespondence(inputData));
     const data = await unwrapResult(result);

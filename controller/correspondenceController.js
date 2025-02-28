@@ -19,7 +19,6 @@ const validateParentDocument = async (quotationId, contractId) => {
 export const addFileToCorrespondence = async (req, res, next) => {
   try {
     const { quotationId, contractId, direction } = req.body;
-    console.log(req.body);
     // Validate input
     if (!quotationId && !contractId) {
       return res

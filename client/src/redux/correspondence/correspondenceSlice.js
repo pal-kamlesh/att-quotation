@@ -50,7 +50,23 @@ export const createCorrespondence = createAsyncThunk(
     }
   }
 );
-
+export const getCorrespondence = createAsyncThunk(
+  "correspondence/get",
+  async (inputData, { rejectWithValue }) => {
+    try {
+      const response = await fetch("/api/v1/correspondence");
+      if (!response.ok) {
+        const errorData = await response.json();
+        return rejectWithValue(errorData);
+      }
+      const result = await response.json();
+      return result;
+    } catch (error) {
+      console.log(error);
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
 export const correspondenceSlice = createSlice({
   name: "correspondence",
   initialState,
@@ -64,6 +80,15 @@ export const correspondenceSlice = createSlice({
         state.fetching = false;
       })
       .addCase(createCorrespondence.rejected, (state) => {
+        state.fetching = false;
+      })
+      .addCase(getCorrespondence.pending, (state) => {
+        state.fetching = true;
+      })
+      .addCase(getCorrespondence.fulfilled, (state) => {
+        state.fetching = false;
+      })
+      .addCase(getCorrespondence.rejected, (state) => {
         state.fetching = false;
       });
   },
