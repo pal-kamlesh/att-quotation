@@ -557,7 +557,7 @@ const ViewQuote = forwardRef((props) => {
                                 ? "bg-red-200"
                                 : ""
                             }`}
-                          >{`₹ ${info.applyRate} ${info.applyRateUnit}`}</td>
+                          >{`Rs ${info.applyRate} ${info.applyRateUnit}`}</td>
                           <td
                             className={`border border-black p-1 text-center ${
                               substringsExistInArray(
@@ -656,7 +656,7 @@ const ViewQuote = forwardRef((props) => {
                                 ? "bg-red-200"
                                 : ""
                             }`}
-                          >{`₹ ${info.chemicalRate} ${info.chemicalRateUnit}`}</td>
+                          >{`Rs ${info.chemicalRate} ${info.chemicalRateUnit}`}</td>
                           <td
                             className={`border border-black p-1 text-center ${
                               substringsExistInArray(

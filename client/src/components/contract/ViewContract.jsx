@@ -401,7 +401,7 @@ const ViewContract = forwardRef((props) => {
                                   ? "bg-red-200"
                                   : ""
                               }`}
-                            >{`₹ ${info.serviceRate} ${info.serviceRateUnit}`}</td>
+                            >{`Rs ${info.serviceRate} ${info.serviceRateUnit}`}</td>
                             <td
                               className={`border border-black p-1 text-center ${
                                 substringsExistInArray(
@@ -453,7 +453,7 @@ const ViewContract = forwardRef((props) => {
                               {info.workAreaType}
                             </td>
                             <td className="border border-black p-2 text-center">{`${info.workArea} ${info.workAreaUnit}`}</td>
-                            <td className="border border-black p-2 text-center">{`₹ ${info.applyRate} ${info.applyRateUnit}`}</td>
+                            <td className="border border-black p-2 text-center">{`Rs ${info.applyRate} ${info.applyRateUnit}`}</td>
                             <td className="border border-black p-2 text-center">{`${info.chemicalQuantity} Ltr.`}</td>
                             <td className="border border-black p-2 text-center">{`${info.chemicalRate} ${info.chemicalRateUnit}`}</td>
                             <td className="border border-black p-2 text-center">
@@ -492,7 +492,7 @@ const ViewContract = forwardRef((props) => {
                               {info.workAreaType}
                             </td>
                             <td className="border border-black p-2 text-center">{`${info.chemicalQuantity} Ltr.`}</td>
-                            <td className="border border-black p-2 text-center">{`₹ ${info.chemicalRate} ${info.chemicalRateUnit}`}</td>
+                            <td className="border border-black p-2 text-center">{`Rs ${info.chemicalRate} ${info.chemicalRateUnit}`}</td>
                             <td className="border border-black p-2 text-center">
                               {info.chemical}
                             </td>

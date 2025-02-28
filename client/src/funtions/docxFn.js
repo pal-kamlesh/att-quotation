@@ -61,7 +61,7 @@ const createQuoteInfoTableStandard = (quoteInfo) => {
             children: [
               info.workAreaType,
               `${info.workArea} ${info.workAreaUnit}`,
-              `₹ ${info.serviceRate} ${info.serviceRateUnit}`,
+              `Rs ${info.serviceRate} ${info.serviceRateUnit}`,
               info.chemical,
             ].map(
               (text) =>

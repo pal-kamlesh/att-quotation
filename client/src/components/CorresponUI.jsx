@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import {
   Badge,
   Button,
@@ -55,8 +56,9 @@ const dummyFiles = [
     originalName: "quotation_rev2.pdf",
   },
 ];
-const CorresponUI = ({ contractId, quotationId }) => {
+const CorresponUI = ({ contractId = "", quotationId = "" }) => {
   // const { inputData, fetching } = useSelector((state) => state.correspondence);
+  console.log(contractId);
   const [activeTab, setActiveTab] = useState(0);
   const [files, setFiles] = useState(dummyFiles);
   const [isAddFileOpen, setIsAddFileOpen] = useState(false);
@@ -86,9 +88,12 @@ const CorresponUI = ({ contractId, quotationId }) => {
       direction: activeTab === 0 ? "inward" : "outward",
     }));
   }, [activeTab]);
+
   useEffect(() => {
     async function fn() {
-      const resut = await dispatch(getCorrespondence({ contractId }));
+      const resut = await dispatch(
+        getCorrespondence({ contractId, quotationId })
+      );
       const data = await unwrapResult(resut);
       setFiles(data);
     }

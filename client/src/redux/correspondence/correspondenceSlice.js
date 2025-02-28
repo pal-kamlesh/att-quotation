@@ -54,11 +54,19 @@ export const getCorrespondence = createAsyncThunk(
   "correspondence/get",
   async (inputData, { rejectWithValue }) => {
     try {
-      const response = await fetch("/api/v1/correspondence");
+      const response = await fetch("/api/v1/correspondence/get", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json", // Add this line
+        },
+        body: JSON.stringify(inputData), // Convert object to JSON string
+      });
+
       if (!response.ok) {
         const errorData = await response.json();
         return rejectWithValue(errorData);
       }
+
       const result = await response.json();
       return result;
     } catch (error) {
@@ -67,6 +75,7 @@ export const getCorrespondence = createAsyncThunk(
     }
   }
 );
+
 export const correspondenceSlice = createSlice({
   name: "correspondence",
   initialState,

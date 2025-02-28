@@ -58,7 +58,7 @@ const fileSchema = new mongoose.Schema(
       default: "pdf",
     },
   },
-  { _id: false, versionKey: false }
+  { _id: false, versionKey: false, strictPopulate: false }
 );
 
 // Main correspondence schema with enhanced validation

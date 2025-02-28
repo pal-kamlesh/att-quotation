@@ -26,7 +26,7 @@ router.post(
   addFileToCorrespondence
 );
 
-router.get("/", getCorrespondence);
+router.post("/get", getCorrespondence);
 
 router.put("/:correspondenceId/files/:direction/:publicId", updateFile);
 

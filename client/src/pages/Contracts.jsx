@@ -278,14 +278,14 @@ function Contracts() {
                           >
                             Warrenty
                           </Button>
-                          {/* <Button
+                          <Button
                             onClick={() => [
                               setCorrespondModel(true),
                               setActiveId(contract._id),
                             ]}
                           >
                             Manage files
-                          </Button> */}
+                          </Button>
                           <PopUpMorpheus
                             id={contract._id}
                             setQuoteId={setActiveId}

@@ -68,7 +68,7 @@ export const addFileToCorrespondence = async (req, res, next) => {
 // Get Correspondence by Parent ID
 export const getCorrespondence = async (req, res, next) => {
   try {
-    const { quotationId, contractId } = req.params;
+    const { quotationId, contractId } = req.body;
 
     const parent = await validateParentDocument(quotationId, contractId);
     if (!parent) {
@@ -85,6 +85,7 @@ export const getCorrespondence = async (req, res, next) => {
 
     res.json(correspondence);
   } catch (error) {
+    console.log(error);
     next(error);
   }
 };
