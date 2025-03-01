@@ -271,6 +271,7 @@ function Contracts() {
                             </Button>
                           ) : null}
                           <Button
+                            gradientMonochrome="pink"
                             onClick={() => [
                               setWarModel(true),
                               setActiveId(contract._id),
@@ -279,6 +280,7 @@ function Contracts() {
                             Warrenty
                           </Button>
                           <Button
+                            gradientDuoTone="greenToBlue"
                             onClick={() => [
                               setCorrespondModel(true),
                               setActiveId(contract._id),

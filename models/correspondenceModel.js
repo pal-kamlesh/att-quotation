@@ -23,7 +23,6 @@ const fileSchema = new mongoose.Schema(
     },
     category: {
       type: String,
-      enum: ["legal", "technical", "financial", "general"],
       default: "general",
     },
     sender: {
@@ -106,10 +105,10 @@ correspondenceSchema.pre("validate", function (next) {
 });
 
 // Auto-population middleware
-correspondenceSchema.pre(/^find/, function (next) {
-  this.populate("uploadedBy", "name email");
-  next();
-});
+// correspondenceSchema.pre(/^find/, function (next) {
+//   this.populate("uploadedBy", "name email");
+//   next();
+// });
 
 const Correspondence = mongoose.model("Correspondence", correspondenceSchema);
 export default Correspondence;

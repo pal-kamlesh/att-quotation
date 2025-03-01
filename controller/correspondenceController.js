@@ -3,6 +3,7 @@ import Quotation from "../models/quotationModel.js";
 import Contract from "../models/contractModel.js";
 import { cloudinaryService } from "../config/cloudinary.js";
 // Helper function to validate parent document
+
 const validateParentDocument = async (quotationId, contractId) => {
   if (quotationId) {
     const exists = await Quotation.exists({ _id: quotationId });
@@ -17,6 +18,7 @@ const validateParentDocument = async (quotationId, contractId) => {
 
 // Create or Update Correspondence
 export const addFileToCorrespondence = async (req, res, next) => {
+  let uploadFile = null;
   try {
     const { quotationId, contractId, direction } = req.body;
     // Validate input
@@ -34,16 +36,15 @@ export const addFileToCorrespondence = async (req, res, next) => {
     if (!parent) {
       return res.status(404).json({ error: "Parent document not found" });
     }
-    const data = await cloudinaryService.uploadDocument(
+    uploadFile = await cloudinaryService.uploadDocument(
       req.file.buffer,
       quotationId ? quotationId : contractId,
       req.file.originalname
     );
 
-    req.body.url = data.url;
-    req.body.publicId = data.publicId;
+    req.body.url = uploadFile.url;
+    req.body.publicId = uploadFile.publicId;
     req.body.uploadedBy = req.user.username;
-    console.log(req.body);
     // Find or create correspondence
     let correspondence = await Correspondence.findOne({
       [parent.parentField]: parent.parentId,
@@ -59,8 +60,16 @@ export const addFileToCorrespondence = async (req, res, next) => {
     }
 
     await correspondence.save();
-    res.status(201).json(correspondence);
+    res.status(201).json({ result: correspondence });
   } catch (error) {
+    if (uploadFile && uploadFile.publicId) {
+      try {
+        await cloudinaryService.deleteDocument(uploadFile.publicId);
+        console.log(`Cleaned up orphaned file: ${uploadFile.publicId}`);
+      } catch (cleanupError) {
+        console.error("Failed to clean up file:", cleanupError);
+      }
+    }
     next(error);
   }
 };
@@ -69,21 +78,21 @@ export const addFileToCorrespondence = async (req, res, next) => {
 export const getCorrespondence = async (req, res, next) => {
   try {
     const { quotationId, contractId } = req.body;
-
     const parent = await validateParentDocument(quotationId, contractId);
     if (!parent) {
       return res.status(404).json({ error: "Parent document not found" });
     }
-
     const correspondence = await Correspondence.findOne({
       [parent.parentField]: parent.parentId,
     });
 
     if (!correspondence) {
-      return res.status(404).json({ error: "Correspondence not found" });
+      return res
+        .status(200)
+        .json({ message: "No corespondence yet!", result: null });
     }
 
-    res.json(correspondence);
+    res.json({ result: correspondence });
   } catch (error) {
     console.log(error);
     next(error);

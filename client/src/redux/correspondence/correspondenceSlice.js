@@ -46,7 +46,7 @@ export const createCorrespondence = createAsyncThunk(
       return result;
     } catch (error) {
       console.log(error);
-      return rejectWithValue(error.response?.data || error.message);
+      return rejectWithValue(error.response.data);
     }
   }
 );

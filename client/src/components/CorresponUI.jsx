@@ -18,49 +18,49 @@ import {
   getCorrespondence,
 } from "../redux/correspondence/correspondenceSlice";
 import { unwrapResult } from "@reduxjs/toolkit";
-const dummyFiles = [
-  {
-    publicId: "inward_123",
-    type: "inward",
-    title: "Client Purchase Order",
-    date: "2024-03-15T08:00:00Z",
-    category: "financial",
-    description: "Initial purchase order from client",
-    sender: {
-      name: "John Clientman",
-      organization: "ABC Corp",
-      contact: {
-        email: "john@abccorp.com",
-        phone: "+1 234 567 890",
-      },
-    },
-    url: "https://res.cloudinary.com/demo/invoice_123.pdf",
-    originalName: "client_po.pdf",
-  },
-  {
-    publicId: "outward_456",
-    type: "outward",
-    title: "Revised Quotation",
-    date: "2024-03-16T09:30:00Z",
-    category: "technical",
-    description: "Updated technical specifications",
-    sender: {
-      name: "Jane Salesrep",
-      organization: "Your Company",
-      contact: {
-        email: "jane@yourcompany.com",
-        phone: "+1 987 654 321",
-      },
-    },
-    url: "https://res.cloudinary.com/demo/quotation_v2.pdf",
-    originalName: "quotation_rev2.pdf",
-  },
-];
+// const dummyFiles = [
+//   {
+//     publicId: "inward_123",
+//     type: "inward",
+//     title: "Client Purchase Order",
+//     date: "2024-03-15T08:00:00Z",
+//     category: "financial",
+//     description: "Initial purchase order from client",
+//     sender: {
+//       name: "John Clientman",
+//       organization: "ABC Corp",
+//       contact: {
+//         email: "john@abccorp.com",
+//         phone: "+1 234 567 890",
+//       },
+//     },
+//     url: "https://res.cloudinary.com/demo/invoice_123.pdf",
+//     originalName: "client_po.pdf",
+//   },
+//   {
+//     publicId: "outward_456",
+//     type: "outward",
+//     title: "Revised Quotation",
+//     date: "2024-03-16T09:30:00Z",
+//     category: "technical",
+//     description: "Updated technical specifications",
+//     sender: {
+//       name: "Jane Salesrep",
+//       organization: "Your Company",
+//       contact: {
+//         email: "jane@yourcompany.com",
+//         phone: "+1 987 654 321",
+//       },
+//     },
+//     url: "https://res.cloudinary.com/demo/quotation_v2.pdf",
+//     originalName: "quotation_rev2.pdf",
+//   },
+// ];
 const CorresponUI = ({ contractId = "", quotationId = "" }) => {
   // const { inputData, fetching } = useSelector((state) => state.correspondence);
-  console.log(contractId);
   const [activeTab, setActiveTab] = useState(0);
-  const [files, setFiles] = useState(dummyFiles);
+  const [inwardFiles, setInwardFiles] = useState([]);
+  const [outwardFiles, setOutwardFiles] = useState([]);
   const [isAddFileOpen, setIsAddFileOpen] = useState(false);
   const [inputData, setInputData] = useState({
     file: "",
@@ -74,7 +74,7 @@ const CorresponUI = ({ contractId = "", quotationId = "" }) => {
         phone: "",
       },
     },
-    category: "",
+    category: "general",
     description: "",
     title: "",
     quotationId: quotationId ? quotationId : "",
@@ -82,6 +82,7 @@ const CorresponUI = ({ contractId = "", quotationId = "" }) => {
     direction: activeTab === 0 ? "inward" : "outward",
   });
   const dispatch = useDispatch();
+
   useEffect(() => {
     setInputData((prev) => ({
       ...prev,
@@ -95,16 +96,21 @@ const CorresponUI = ({ contractId = "", quotationId = "" }) => {
         getCorrespondence({ contractId, quotationId })
       );
       const data = await unwrapResult(resut);
-      setFiles(data);
+      setInwardFiles(data.result?.inward?.files ?? []);
+      setOutwardFiles(data.result?.outward?.files ?? []);
+      setIsAddFileOpen(false);
     }
     fn();
   }, []);
-  console.log(files);
+
   async function handleFileSubmit() {
     const result = await dispatch(createCorrespondence(inputData));
     const data = await unwrapResult(result);
-    console.log(data);
+    setInwardFiles(data.result?.inward?.files);
+    setOutwardFiles(data.result?.outward?.files);
+    setIsAddFileOpen(false);
   }
+
   const handleChange = (e) => {
     const { name, value, type, checked, files } = e.target;
 
@@ -141,8 +147,6 @@ const CorresponUI = ({ contractId = "", quotationId = "" }) => {
       return newState;
     });
   };
-
-  console.log(inputData);
   return (
     <div>
       <div className="p-4 space-y-6 relative">
@@ -157,12 +161,12 @@ const CorresponUI = ({ contractId = "", quotationId = "" }) => {
               <div className="flex items-center gap-2">
                 <span>Inward Files</span>
                 <Badge color="gray" className="ml-1">
-                  {files.filter((f) => f.type === "inward").length}
+                  {inwardFiles.length}
                 </Badge>
               </div>
             }
           >
-            <FileSection type="inward" files={files} />
+            <FileSection type="inward" files={inwardFiles} />
           </Tabs.Item>
 
           <Tabs.Item
@@ -170,16 +174,20 @@ const CorresponUI = ({ contractId = "", quotationId = "" }) => {
               <div className="flex items-center gap-2">
                 <span>Outward Files</span>
                 <Badge color="gray" className="ml-1">
-                  {files.filter((f) => f.type === "outward").length}
+                  {outwardFiles.length}
                 </Badge>
               </div>
             }
           >
-            <FileSection type="outward" files={files} />
+            <FileSection type="outward" files={outwardFiles} />
           </Tabs.Item>
         </Tabs>
         <div className="flex justify-end absolute top-0 right-0">
-          <Button onClick={() => setIsAddFileOpen(true)}>
+          <Button
+            outline
+            gradientDuoTone="pinkToOrange"
+            onClick={() => setIsAddFileOpen(true)}
+          >
             <HiOutlineUpload className="mr-2 h-5 w-5" />
             Add New File
           </Button>
@@ -215,30 +223,13 @@ const CorresponUI = ({ contractId = "", quotationId = "" }) => {
               <Select
                 label="Category"
                 name="category"
-                value={inputData.category}
+                value={inputData.category} // This controls the selected option
                 onChange={handleChange}
               >
-                <option selected={inputData.category === "legal"} value="legal">
-                  Legal
-                </option>
-                <option
-                  selected={inputData.category === "technical"}
-                  value="technical"
-                >
-                  Technical
-                </option>
-                <option
-                  selected={inputData.category === "financial"}
-                  value="financial"
-                >
-                  Financial
-                </option>
-                <option
-                  selected={inputData.category === "general"}
-                  value="general"
-                >
-                  General
-                </option>
+                <option value="legal">Legal</option>
+                <option value="technical">Technical</option>
+                <option value="financial">Financial</option>
+                <option value="general">General</option>
               </Select>
             </div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -268,9 +259,9 @@ const CorresponUI = ({ contractId = "", quotationId = "" }) => {
                   onChange={handleChange}
                 />
                 <TextInput
-                  name="sender.organization"
-                  value={inputData.organization}
-                  placeholder="Organization"
+                  name="sender.designation:"
+                  value={inputData.designation}
+                  placeholder="Designation:"
                   onChange={handleChange}
                 />
                 <TextInput
