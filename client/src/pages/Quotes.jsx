@@ -38,6 +38,7 @@ import { toast } from "react-toastify";
 import { getDotColor } from "../funtions/funtion";
 import { useNavigate } from "react-router-dom";
 import debounce from "lodash.debounce";
+import CorresponUI from "../components/CorresponUI";
 
 export default function Create() {
   const {
@@ -95,6 +96,7 @@ export default function Create() {
   });
   const [name, setName] = useState("");
   const [nextQuoteNo, setNextQuoteNo] = useState("");
+  const [correspondModel, setCorrespondModel] = useState(false);
   useEffect(() => {
     if (quotations.length <= 0) {
       dispatch(getInitials());
@@ -178,7 +180,7 @@ export default function Create() {
       }
       dispatch(makeContract(id));
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   }
 
@@ -365,6 +367,15 @@ export default function Create() {
                             ]}
                           >
                             View
+                          </Button>
+                          <Button
+                            gradientDuoTone="greenToBlue"
+                            onClick={() => [
+                              setCorrespondModel(true),
+                              setQuoteId(ticket._id),
+                            ]}
+                          >
+                            Manage files
                           </Button>
                           {ticket.approved && ticket.emailTo ? (
                             <Button gradientDuoTone="greenToBlue">Email</Button>
@@ -869,6 +880,18 @@ export default function Create() {
             Submit
           </Button>
         </form>
+      </CustomModal>
+      <CustomModal
+        isOpen={correspondModel}
+        onClose={() => [setCorrespondModel(false)]}
+        size="7xl"
+        heading={
+          <div className="flex items-center justify-center">
+            <span>Manage Correspondence</span>
+          </div>
+        }
+      >
+        <CorresponUI quotationId={quoteId} />
       </CustomModal>
     </div>
   );

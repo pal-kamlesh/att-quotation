@@ -1,8 +1,8 @@
 import { v2 as cloudinary } from "cloudinary";
 import dotenv from "dotenv";
 import { Readable } from "stream";
+import { currentEnv } from "./mongooseConfig.js";
 
-//Genereated using AI
 class CloudinaryService {
   constructor() {
     dotenv.config();
@@ -14,6 +14,9 @@ class CloudinaryService {
       api_key: process.env.CLOUD_KEY,
       api_secret: process.env.CLOUD_SECRET,
     });
+
+    // Determine the base folder based on environment
+    this.baseFolder = currentEnv.includes("localhost") ? "localhost" : "att";
   }
 
   validateEnvironmentVariables(required) {
@@ -25,50 +28,41 @@ class CloudinaryService {
     }
   }
 
-  /**
-   * Uploads a document to Cloudinary
-   * @param {string} filePath - Path to the file to upload
-   * @param {string} id - Unique identifier for the quotation
-   * @param {Object} options - Additional upload options
-   * @returns {Promise<string>} - The secure URL of the uploaded document
-   */
-
   async uploadDocument(input, id, fileName) {
     try {
-      // Determine folder based on file extension
       const fileExtension = fileName.split(".").pop().toLowerCase();
-      const folder = fileExtension === "docx" ? "att/docx" : "att/files";
+      const subFolder = fileExtension === "docx" ? "docx" : "files";
+      const folder = `${this.baseFolder}/${subFolder}`;
 
-      // Create full public ID with folder structure
-      const baseName = fileName.replace(/\.[^/.]+$/, ""); // Remove extension
-      const publicId = `${folder}/${id}/${baseName}`;
+      // Ensure unique file uploads to prevent overwriting
+      const timestamp = Date.now();
+      const publicId = `${folder}/${id}-${timestamp}`; // Appending timestamp for uniqueness
 
       const uploadOptions = {
         resource_type: "auto",
         public_id: publicId,
         overwrite: true,
-        filename_override: fileName, // Preserve original filename in Cloudinary
+        filename_override: fileName,
         use_filename: true,
       };
 
       let response;
 
       if (Buffer.isBuffer(input)) {
-        // Buffer upload with stream
+        // Handle buffer input with stream
         const stream = Readable.from(input);
         response = await new Promise((resolve, reject) => {
           const uploadStream = cloudinary.uploader.upload_stream(
             uploadOptions,
-            (error, result) => {
-              if (error) reject(error);
-              else resolve(result);
-            }
+            (error, result) => (error ? reject(error) : resolve(result))
           );
           stream.pipe(uploadStream);
         });
-      } else {
-        // File path upload
+      } else if (typeof input === "string") {
+        // Handle file path upload
         response = await cloudinary.uploader.upload(input, uploadOptions);
+      } else {
+        throw new Error("Invalid input: must be a file path or buffer.");
       }
 
       return {
@@ -77,27 +71,59 @@ class CloudinaryService {
         format: response.format,
         size: response.bytes,
         createdAt: response.created_at,
-        fullPath: `${response.public_id}.${response.format}`, // Full path with extension
+        fullPath: `${response.public_id}.${response.format}`,
+        resourceType: response.resource_type,
       };
     } catch (error) {
-      console.log(error);
+      console.error("Upload error:", error);
       throw new Error(`Upload failed: ${error.message}`);
     }
   }
 
-  /**
-   * Deletes a document from Cloudinary
-   * @param {string} publicId - Public ID of the document to delete
-   * @returns {Promise<Object>} - Deletion response
-   */
-  async deleteDocument(publicId) {
+  async deleteDocument(publicId, resourceType) {
     if (!publicId) {
       throw new Error("Public ID is required");
     }
+    if (!resourceType) {
+      throw new Error("ResourceType is required to delete!");
+    }
 
     try {
+      // Try to determine resource type if not provided
+      if (resourceType === "auto") {
+        // For files in our folders, they're likely "raw"
+        const baseFilesFolderPattern = new RegExp(
+          `^(${this.baseFolder}/(files|docx))/`
+        );
+        if (baseFilesFolderPattern.test(publicId)) {
+          resourceType = "raw";
+        } else {
+          // Try to get info about the resource to determine its type
+          try {
+            const info = await this.getDocumentInfo(publicId, "image");
+            resourceType = "image";
+          } catch (e) {
+            try {
+              const info = await this.getDocumentInfo(publicId, "raw");
+              resourceType = "raw";
+            } catch (e2) {
+              try {
+                const info = await this.getDocumentInfo(publicId, "video");
+                resourceType = "video";
+              } catch (e3) {
+                throw new Error(
+                  "Could not determine resource type for deletion"
+                );
+              }
+            }
+          }
+        }
+      }
+
+      console.log(`Deleting ${publicId} as resource type: ${resourceType}`);
+
       const response = await cloudinary.uploader.destroy(publicId, {
-        resource_type: "raw",
+        resource_type: resourceType,
         invalidate: true,
       });
 
@@ -109,24 +135,23 @@ class CloudinaryService {
         success: true,
         publicId,
         result: response.result,
+        resourceType,
       };
     } catch (error) {
+      console.error("Delete error:", error);
       throw new Error(`Delete failed: ${error.message}`);
     }
   }
 
-  /**
-   * Extracts the public ID from a Cloudinary URL
-   * @param {string} cloudinaryUrl - The Cloudinary URL
-   * @returns {string} - The extracted public ID
-   */
   extractPublicId(cloudinaryUrl) {
     if (!cloudinaryUrl || typeof cloudinaryUrl !== "string") {
       throw new Error("Valid Cloudinary URL is required");
     }
 
     try {
-      const urlPattern = /\/v\d+\/(.+?)\.\w+$/;
+      // This regex might not handle all Cloudinary URL formats
+      // A more robust approach is to use Cloudinary's native utils
+      const urlPattern = /\/v\d+\/(.+?)(?:\.\w+)?$/;
       const match = cloudinaryUrl.match(urlPattern);
 
       if (!match) {
@@ -139,19 +164,33 @@ class CloudinaryService {
     }
   }
 
-  /**
-   * Gets information about a document
-   * @param {string} publicId - Public ID of the document
-   * @returns {Promise<Object>} - Document information
-   */
-  async getDocumentInfo(publicId) {
+  async getDocumentInfo(publicId, resourceType = "auto") {
     if (!publicId) {
       throw new Error("Public ID is required");
     }
 
+    // If auto, try different resource types
+    if (resourceType === "auto") {
+      const types = ["raw", "image", "video"];
+      let lastError = null;
+
+      for (const type of types) {
+        try {
+          const result = await this.getDocumentInfo(publicId, type);
+          return result;
+        } catch (error) {
+          lastError = error;
+          // Continue to next type
+        }
+      }
+
+      // If we got here, all types failed
+      throw lastError || new Error("Could not find resource with any type");
+    }
+
     try {
       const result = await cloudinary.api.resource(publicId, {
-        resource_type: "raw",
+        resource_type: resourceType,
       });
 
       return {
@@ -161,9 +200,12 @@ class CloudinaryService {
         size: result.bytes,
         createdAt: result.created_at,
         tags: result.tags,
+        resourceType: resourceType,
       };
     } catch (error) {
-      throw new Error(`Failed to get document info: ${error.message}`);
+      throw new Error(
+        `Failed to get document info (${resourceType}): ${error.message}`
+      );
     }
   }
 }

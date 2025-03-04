@@ -6,6 +6,7 @@ import {
   deleteFile,
   deleteCorrespondence,
 } from "../controller/correspondenceController.js";
+
 import { verifyToken } from "../middleware/verifyUser.js";
 
 const router = express.Router();
@@ -30,7 +31,7 @@ router.post("/get", getCorrespondence);
 
 router.put("/:correspondenceId/files/:direction/:publicId", updateFile);
 
-router.delete("/:correspondenceId/files/:direction/:publicId", deleteFile);
+router.post("/:correspondenceId/delete/file", deleteFile);
 
 router.delete("/:correspondenceId", deleteCorrespondence);
 

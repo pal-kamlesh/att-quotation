@@ -85,7 +85,7 @@ function Cards() {
       const result = unwrapResult(actionResult);
       createContractCard(result.result);
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   }
   return (

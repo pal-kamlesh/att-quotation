@@ -21,7 +21,7 @@ const DownloadButtonQuotation = ({ id, color, onClick, text, annexure }) => {
       const data = result.result;
       await generateQuotation(data, annexure);
     } catch (err) {
-      console.log(err);
+      console.error(err);
       setError(err.message);
     } finally {
       setIsLoading(false);

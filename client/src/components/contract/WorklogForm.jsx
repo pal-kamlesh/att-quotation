@@ -43,7 +43,6 @@ function WorklogForm({ id, contract, setWorkLogs, onClose }) {
     const { name, value } = e.target;
     setWorklogObj((prev) => ({ ...prev, [name]: value }));
   }
-  console.log(contract);
   async function handleSubmit() {
     if (validInput) {
       const dispatchAction = await dispatch(createWorklog({ worklogObj, id }));
@@ -61,7 +60,7 @@ function WorklogForm({ id, contract, setWorkLogs, onClose }) {
       });
       onClose();
     } else {
-      console.log("Invalid input, please fill all fields.");
+      toast.error("Invalid input, please fill all fields.");
     }
   }
 

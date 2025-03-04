@@ -12,6 +12,10 @@ const fileSchema = new mongoose.Schema(
       type: String,
       required: [true, "Cloudinary public ID is required"],
     },
+    resourceType: {
+      type: String,
+      required: [true, "Resource type is requried for deletion"],
+    },
     title: {
       type: String,
       required: [true, "Document title is required"],
@@ -57,7 +61,7 @@ const fileSchema = new mongoose.Schema(
       default: "pdf",
     },
   },
-  { _id: false, versionKey: false, strictPopulate: false }
+  { _id: false, versionKey: false, timestamps: true }
 );
 
 // Main correspondence schema with enhanced validation
@@ -82,8 +86,6 @@ const correspondenceSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-    toJSON: { virtuals: true },
-    toObject: { virtuals: true },
     validateBeforeSave: true,
   }
 );

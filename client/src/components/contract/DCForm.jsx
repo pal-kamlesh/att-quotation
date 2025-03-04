@@ -70,7 +70,7 @@ function DCForm({ id, contract, setDCs, onClose }) {
       });
       onClose();
     } else {
-      console.log("Invalid input, please fill all fields.");
+      toast.error("Invalid input, please fill all fields.");
     }
   }
   function addMore() {

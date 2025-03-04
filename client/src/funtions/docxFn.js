@@ -1931,7 +1931,7 @@ const generateQuotation = async (data, annexure) => {
       }.docx`
     );
   } catch (err) {
-    console.log(err);
+    console.error(err);
   }
 };
 const workLogdocx = async (data) => {

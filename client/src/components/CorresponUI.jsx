@@ -5,6 +5,7 @@ import {
   FileInput,
   Modal,
   Select,
+  Spinner,
   Tabs,
   Textarea,
   TextInput,
@@ -18,51 +19,16 @@ import {
   getCorrespondence,
 } from "../redux/correspondence/correspondenceSlice";
 import { unwrapResult } from "@reduxjs/toolkit";
-// const dummyFiles = [
-//   {
-//     publicId: "inward_123",
-//     type: "inward",
-//     title: "Client Purchase Order",
-//     date: "2024-03-15T08:00:00Z",
-//     category: "financial",
-//     description: "Initial purchase order from client",
-//     sender: {
-//       name: "John Clientman",
-//       organization: "ABC Corp",
-//       contact: {
-//         email: "john@abccorp.com",
-//         phone: "+1 234 567 890",
-//       },
-//     },
-//     url: "https://res.cloudinary.com/demo/invoice_123.pdf",
-//     originalName: "client_po.pdf",
-//   },
-//   {
-//     publicId: "outward_456",
-//     type: "outward",
-//     title: "Revised Quotation",
-//     date: "2024-03-16T09:30:00Z",
-//     category: "technical",
-//     description: "Updated technical specifications",
-//     sender: {
-//       name: "Jane Salesrep",
-//       organization: "Your Company",
-//       contact: {
-//         email: "jane@yourcompany.com",
-//         phone: "+1 987 654 321",
-//       },
-//     },
-//     url: "https://res.cloudinary.com/demo/quotation_v2.pdf",
-//     originalName: "quotation_rev2.pdf",
-//   },
-// ];
+import { toast } from "react-toastify";
+import Loading from "./Loading";
+
 const CorresponUI = ({ contractId = "", quotationId = "" }) => {
-  // const { inputData, fetching } = useSelector((state) => state.correspondence);
   const [activeTab, setActiveTab] = useState(0);
   const [inwardFiles, setInwardFiles] = useState([]);
   const [outwardFiles, setOutwardFiles] = useState([]);
+  const [correspondenceId, setCorrespondenceId] = useState("");
   const [isAddFileOpen, setIsAddFileOpen] = useState(false);
-  const [inputData, setInputData] = useState({
+  const initInputData = {
     file: "",
     tags: "",
     sender: {
@@ -80,7 +46,10 @@ const CorresponUI = ({ contractId = "", quotationId = "" }) => {
     quotationId: quotationId ? quotationId : "",
     contractId: contractId ? contractId : "",
     direction: activeTab === 0 ? "inward" : "outward",
-  });
+  };
+  const [inputData, setInputData] = useState(initInputData);
+  const { fetching } = useSelector((state) => state.correspondence);
+  const [geting, setGeting] = useState(false);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -92,13 +61,21 @@ const CorresponUI = ({ contractId = "", quotationId = "" }) => {
 
   useEffect(() => {
     async function fn() {
-      const resut = await dispatch(
-        getCorrespondence({ contractId, quotationId })
-      );
-      const data = await unwrapResult(resut);
-      setInwardFiles(data.result?.inward?.files ?? []);
-      setOutwardFiles(data.result?.outward?.files ?? []);
-      setIsAddFileOpen(false);
+      try {
+        setGeting(true);
+        const resut = await dispatch(
+          getCorrespondence({ contractId, quotationId })
+        );
+        const data = await unwrapResult(resut);
+        setInwardFiles(data.result?.inward?.files ?? []);
+        setOutwardFiles(data.result?.outward?.files ?? []);
+        setCorrespondenceId(data.result._id);
+        setIsAddFileOpen(false);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setGeting(false);
+      }
     }
     fn();
   }, []);
@@ -109,6 +86,19 @@ const CorresponUI = ({ contractId = "", quotationId = "" }) => {
     setInwardFiles(data.result?.inward?.files);
     setOutwardFiles(data.result?.outward?.files);
     setIsAddFileOpen(false);
+    toast.success(data.message);
+    setInputData(initInputData);
+  }
+  function removeFile(activeTab, publicId) {
+    if (activeTab === 0) {
+      setInwardFiles(inwardFiles.filter((file) => file.publicId !== publicId));
+    } else if (activeTab === 1) {
+      setOutwardFiles(
+        outwardFiles.filter((file) => file.publicId !== publicId)
+      );
+    } else {
+      toast.error(`activeId: ${activeTab} is invalid`);
+    }
   }
 
   const handleChange = (e) => {
@@ -147,6 +137,9 @@ const CorresponUI = ({ contractId = "", quotationId = "" }) => {
       return newState;
     });
   };
+  if (geting) {
+    return <Loading />;
+  }
   return (
     <div>
       <div className="p-4 space-y-6 relative">
@@ -166,7 +159,12 @@ const CorresponUI = ({ contractId = "", quotationId = "" }) => {
               </div>
             }
           >
-            <FileSection type="inward" files={inwardFiles} />
+            <FileSection
+              activeTab={activeTab}
+              files={inwardFiles}
+              removeFile={removeFile}
+              correspondenceId={correspondenceId}
+            />
           </Tabs.Item>
 
           <Tabs.Item
@@ -178,8 +176,13 @@ const CorresponUI = ({ contractId = "", quotationId = "" }) => {
                 </Badge>
               </div>
             }
+            disabled
           >
-            <FileSection type="outward" files={outwardFiles} />
+            <FileSection
+              activeTab={activeTab}
+              files={outwardFiles}
+              removeFile={removeFile}
+            />
           </Tabs.Item>
         </Tabs>
         <div className="flex justify-end absolute top-0 right-0">
@@ -213,13 +216,17 @@ const CorresponUI = ({ contractId = "", quotationId = "" }) => {
             />
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <TextInput
+              <Select
                 label="Title"
                 name="title"
-                placeholder="Document title"
                 required
                 onChange={handleChange}
-              />
+                value={inputData.title}
+              >
+                <option></option>
+                <option value="letter">Letter</option>
+                <option value="email">Email</option>
+              </Select>
               <Select
                 label="Category"
                 name="category"
@@ -239,11 +246,11 @@ const CorresponUI = ({ contractId = "", quotationId = "" }) => {
                 placeholder="Document description"
                 value={inputData.description}
                 onChange={handleChange}
-              />
+              ></Textarea>
               <TextInput
                 label="Tags"
                 name="tags"
-                placeholder="Comma saprated Tags"
+                placeholder="Tags (Comma saprated)"
                 value={inputData.tags}
                 onChange={handleChange}
               />
@@ -259,9 +266,9 @@ const CorresponUI = ({ contractId = "", quotationId = "" }) => {
                   onChange={handleChange}
                 />
                 <TextInput
-                  name="sender.designation:"
+                  name="sender.designation"
                   value={inputData.designation}
-                  placeholder="Designation:"
+                  placeholder="Designation"
                   onChange={handleChange}
                 />
                 <TextInput
@@ -282,7 +289,9 @@ const CorresponUI = ({ contractId = "", quotationId = "" }) => {
           </div>
         </Modal.Body>
         <Modal.Footer>
-          <Button onClick={handleFileSubmit}>Upload File</Button>
+          <Button onClick={handleFileSubmit}>
+            {fetching ? <Spinner /> : "Upload File"}
+          </Button>
           <Button color="gray" onClick={() => setIsAddFileOpen(false)}>
             Cancel
           </Button>

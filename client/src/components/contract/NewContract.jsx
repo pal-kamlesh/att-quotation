@@ -107,7 +107,6 @@ function NewContract({ onClose }) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedGroup]);
-  console.log(contract);
   function handleDocType(e) {
     if (contract.quoteInfo.length <= 0) {
       const { value } = e.target;

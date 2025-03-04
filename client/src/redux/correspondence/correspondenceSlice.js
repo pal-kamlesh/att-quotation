@@ -1,4 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { toast } from "react-toastify";
 
 const initialState = {
   inputData: {},
@@ -75,6 +76,35 @@ export const getCorrespondence = createAsyncThunk(
     }
   }
 );
+export const deleteDocument = createAsyncThunk(
+  "document/delete",
+  async (inputData, { rejectWithValue }) => {
+    const { file, correspondenceId } = inputData;
+    try {
+      const response = await fetch(
+        `/api/v1/correspondence/${correspondenceId}/delete/file`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json", // Add this line
+          },
+          body: JSON.stringify(file), // Convert object to JSON string
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        return rejectWithValue(errorData);
+      }
+
+      const result = await response.json();
+      return result;
+    } catch (error) {
+      console.log(error);
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
 
 export const correspondenceSlice = createSlice({
   name: "correspondence",
@@ -88,8 +118,9 @@ export const correspondenceSlice = createSlice({
       .addCase(createCorrespondence.fulfilled, (state) => {
         state.fetching = false;
       })
-      .addCase(createCorrespondence.rejected, (state) => {
+      .addCase(createCorrespondence.rejected, (state, { payload }) => {
         state.fetching = false;
+        toast.error(payload.message);
       })
       .addCase(getCorrespondence.pending, (state) => {
         state.fetching = true;
@@ -97,8 +128,9 @@ export const correspondenceSlice = createSlice({
       .addCase(getCorrespondence.fulfilled, (state) => {
         state.fetching = false;
       })
-      .addCase(getCorrespondence.rejected, (state) => {
+      .addCase(getCorrespondence.rejected, (state, { payload }) => {
         state.fetching = false;
+        toast.error(payload.message);
       });
   },
 });

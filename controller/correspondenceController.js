@@ -16,7 +16,6 @@ const validateParentDocument = async (quotationId, contractId) => {
   return null;
 };
 
-// Create or Update Correspondence
 export const addFileToCorrespondence = async (req, res, next) => {
   let uploadFile = null;
   try {
@@ -25,26 +24,26 @@ export const addFileToCorrespondence = async (req, res, next) => {
     if (!quotationId && !contractId) {
       return res
         .status(400)
-        .json({ error: "Either quotationId or contractId is required" });
+        .json({ message: "Either quotationId or contractId is required" });
     }
     if (!["inward", "outward"].includes(direction)) {
-      return res.status(400).json({ error: "Invalid direction" });
+      return res.status(400).json({ message: "Invalid direction" });
     }
 
     // Validate parent document exists
     const parent = await validateParentDocument(quotationId, contractId);
     if (!parent) {
-      return res.status(404).json({ error: "Parent document not found" });
+      return res.status(404).json({ message: "Parent document not found" });
     }
     uploadFile = await cloudinaryService.uploadDocument(
       req.file.buffer,
       quotationId ? quotationId : contractId,
       req.file.originalname
     );
-
     req.body.url = uploadFile.url;
     req.body.publicId = uploadFile.publicId;
     req.body.uploadedBy = req.user.username;
+    req.body.resourceType = uploadFile.resourceType;
     // Find or create correspondence
     let correspondence = await Correspondence.findOne({
       [parent.parentField]: parent.parentId,
@@ -53,23 +52,27 @@ export const addFileToCorrespondence = async (req, res, next) => {
     if (!correspondence) {
       correspondence = new Correspondence({
         [parent.parentField]: parent.parentId,
-        [direction]: { files: [req.body] },
+        [direction]: { files: [{ ...req.body }] },
       });
     } else {
       correspondence[direction].files.push(req.body);
     }
 
     await correspondence.save();
-    res.status(201).json({ result: correspondence });
+    res.status(201).json({ message: "File uploaded", result: correspondence });
   } catch (error) {
     if (uploadFile && uploadFile.publicId) {
       try {
-        await cloudinaryService.deleteDocument(uploadFile.publicId);
+        await cloudinaryService.deleteDocument(
+          uploadFile.publicId,
+          uploadFile.resourceType
+        );
         console.log(`Cleaned up orphaned file: ${uploadFile.publicId}`);
       } catch (cleanupError) {
-        console.error("Failed to clean up file:", cleanupError);
+        throw new Error(`Failed to clean up file: ${cleanupError}`);
       }
     }
+    console.error(error);
     next(error);
   }
 };
@@ -94,7 +97,7 @@ export const getCorrespondence = async (req, res, next) => {
 
     res.json({ result: correspondence });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     next(error);
   }
 };
@@ -137,25 +140,40 @@ export const updateFile = async (req, res, next) => {
 // Delete File
 export const deleteFile = async (req, res) => {
   try {
-    const { correspondenceId, direction, publicId } = req.params;
+    const { direction, publicId, resourceType } = req.body;
+    const { correspondenceId } = req.params;
 
-    const result = await Correspondence.findOneAndUpdate(
-      { _id: correspondenceId },
-      {
-        $pull: {
-          [`${direction}.files`]: { publicId: publicId },
-        },
-      },
-      { new: true }
-    );
-
-    if (!result) {
-      return res.status(404).json({ error: "Correspondence not found" });
+    if (!correspondenceId || !direction || !publicId || !resourceType) {
+      return res.status(400).json({ error: "Missing required parameters" });
     }
 
-    res.json(result);
+    const updatedDocument = await Correspondence.findOneAndUpdate(
+      { _id: correspondenceId },
+      { $pull: { [`${direction}.files`]: { publicId } } },
+      { new: true, projection: { _id: 1 } }
+    ).lean(); // Improves read performance
+
+    if (!updatedDocument) {
+      return res
+        .status(404)
+        .json({ error: "Correspondence not found or file does not exist" });
+    }
+
+    try {
+      await cloudinaryService.deleteDocument(publicId, resourceType);
+    } catch (cloudinaryError) {
+      console.error("Cloudinary deletion error:", cloudinaryError);
+      return res.status(500).json({
+        error: "File deleted from DB but failed to remove from Cloudinary",
+      });
+    }
+
+    res.json({ message: "File successfully deleted", correspondenceId });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Error deleting file:", error);
+    res
+      .status(500)
+      .json({ error: "An internal error occurred while deleting the file" });
   }
 };
 
@@ -168,6 +186,10 @@ export const deleteCorrespondence = async (req, res) => {
     if (!result) {
       return res.status(404).json({ error: "Correspondence not found" });
     }
+
+    /* Also Delete,
+       Remaing images form cloudianry
+    */
 
     res.json({ message: "Correspondence deleted successfully" });
   } catch (error) {
