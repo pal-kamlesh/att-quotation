@@ -15,17 +15,11 @@ import {
   generateAndSendReport,
   manageWarrantyCounter,
   manageDcCounter,
-  createExcelBuilder,
   getStatsForEmail,
-  generateAndSendReport2,
   removeIdFromDocuments,
 } from "../utils/functions.js";
 import Warranty from "../models/warrantyModel.js";
-import {
-  createHeader,
-  sendExel,
-  createExcelBuilder1,
-} from "../utils/modules.js";
+
 import dayjs from "dayjs";
 
 const create = async (req, res, next) => {

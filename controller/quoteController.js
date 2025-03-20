@@ -10,9 +10,7 @@ import {
 import { Groups } from "../models/counterModel.js";
 import QuotationGenerator from "../utils/documentRelated.js";
 import { cloudinaryService } from "../config/cloudinary.js";
-import { sendEmailToClient } from "../utils/emailService.js";
-import path from "path";
-import fs from "fs";
+import { sendReminderEmailToClient15DaysInterval } from "../utils/emailService.js";
 
 const create = async (req, res, next) => {
   try {
@@ -470,7 +468,7 @@ const deletedQuote = async (req, res, next) => {
   }
 };
 
-const sendEmail = async (req, res, next) => {
+const sendReminderEmail15DayInterval = async (req, res, next) => {
   const generator = new QuotationGenerator();
   try {
     const today = new Date();
@@ -496,26 +494,14 @@ const sendEmail = async (req, res, next) => {
         }
 
         const { buffer, fileName } = await generator.generateQuotation(data);
-        const uploadDir = path.join(process.cwd(), "uploads");
-
-        // Ensure the directory exists
-        await fs.promises.mkdir(uploadDir, { recursive: true });
-
-        // Sanitize file names to avoid spaces & special characters
-        const safeFileName = fileName.replace(/[^a-zA-Z0-9.-]/g, "_");
-        const filePath = path.join(uploadDir, safeFileName);
-
-        // Write the file
-        await fs.promises.writeFile(filePath, buffer);
 
         // Upload the file to Cloudinary
         const uploadResult = await cloudinaryService.uploadDocument(
-          filePath,
-          quotationId
+          buffer,
+          quotationId,
+          fileName
         );
 
-        // Delete the file after successful upload
-        await fs.promises.unlink(filePath);
         //get simler three projects
         const similerQuote = await findSimilarQuotations(quotationId, 3);
         const params = {
@@ -529,7 +515,7 @@ const sendEmail = async (req, res, next) => {
           similerPrject3: similerQuote[2].billToAddress.name,
           similerPrject3Area: `${similerQuote[2].quoteInfo[0].workArea} ${similerQuote[2].quoteInfo[0].workAreaUnit}`,
         };
-        await sendEmailToClient(params);
+        await sendReminderEmailToClient15DaysInterval(params);
 
         const nextEmailDate = new Date();
         nextEmailDate.setDate(nextEmailDate.getDate() + 15);
@@ -570,5 +556,5 @@ export {
   getAllGroup,
   getGroupData,
   deletedQuote,
-  sendEmail,
+  sendReminderEmail15DayInterval,
 };

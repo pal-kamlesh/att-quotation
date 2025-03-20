@@ -13,8 +13,9 @@ import {
   getAllGroup,
   getGroupData,
   deletedQuote,
-  sendEmail,
+  sendReminderEmail15DayInterval,
 } from "../controller/quoteController.js";
+
 import { verifyToken } from "../middleware/verifyUser.js";
 
 const router = Router();
@@ -31,6 +32,6 @@ router.get("/docx/:id", verifyToken, docData);
 router.get("/approve/:id", verifyToken, approving);
 router.get("/archive/:id", verifyToken, getArchive);
 router.delete("/delete/:id", verifyToken, deletedQuote);
-router.get("/bro/:id/sendEmail", sendEmail);
+router.get("/reminder/sendEmail", sendReminderEmail15DayInterval);
 
 export default router;

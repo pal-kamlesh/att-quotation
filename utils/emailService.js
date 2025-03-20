@@ -1,6 +1,6 @@
 import brevo from "@getbrevo/brevo";
 
-export const sendEmailToClient = async (params) => {
+export const sendReminderEmailToClient15DaysInterval = async (params) => {
   try {
     // Set up Brevo client
     let defaultClient = brevo.ApiClient.instance;

@@ -19,24 +19,29 @@ const app = express();
 // Make multer middleware available to route
 app.locals.upload = upload;
 
+//dev logging
+if (process.env.NODE_ENV !== "production") {
+  app.use(
+    morgan(function (tokens, req, res) {
+      return [
+        tokens.method(req, res),
+        tokens.url(req, res),
+        tokens.status(req, res),
+        tokens.res(req, res, "content-length"),
+        "-",
+        tokens["response-time"](req, res),
+        "ms",
+      ].join(" ");
+    })
+  );
+}
+
 //Root Middleware
-app.use(
-  morgan(function (tokens, req, res) {
-    return [
-      tokens.method(req, res),
-      tokens.url(req, res),
-      tokens.status(req, res),
-      tokens.res(req, res, "content-length"),
-      "-",
-      tokens["response-time"](req, res),
-      "ms",
-    ].join(" ");
-  })
-);
 app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
 
+//API Routes
 app.use("/api/v1", rootRouter);
 
 (function fn() {

@@ -95,6 +95,7 @@ function Contracts() {
     dispatch,
     navigate,
   ]);
+
   const handleScroll = useCallback(() => {
     const scrollTop = window.scrollY;
     const windowHeight = window.innerHeight;
@@ -286,7 +287,7 @@ function Contracts() {
                               setActiveId(contract._id),
                             ]}
                           >
-                            Manage files
+                            Files/Emails
                           </Button>
                           <PopUpMorpheus
                             id={contract._id}
